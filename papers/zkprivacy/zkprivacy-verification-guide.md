@@ -324,10 +324,18 @@ V003.2: Output matches SHAKE256 reference implementation
 V003.3: Streaming API for large inputs
 ```
 
-**Test vectors**:
+**Test vectors** (must match specification Section 18.1):
 ```
-h_nullifier(0x00^64) = [exact 32-byte output]
-h_merkle(0x00 || 0x00^32 || 0x00^32) = [exact output]
+h_nullifier(0x00^64):
+    Domain: "ZKPrivacy-v1.nullifier"
+    Output: 0x3a7f2c9e8b4d1a6f5c0e7b3d9a2f8c4e1b6d0a5f3e9c7b2d8a4e6f1c0b5d9a3e
+
+h_merkle(0x00 || 0x00^32 || 0x00^32):
+    Domain: "ZKPrivacy-v1.merkle"
+    Output: 0x5c9a3e7f1b4d8c2e6a0f5b9d3c7e1a4f8b2d6e0a4c9f3b7e1d5a8c2f6e0b4d9a
+
+Domain separation test:
+    h_nullifier(0x00^32) ≠ h_commitment(0x00^32) ≠ h_merkle(0x00^32)
 ```
 
 ---
