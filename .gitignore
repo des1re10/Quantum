@@ -1,0 +1,48 @@
+# Quantum - Git Ignore
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-*
+
+# Build outputs (if LaTeX is added later)
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+
+# Python (for local testing)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.env
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Generated PDFs (if we want to track source only)
+# papers/**/*.pdf
+
+# Local development
+.cache/
