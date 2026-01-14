@@ -15,7 +15,7 @@
 
 ## Project Overview
 
-**Quantum** is Phexora's research initiative for post-quantum cryptography. This repository hosts research papers, specifications, and documentation for cryptographic protocols designed to be secure against quantum computer attacks.
+**Quantum** is Phexora AI's research initiative for post-quantum cryptography. This repository hosts research papers, specifications, and documentation for cryptographic protocols designed to be secure against quantum computer attacks.
 
 ### Current Papers
 
@@ -40,11 +40,11 @@ This is a **static documentation website**, NOT a full-stack application:
 Frontend:
   Type: Static HTML/CSS
   Framework: None (vanilla)
-  Styling: Custom CSS (dark theme)
+  Styling: Custom CSS (light academic theme)
 
 Papers:
-  Format: Markdown
-  Future: LaTeX for PDF generation
+  Format: Markdown with YAML frontmatter
+  PDF Generation: DocWizard-Pro (Pandoc-based)
 
 Hosting:
   Server: Nginx (static files)
@@ -178,15 +178,17 @@ Papers are written in Markdown for:
 
 ### Brand Colors
 
-- **Background**: Dark (#0a0a0f, #12121a)
-- **Primary Accent**: Indigo (#6366f1)
-- **Secondary Accent**: Purple (#8b5cf6)
-- **Tertiary Accent**: Cyan (#06b6d4)
-- **Text**: Light grays (#e8e8f0, #a0a0b0)
+- **Background**: Light (#ffffff, #f8f9fa)
+- **Primary Accent**: RoyalBlue (#4169E1)
+- **Secondary Accent**: Light Blue (#5a7fd4)
+- **Tertiary Accent**: Dark Blue (#2c4a8c)
+- **Text**: Dark grays (#1a1a2e, #4a4a5a)
+- **Borders**: Light gray (#dee2e6)
 
 ### Typography
 
 - **Headings**: Inter (sans-serif)
+- **Body Text**: Crimson Pro (serif)
 - **Code/Technical**: JetBrains Mono (monospace)
 
 ### Content Principles

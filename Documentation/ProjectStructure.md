@@ -1,6 +1,6 @@
 # Quantum - Project Structure
 
-Post-Quantum Cryptography Research by Phexora.
+Post-Quantum Cryptography Research by Phexora AI.
 
 **URL**: https://quantum.phexora.ai
 

@@ -1,6 +1,6 @@
 # Quantum
 
-**Post-Quantum Cryptography Research by Phexora**
+**Post-Quantum Cryptography Research by Phexora AI**
 
 [![Website](https://img.shields.io/badge/Website-quantum.phexora.ai-6366f1)](https://quantum.phexora.ai)
 [![License](https://img.shields.io/badge/License-CC0-success)](https://creativecommons.org/publicdomain/zero/1.0/)
@@ -9,7 +9,7 @@
 
 ## Overview
 
-Quantum is Phexora's research initiative focused on developing cryptographic protocols that remain secure against quantum computer attacks. Our approach combines established post-quantum primitives (NIST-standardized algorithms) with innovative protocol design.
+Quantum is Phexora AI's research initiative focused on developing cryptographic protocols that remain secure against quantum computer attacks. Our approach combines established post-quantum primitives (NIST-standardized algorithms) with innovative protocol design.
 
 ## Research Papers
 
@@ -86,9 +86,9 @@ You are free to:
 - Use it for commercial purposes
 - Without asking permission
 
-## About Phexora
+## About Phexora AI
 
-[Phexora](https://phexora.ai) is a technology company focused on privacy-preserving solutions and blockchain technology.
+[Phexora AI](https://phexora.ai) is a technology company focused on privacy-preserving solutions and blockchain technology.
 
 ---
 

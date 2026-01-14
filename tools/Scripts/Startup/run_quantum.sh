@@ -11,18 +11,23 @@
 # ============================================================================
 PROJECT_NAME="Quantum"
 
+# Resolve paths dynamically from script location
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Script is in tools/Scripts/Startup/, so project root is 3 levels up
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+# Parent directory contains Libraries folder
+PARENT_DIR="$(cd "$PROJECT_DIR/.." && pwd)"
+
 # Determine deployment target from environment or default to main
 DEPLOY_TARGET="${DEPLOY_TARGET:-main}"
 
 if [ "$DEPLOY_TARGET" == "main" ]; then
-    PROJECT_DIR="/home/des1re10/Quantum/Quantum"
     WEB_ROOT="/var/www/quantum"
     DOMAIN="quantum.phexora.ai"
     NGINX_CONFIG_NAME="quantum.conf"
     MAINTENANCE_PAGE="/var/www/html/maintenance_quantum.html"
     MAINTENANCE_PAGE_FILENAME="maintenance_quantum.html"
 else
-    PROJECT_DIR="/home/des1re10/QuantumTest/Quantum"
     WEB_ROOT="/var/www/quantum-test"
     DOMAIN="test.quantum.phexora.ai"
     NGINX_CONFIG_NAME="quantum-test.conf"
@@ -34,7 +39,7 @@ NGINX_SITES_AVAILABLE="/etc/nginx/sites-available"
 NGINX_SITES_ENABLED="/etc/nginx/sites-enabled"
 SSL_CERT="/etc/letsencrypt/live/$DOMAIN/fullchain.pem"
 SSL_KEY="/etc/letsencrypt/live/$DOMAIN/privkey.pem"
-LIBRARIES_PATH="/home/des1re10/Quantum/Libraries/Python"
+LIBRARIES_PATH="$PARENT_DIR/Libraries/Python"
 
 # Fix own line endings (handles Windows CRLF -> Unix LF)
 sed -i 's/\r$//' "$PROJECT_DIR/tools/Scripts/Startup/$(basename "$0")" 2>/dev/null || true
@@ -50,7 +55,7 @@ echo "Domain: $DOMAIN"
 # ============================================================================
 # LOAD COMMON FUNCTIONS (REQUIRED)
 # ============================================================================
-COMMON_FUNCTIONS="/home/des1re10/Quantum/Libraries/Scripts/common_functions.sh"
+COMMON_FUNCTIONS="$PARENT_DIR/Libraries/Scripts/common_functions.sh"
 
 if [ ! -f "$COMMON_FUNCTIONS" ]; then
     echo "FATAL: common_functions.sh not found at $COMMON_FUNCTIONS"

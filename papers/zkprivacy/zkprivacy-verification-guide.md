@@ -1,3 +1,56 @@
+---
+mainfont: Calibri
+fontsize: 11pt
+colorlinks: true
+geometry: margin=2.5cm
+documentclass: article
+toc-title: Table of Contents
+linkcolor: RoyalBlue
+header-includes:
+  - \usepackage{graphicx}
+  - \usepackage{titlesec}
+  - \titleformat{\section}{\normalfont\Large\bfseries\color{RoyalBlue}}{}{0em}{}
+  - \titleformat{\subsection}{\normalfont\large\bfseries\color{RoyalBlue}}{}{0em}{}
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancyhead[L]{ZKPrivacy Verification Guide}
+  - \fancyhead[R]{\thepage}
+  - \fancyfoot[C]{}
+  - \usepackage{xcolor}
+  - \definecolor{RoyalBlue}{RGB}{65,105,225}
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{listings}
+  - \lstset{basicstyle=\small\ttfamily,breaklines=true,frame=single}
+---
+
+\pagenumbering{gobble}
+
+\begin{titlepage}
+\centering
+\vspace*{3cm}
+{\Huge\bfseries ZKPrivacy \par}
+\vspace{0.5cm}
+{\Large AI Implementation \& Verification Guide\par}
+\vspace{1cm}
+{\large Version 1.0\par}
+\vspace{2cm}
+{\large Draft -- January 2026\par}
+\vspace{2cm}
+\textbf{Phexora AI}\\
+\texttt{https://quantum.phexora.ai}
+\vfill
+{\small Companion document to the ZKPrivacy Technical Specification.\\
+Designed for AI-assisted implementation and verification.}
+\end{titlepage}
+
+\clearpage
+\pagenumbering{roman}
+\tableofcontents
+
+\clearpage
+\pagenumbering{arabic}
+
 # ZKPrivacy: AI Implementation & Verification Guide
 
 ## Purpose
