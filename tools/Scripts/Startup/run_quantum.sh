@@ -194,10 +194,12 @@ else
 fi
 
 # ============================================================================
-# CHECK SSL CERTIFICATE
+# CHECK SSL CERTIFICATE (using DNS challenge for NoIP)
 # ============================================================================
 echo ""
 echo "[3/6] Checking SSL certificate..."
+
+SSL_SETUP_SCRIPT="$PARENT_DIR/Libraries/Scripts/setup_subdomain_ssl.sh"
 
 cert_valid=false
 cert_status="missing"
@@ -221,22 +223,33 @@ if [ "$cert_valid" = false ] && [ "$AUTO_DEPLOY" != "1" ]; then
     echo ""
     echo "  Attempting to obtain/renew SSL certificate..."
 
-    # Ensure certbot is installed
-    if ! command -v certbot &> /dev/null; then
-        echo "  Installing certbot..."
-        run_sudo apt update
-        run_sudo apt install -y certbot python3-certbot-nginx
-    fi
-
-    # Try to get certificate
-    if run_sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --email robert-ledwig@outlook.com 2>/dev/null; then
-        cert_valid=true
-        cert_status="valid"
-        echo "  SSL certificate obtained successfully"
+    if [ -f "$SSL_SETUP_SCRIPT" ]; then
+        chmod +x "$SSL_SETUP_SCRIPT"
+        # Use --cert-only mode since we have custom nginx config
+        if "$SSL_SETUP_SCRIPT" --cert-only quantum phexora.ai; then
+            if run_sudo test -r "$SSL_CERT"; then
+                cert_valid=true
+                cert_status="valid"
+                echo "  SSL certificate obtained successfully"
+            fi
+        else
+            echo "  Could not obtain SSL certificate - using HTTP-only config"
+        fi
     else
-        echo "  Could not obtain SSL certificate - using HTTP-only config"
-        echo "  You may need to run certbot manually:"
-        echo "  sudo certbot --nginx -d $DOMAIN"
+        echo "  Warning: SSL setup script not found at $SSL_SETUP_SCRIPT"
+        # Fallback: ensure certbot is installed and try nginx plugin
+        if ! command -v certbot &> /dev/null; then
+            echo "  Installing certbot..."
+            run_sudo apt update
+            run_sudo apt install -y certbot python3-certbot-nginx
+        fi
+        if run_sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --email robert-ledwig@outlook.com 2>/dev/null; then
+            cert_valid=true
+            cert_status="valid"
+            echo "  SSL certificate obtained successfully"
+        else
+            echo "  Could not obtain SSL certificate - using HTTP-only config"
+        fi
     fi
 elif [ "$cert_valid" = false ] && [ "$AUTO_DEPLOY" == "1" ]; then
     echo "  [AUTO_DEPLOY] Skipping SSL auto-renewal (run manually if needed)"
@@ -416,9 +429,14 @@ if ! run_sudo nginx -t; then
 fi
 echo "  Nginx configuration OK"
 
-# Reload nginx
-run_sudo systemctl reload nginx
-echo "  Nginx reloaded"
+# Start nginx if not running, otherwise reload
+if ! run_sudo systemctl is-active --quiet nginx; then
+    run_sudo systemctl start nginx
+    echo "  Nginx started (was not running)"
+else
+    run_sudo systemctl reload nginx
+    echo "  Nginx reloaded"
+fi
 
 # ============================================================================
 # SSL CERTIFICATE MONITOR
