@@ -226,7 +226,7 @@ if [ "$cert_valid" = false ] && [ "$AUTO_DEPLOY" != "1" ]; then
     if [ -f "$SSL_SETUP_SCRIPT" ]; then
         chmod +x "$SSL_SETUP_SCRIPT"
         # Use --cert-only mode since we have custom nginx config
-        if "$SSL_SETUP_SCRIPT" --cert-only quantum phexora.ai; then
+        if "$SSL_SETUP_SCRIPT" --cert-only --skip-if-valid quantum phexora.ai; then
             if run_sudo test -r "$SSL_CERT"; then
                 cert_valid=true
                 cert_status="valid"
