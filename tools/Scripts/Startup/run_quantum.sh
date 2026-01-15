@@ -224,6 +224,8 @@ if [ "$cert_valid" = false ] && [ "$AUTO_DEPLOY" != "1" ]; then
     echo "  Attempting to obtain/renew SSL certificate..."
 
     if [ -f "$SSL_SETUP_SCRIPT" ]; then
+        # Fix line endings and make executable
+        sed -i 's/\r$//' "$SSL_SETUP_SCRIPT" 2>/dev/null || true
         chmod +x "$SSL_SETUP_SCRIPT"
         # Use --cert-only mode since we have custom nginx config
         if "$SSL_SETUP_SCRIPT" --cert-only --skip-if-valid quantum phexora.ai; then
