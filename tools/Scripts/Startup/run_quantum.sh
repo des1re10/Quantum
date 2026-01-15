@@ -12,7 +12,13 @@
 PROJECT_NAME="Quantum"
 
 # Resolve paths dynamically from script location
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Use readlink -f to properly resolve symlinks (e.g., when run from ~/Desktop/Run scripts/)
+SCRIPT_PATH="${BASH_SOURCE[0]}"
+if [ -L "$SCRIPT_PATH" ]; then
+    SCRIPT_DIR="$(dirname "$(readlink -f "$SCRIPT_PATH")")"
+else
+    SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
+fi
 # Script is in tools/Scripts/Startup/, so project root is 3 levels up
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 # Parent directory contains Libraries folder
