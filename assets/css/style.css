@@ -299,6 +299,35 @@ body {
     font-weight: 600;
 }
 
+.snowden-quote {
+    display: block;
+    max-width: 700px;
+    margin: 0 auto 2.5rem auto;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, rgba(65, 105, 225, 0.05), rgba(65, 105, 225, 0.02));
+    border-left: 4px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.snowden-quote p {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+}
+
+.snowden-quote cite {
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-style: normal;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
 .about-content {
     max-width: 1000px;
     margin: 0 auto;
