@@ -607,7 +607,7 @@ This MUST be enforced at consensus level.
 ```
 Once a transaction is confirmed with sufficient depth,
     it MUST be computationally infeasible to reverse.
-Reorganizations MUST follow the heaviest chain rule.
+DAG ordering MUST follow GhostDAG rules (highest blue score wins).
 ```
 
 ---
@@ -1575,27 +1575,28 @@ struct Block {
 }
 ```
 
-### 11.5 Block Validation
+### 11.5 Block Validation (DAG)
 
 ```
-ValidateBlock(block, chain_state):
-    1. Check header.previous_hash == chain_state.tip_hash
-    2. Check header.pow_valid()
-    3. Check header.timestamp > median(last 11 timestamps)
-    4. Check header.timestamp < current_time + 2 hours
-    5. Check header.difficulty == AdjustDifficulty(chain_state)
-    
-    6. For each transaction tx in block.transactions:
-           a. Check tx.anchor is recent (within last 100 blocks)
+ValidateBlock(block, dag_state):
+    1. Check all header.parent_hashes exist in DAG
+    2. Check header.num_parents matches parent_hashes.len()
+    3. Check header.pow_valid()
+    4. Check header.timestamp > max(parent timestamps)
+    5. Check header.timestamp < current_time + 2 hours
+    6. Check header.blue_score is valid per GhostDAG rules
+
+    7. For each transaction tx in block.transactions:
+           a. Check tx.anchor references valid DAG block
            b. Check all nullifiers are not in nullifier set
            c. Verify tx.validity_proof
            d. Verify tx.authorization signature
-    
-    7. Check header.merkle_root == MerkleRoot(block.transactions)
-    8. Check header.output_tree_root == updated output tree root
-    9. Check header.nullifier_set_root == updated nullifier set root
-    
-    10. Return accept/reject
+
+    8. Check header.merkle_root == MerkleRoot(block.transactions)
+    9. Check header.output_tree_root == updated output tree root
+    10. Check header.nullifier_set_root == updated nullifier set root
+
+    11. Return accept/reject
 ```
 
 ---
@@ -1713,21 +1714,28 @@ Stem peers: 2 outbound connections designated as stem
 ### 14.1 Chain State
 
 ```
-struct ChainState {
-    // Current chain tip
-    tip_hash: [u8; 32],
-    height: u64,
+struct DAGState {
+    // Virtual selected parent chain (VSPC) tip
+    virtual_selected_parent: [u8; 32],
+
+    // All current DAG tips (blocks with no children)
+    tips: HashSet<[u8; 32]>,
+
+    // Blue score of highest-scoring block
+    max_blue_score: u64,
+
+    // Cumulative PoW weight
     cumulative_difficulty: U256,
-    
+
     // Output tree (append-only Merkle tree)
     output_tree: MerkleTree,
     output_count: u64,
-    
+
     // Nullifier set (for double-spend prevention)
     nullifier_set: HashSet<[u8; 32]>,
-    
+
     // Recent block headers (for anchor validation)
-    recent_headers: VecDeque<BlockHeader>,  // Last 100
+    recent_headers: VecDeque<BlockHeader>,  // Last 100 in VSPC
 }
 ```
 
@@ -1756,9 +1764,9 @@ Nullifiers:
     Key: "nullifier:" || nullifier
     Value: (empty, presence is sufficient)
 
-Chain state:
-    Key: "state:tip"
-    Value: Serialized ChainState
+DAG state:
+    Key: "state:dag"
+    Value: Serialized DAGState
 ```
 
 ---
@@ -2293,11 +2301,13 @@ Genesis message (encoded in first 80 bytes):
 struct GenesisBlock {
     header: BlockHeader {
         version: 1,
-        previous_hash: [0u8; 32],
+        parent_hashes: vec![],           // No parents (DAG root)
+        num_parents: 0,
+        blue_score: 0,                   // Genesis has blue_score 0
         merkle_root: [0u8; 32],
         output_tree_root: [0u8; 32],
         nullifier_set_root: [0u8; 32],
-        timestamp: 1767225600,
+        timestamp: 1767225600,           // TBD: launch timestamp
         difficulty: GENESIS_DIFFICULTY,
         nonce: 0,
     },
@@ -2306,7 +2316,7 @@ struct GenesisBlock {
 
 // Genesis block is validated specially:
 // - No PoW check (nonce = 0 is accepted)
-// - No previous block check
+// - No parent blocks required (DAG root)
 // - Empty transaction list is valid
 // - First mined block (height 1) follows normal rules
 ```
@@ -2429,15 +2439,20 @@ Breakdown:
     - Lattice commitments: ~13 KB per output
     - Kyber ciphertext: ~1.5 KB per output
 
-Impact:
-    - Higher bandwidth requirements
-    - Larger blockchain storage
-    - ~10 TPS limit with 2 MB blocks
+Impact with DAG (10-32 blocks/second):
+    - Higher bandwidth requirements (~1.7 GB/sec at 1000 TPS)
+    - Larger blockchain storage (~5.5 TB/year at 1000 TPS)
+    - Requires high-bandwidth nodes for full validation
+
+DAG scaling:
+    - At 10 blocks/sec with 100 tx/block = 1,000 TPS (17.6 MB/sec)
+    - Parallel blocks distribute load across network
+    - Light clients only validate headers + proofs
 
 Mitigation:
     - Proof aggregation for blocks (future optimization)
     - Recursive STARKs for smaller proofs (research area)
-    - Accept trade-off for quantum security
+    - Accept bandwidth trade-off for quantum security + privacy
 ```
 
 ### G.2 Proof Generation Time

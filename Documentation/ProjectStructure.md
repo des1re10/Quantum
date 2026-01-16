@@ -19,7 +19,7 @@ Current blockchain systems rely on elliptic curve cryptography (ECC) for signatu
 - **High-throughput L1**: DAG-based consensus (GhostDAG) targeting 1,000+ TPS with parallel block creation
 - **Privacy-by-default**: Every transaction is private, with no opt-out mechanism---Monero-level anonymity
 - **Quantum-secure**: Lattice-based cryptography, hash-based signatures, and STARKs---all resistant to known quantum attacks
-- **Truly decentralized**: No trusted setup ceremonies, no privileged parties, ASIC-resistant mining
+- **Truly decentralized**: No trusted setup ceremonies, no privileged parties, permissionless PoW mining
 - **AI-verifiable**: Designed to be formally verified and implemented by advanced AI systems
 
 **The core research challenge**: No existing blockchain combines DAG-based consensus with full transaction privacy. Kaspa achieves high throughput but lacks privacy. Monero provides privacy but is limited to ~10 TPS. Quantum aims to solve both.

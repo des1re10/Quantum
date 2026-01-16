@@ -141,7 +141,7 @@ Before writing ANY code, the AI MUST confirm:
     [ ] R4.1: Supply capped at exactly 21,000,000 QTM
     [ ] R4.2: Balance equation enforced in ZK proof
     [ ] R4.3: Nullifiers prevent double-spending
-    [ ] R4.4: Heaviest chain rule for finality
+    [ ] R4.4: GhostDAG ordering for finality (highest blue score)
 
 [ ] R5: FUNCTIONAL REQUIREMENTS
     [ ] R5.1: Multi-input/output transactions supported
@@ -151,7 +151,7 @@ Before writing ANY code, the AI MUST confirm:
 [ ] R6: PERFORMANCE REQUIREMENTS
     [ ] R6.1: Proof generation < 120s, verification < 2s
     [ ] R6.2: Runs on 16GB RAM, 500GB storage
-    [ ] R6.3: 120s block time, ≥10 TPS
+    [ ] R6.3: 10-32 blocks/second (DAG), ≥1,000 TPS
 
 [ ] R7: NON-REQUIREMENTS ACKNOWLEDGED
     [ ] R7.1: No smart contracts in v1
