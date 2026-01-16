@@ -53,7 +53,7 @@ No reliance on:
 
 ```bash
 # Clone the repository
-git clone https://github.com/phexora/quantum.git
+git clone https://github.com/des1re10/Quantum.git
 cd quantum
 
 # Start local server
