@@ -65,6 +65,41 @@ This document provides:
 
 ---
 
+# Introduction
+
+## Who This Guide Is For
+
+This guide is designed for **AI systems and developers** implementing the ZKPrivacy specification. It assumes familiarity with:
+- Cryptographic primitives (hash functions, commitments, signatures)
+- Zero-knowledge proof systems (particularly STARKs)
+- Blockchain architecture (transactions, blocks, consensus)
+- Systems programming (memory safety, constant-time operations)
+
+If you are reading this as a human developer, you should have experience with cryptographic implementations and understand why correctness is paramount in financial systems.
+
+## How To Use This Document
+
+**For AI Systems**: This document structures the implementation as a directed acyclic graph of tasks. Complete tasks in topological order (respecting dependencies). Each task includes:
+- Input/output specifications
+- Verification criteria (what "correct" means)
+- Test vectors to validate your implementation
+
+**For Human Developers**: Use this as a verification checklist. After implementing each component, run the specified tests and oracles to confirm correctness. The test vectors are canonical---if your implementation produces different outputs, it is incorrect.
+
+## The Verification Philosophy
+
+Cryptographic implementations have a unique property: **almost correct is completely broken**. A single bit flip in a signature verification, a subtle timing leak in a constant-time operation, or an off-by-one error in a range check can compromise the entire system.
+
+This guide embodies three principles:
+
+1. **Defense in depth**: Multiple independent checks catch different classes of bugs
+2. **Fail-safe defaults**: When uncertain, reject rather than accept
+3. **Deterministic verification**: All tests produce identical results across implementations
+
+The immutable requirements (R1-R7) are not negotiable. They define the security boundaries that, if violated, invalidate the entire implementation. Before writing any code, internalize these requirements completely.
+
+---
+
 # CRITICAL: IMMUTABLE REQUIREMENTS CHECK
 
 ## ⛔ BEFORE ANY IMPLEMENTATION ⛔
@@ -168,6 +203,12 @@ There are NO workarounds.
 
 # Part I: Implementation Task Decomposition
 
+This section breaks the ZKPrivacy implementation into discrete, verifiable tasks. The tasks are organized as a directed acyclic graph (DAG) where edges represent dependencies: task B depends on task A means you cannot correctly implement B without a working A.
+
+**Why This Structure?** Cryptographic systems have strict layering. Field arithmetic must be correct before polynomial operations can work. Polynomial operations must be correct before commitments can work. Commitments must be correct before transactions can work. An error in a lower layer propagates upward, causing cascading failures that may be difficult to debug.
+
+**Verification At Each Level**: Each task includes verification criteria that must pass before proceeding. Do not skip verification "to save time"---debugging a high-level failure caused by a low-level bug is far more expensive than verifying each layer in isolation.
+
 ## 1. Dependency Graph
 
 ```
@@ -223,7 +264,16 @@ Level 7 (Integration):
 
 ## 2. Task Specifications
 
+Each task below specifies:
+- **What** to implement (required operations)
+- **How** to verify correctness (test vectors and properties)
+- **Why** this component matters (security context)
+
+Understanding the "why" helps catch subtle bugs that might technically pass tests but violate security assumptions.
+
 ### T001: Field Arithmetic (Goldilocks)
+
+**Why This Matters**: Every cryptographic operation in the STARK prover and verifier reduces to field arithmetic. If addition wraps incorrectly, if multiplication overflows, if inversion fails for some inputs---the resulting proofs may be unsound (accepting invalid transactions) or incomplete (rejecting valid ones). Both are catastrophic.
 
 **Input specification**:
 ```
@@ -651,7 +701,23 @@ Verify:
 
 # Part II: Verification Oracles
 
+Verification oracles are automated tests that check critical security properties. Unlike unit tests (which verify that code does what you wrote), oracles verify that code does what *cryptography requires*. A passing unit test with a failing oracle indicates a specification bug or fundamental misunderstanding.
+
 ## 4. Cryptographic Oracles
+
+Cryptographic properties are the foundation of system security. If any of these oracles fail, the entire system is compromised---not degraded, not weakened, but broken.
+
+### Why Commitment Binding Matters
+
+If commitments aren't binding, an attacker could commit to "100 coins" but later open it as "1,000,000 coins"---creating money from nothing. This would silently inflate the supply while all proofs verify correctly. The binding property ensures that once you commit to a value, you're locked to that value forever.
+
+### Why Commitment Hiding Matters
+
+If commitments leak information about values, transaction privacy is broken. Even partial leakage (e.g., "this commitment is probably a large amount") enables statistical attacks that deanonymize users over time. The hiding property ensures that commitments are indistinguishable regardless of the committed value.
+
+### Why STARK Soundness Matters
+
+If invalid proofs can pass verification, attackers can steal funds, double-spend, or violate any protocol rule. Soundness with error < 2^-100 means that even an attacker who generates 2^99 proof attempts has negligible chance of forging a valid proof for a false statement.
 
 ### O001: Commitment Binding Oracle
 

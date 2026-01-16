@@ -4,6 +4,29 @@ Post-Quantum Cryptography Research by Phexora AI.
 
 **URL**: https://quantum.phexora.ai
 
+---
+
+## About This Project
+
+**Quantum** is Phexora AI's research initiative addressing one of the most significant upcoming challenges in blockchain security: the threat posed by quantum computers.
+
+### Why This Project Exists
+
+Current blockchain systems rely on elliptic curve cryptography (ECC) for signatures and key exchange. When sufficiently powerful quantum computers become available, Shor's algorithm will break these cryptographic primitives, potentially compromising billions of dollars in digital assets. This isn't a distant theoretical concern---adversaries can already harvest encrypted data today to decrypt later when quantum capabilities mature ("harvest now, decrypt later" attacks).
+
+**ZKPrivacy** is our response: a complete specification for a blockchain that is:
+
+- **Quantum-secure from day one**: Uses lattice-based cryptography, hash-based signatures, and STARKs---all resistant to known quantum attacks
+- **Privacy-by-default**: Every transaction is private, with no opt-out mechanism that would reduce anonymity set size
+- **Truly decentralized**: No trusted setup ceremonies, no privileged parties, no backdoors
+- **AI-verifiable**: Designed to be formally verified and implemented by advanced AI systems
+
+### Current Status
+
+This is an active research project. The specifications are in draft form and open for community review and feedback.
+
+---
+
 ## Directory Layout
 
 ```
