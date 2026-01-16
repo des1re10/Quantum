@@ -14,12 +14,15 @@ Post-Quantum Cryptography Research by Phexora AI.
 
 Current blockchain systems rely on elliptic curve cryptography (ECC) for signatures and key exchange. When sufficiently powerful quantum computers become available, Shor's algorithm will break these cryptographic primitives, potentially compromising billions of dollars in digital assets. This isn't a distant theoretical concern---adversaries can already harvest encrypted data today to decrypt later when quantum capabilities mature ("harvest now, decrypt later" attacks).
 
-**ZKPrivacy** is our response: a complete specification for a blockchain that is:
+**Quantum** is our response: a research specification for a blockchain that is:
 
-- **Quantum-secure from day one**: Uses lattice-based cryptography, hash-based signatures, and STARKs---all resistant to known quantum attacks
-- **Privacy-by-default**: Every transaction is private, with no opt-out mechanism that would reduce anonymity set size
-- **Truly decentralized**: No trusted setup ceremonies, no privileged parties, no backdoors
+- **High-throughput L1**: DAG-based consensus (GhostDAG) targeting 1,000+ TPS with parallel block creation
+- **Privacy-by-default**: Every transaction is private, with no opt-out mechanism---Monero-level anonymity
+- **Quantum-secure**: Lattice-based cryptography, hash-based signatures, and STARKs---all resistant to known quantum attacks
+- **Truly decentralized**: No trusted setup ceremonies, no privileged parties, ASIC-resistant mining
 - **AI-verifiable**: Designed to be formally verified and implemented by advanced AI systems
+
+**The core research challenge**: No existing blockchain combines DAG-based consensus with full transaction privacy. Kaspa achieves high throughput but lacks privacy. Monero provides privacy but is limited to ~10 TPS. Quantum aims to solve both.
 
 ### Current Status
 
@@ -33,7 +36,7 @@ This is an active research project. The specifications are in draft form and ope
 Quantum/
 ├── index.html                    # Landing page (static HTML)
 ├── papers/                       # Research papers and specifications
-│   └── zkprivacy/               # ZKPrivacy: Quantum-Secure Privacy Blockchain
+│   └── zkprivacy/               # Quantum: Quantum-Secure Privacy Blockchain
 │       ├── zkprivacy-quantum-spec-v1.md      # Full specification
 │       ├── zkprivacy-verification-guide.md   # Implementation & verification guide
 │       └── figures/                          # Diagrams and figures

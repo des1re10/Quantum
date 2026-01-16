@@ -35,37 +35,86 @@
     <main>
         <section class="hero">
             <div class="hero-content">
-                <h1>Post-Quantum Cryptography Research</h1>
+                <p class="research-label">Open Research Project</p>
+                <h1>Solving an Unsolved Problem</h1>
                 <p class="subtitle">
-                    Building privacy-by-default systems that remain secure - today and against future quantum attacks
+                    No blockchain combines high-throughput DAG consensus with full transaction privacy.
+                    <strong>Quantum</strong> aims to be the first: Kaspa-level speed, Monero-level privacy, quantum-secure cryptography.
                 </p>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <span class="stat-value">1,000+</span>
+                        <span class="stat-desc">TPS on L1</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="stat-value">10-32</span>
+                        <span class="stat-desc">blocks/second</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="stat-value">100%</span>
+                        <span class="stat-desc">private transactions</span>
+                    </div>
+                </div>
                 <div class="hero-badges">
+                    <span class="badge">GhostDAG Consensus</span>
                     <span class="badge">Privacy by Default</span>
-                    <span class="badge">Zero-Knowledge Proofs</span>
-                    <span class="badge">Lattice Cryptography</span>
-                    <span class="badge">STARKs</span>
+                    <span class="badge">STARKs (No Trusted Setup)</span>
+                    <span class="badge">Post-Quantum Crypto</span>
+                    <span class="badge">UTXO Model</span>
+                    <span class="badge">Fair Launch (No Premine)</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="challenge-section">
+            <h2>The Research Challenge</h2>
+            <div class="challenge-grid">
+                <div class="challenge-card existing">
+                    <h3>What Exists Today</h3>
+                    <ul>
+                        <li><strong>Kaspa:</strong> 10+ blocks/sec, transparent transactions</li>
+                        <li><strong>Monero:</strong> Private transactions, ~10 TPS</li>
+                        <li><strong>Zcash:</strong> ZK proofs, sequential chain</li>
+                    </ul>
+                    <p class="challenge-gap">Gap: Speed OR privacy, never both</p>
+                </div>
+                <div class="challenge-card quantum">
+                    <h3>What Quantum Aims to Build</h3>
+                    <ul>
+                        <li><strong>Bitcoin foundations:</strong> UTXO model, Nakamoto PoW consensus</li>
+                        <li><strong>DAG consensus:</strong> Parallel blocks, no orphans</li>
+                        <li><strong>Full privacy:</strong> Hidden amounts, unlinkable outputs</li>
+                        <li><strong>Quantum-secure:</strong> Lattice crypto, hash-based signatures</li>
+                        <li><strong>Fair launch:</strong> No premine, no ICO, no founder's reward</li>
+                    </ul>
+                    <p class="challenge-novel">Novel: Privacy-preserving proofs over DAG</p>
                 </div>
             </div>
         </section>
 
         <section id="papers" class="papers-section">
-            <h2>Research Papers</h2>
+            <h2>Specification</h2>
 
             <article class="paper-card">
                 <div class="paper-header">
-                    <span class="paper-status">Draft v1.0</span>
+                    <span class="paper-status">Phase 1: Draft v1.0</span>
                     <span class="paper-date">January 2026</span>
                 </div>
-                <h3>ZKPrivacy: Quantum-Secure Privacy Blockchain</h3>
+                <h3>Quantum: Privacy-Preserving DAG Blockchain</h3>
                 <p class="paper-abstract">
-                    A complete, formally verifiable specification for a quantum-secure,
-                    privacy-by-default blockchain. Designed to be implementable and
-                    verifiable by advanced AI systems.
+                    A research specification for the first blockchain combining DAG-based consensus
+                    with full transaction privacy. Targets 1,000+ TPS on L1 with quantum-secure
+                    cryptography. Designed for AI-verifiable implementation.
+                </p>
+                <p class="paper-status-note">
+                    <strong>Status:</strong> Specification complete. Formal security model in progress.
+                    Core research problems identified. Seeking peer review.
                 </p>
                 <div class="paper-tech">
-                    <span class="tech-tag">SPHINCS+</span>
-                    <span class="tech-tag">ML-KEM (Kyber)</span>
+                    <span class="tech-tag">GhostDAG</span>
                     <span class="tech-tag">STARKs</span>
+                    <span class="tech-tag">SPHINCS+</span>
+                    <span class="tech-tag">ML-KEM</span>
                     <span class="tech-tag">Lattice Commitments</span>
                 </div>
                 <div class="paper-links">
@@ -92,44 +141,51 @@
             </blockquote>
             <div class="about-content">
                 <div class="about-text">
+                    <h3>An Honest Assessment</h3>
                     <p>
-                        Today's encryption will be broken by quantum computers. Intelligence agencies
-                        are already harvesting encrypted data, waiting for quantum capabilities to
-                        decrypt it later. Your private communications today may be readable in 10-20 years.
+                        This is a <strong>research project</strong>, not a product announcement. The core problem—combining
+                        DAG consensus with transaction privacy—is unsolved. We don't know if it's possible until we try.
                     </p>
                     <p>
-                        <strong>Quantum</strong> is Phexora AI's research initiative building cryptographic
-                        protocols that remain secure even against future quantum attacks. We're not waiting
-                        for the threat to arrive - we're preparing now.
+                        <strong>What we know works:</strong> Post-quantum cryptography (NIST-standardized), STARKs (deployed in production),
+                        GhostDAG consensus (Kaspa), privacy transactions (Monero, Zcash). These are proven components.
                     </p>
                     <p>
-                        True privacy requires more than encryption - it requires <strong>privacy by default</strong>.
-                        Zero-knowledge proofs allow you to prove statements without revealing the underlying data.
-                        You can prove you're eligible without showing why. You can prove compliance without exposing details.
-                        This is the foundation of financial sovereignty and individual freedom.
+                        <strong>What we don't know:</strong> Whether privacy-preserving proofs can work efficiently over DAG structures.
+                        Whether nullifiers can prevent double-spend across parallel blocks. Whether the DAG structure itself leaks privacy.
                     </p>
                     <p>
-                        Our approach combines established post-quantum primitives (NIST-standardized
-                        algorithms) with innovative protocol design to create practical,
-                        privacy-preserving systems that will protect your data for decades to come.
+                        We're publishing our specification openly because we believe in transparent research.
+                        If we succeed, we'll have built something genuinely new. If we fail, we'll publish what we learned.
                     </p>
-                    <h3>Key Principles</h3>
+
+                    <h3>Why This Matters</h3>
+                    <p>
+                        Privacy and scalability have always been at odds. Fast chains sacrifice privacy (Solana, Kaspa).
+                        Private chains sacrifice speed (Monero, Zcash). Quantum computers will break current cryptography within decades.
+                    </p>
+                    <p>
+                        A blockchain that achieves all three—speed, privacy, quantum security—would be a genuine breakthrough.
+                        That's what we're attempting.
+                    </p>
+
+                    <h3>Research Principles</h3>
                     <ul>
-                        <li><strong>Privacy by Default</strong> - All transactions are private, no transparent mode</li>
-                        <li><strong>No Trusted Setup</strong> - All parameters are publicly verifiable</li>
-                        <li><strong>Transparency</strong> - Open specifications and future open-source implementations</li>
-                        <li><strong>AI-Verifiable</strong> - Specifications designed for autonomous implementation by advanced AI</li>
-                        <li><strong>Conservative Security</strong> - When in doubt, choose the more secure option</li>
+                        <li><strong>Honesty</strong> - We publish what works and what doesn't</li>
+                        <li><strong>No Vaporware</strong> - We don't hype features that don't exist</li>
+                        <li><strong>Open Research</strong> - Specification is CC0 (public domain)</li>
+                        <li><strong>Clear Milestones</strong> - Go/no-go decisions at each phase</li>
+                        <li><strong>Privacy First</strong> - If we can't do it privately, we don't do it</li>
                     </ul>
                 </div>
                 <div class="about-stats">
                     <div class="stat-card">
-                        <span class="stat-number">256</span>
-                        <span class="stat-label">bit security parameter</span>
+                        <span class="stat-number">4</span>
+                        <span class="stat-label">open research problems</span>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-number">128</span>
-                        <span class="stat-label">bit post-quantum security</span>
+                        <span class="stat-number">1</span>
+                        <span class="stat-label">of 4 phases complete</span>
                     </div>
                     <div class="stat-card">
                         <span class="stat-number">0</span>

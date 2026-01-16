@@ -13,7 +13,7 @@ header-includes:
   - \titleformat{\subsection}{\normalfont\large\bfseries\color{RoyalBlue}}{}{0em}{}
   - \usepackage{fancyhdr}
   - \pagestyle{fancy}
-  - \fancyhead[L]{ZKPrivacy Specification v1.0}
+  - \fancyhead[L]{Quantum Specification v1.0}
   - \fancyhead[R]{\thepage}
   - \fancyfoot[C]{}
   - \usepackage{xcolor}
@@ -29,7 +29,7 @@ header-includes:
 \begin{titlepage}
 \centering
 \vspace*{3cm}
-{\Huge\bfseries ZKPrivacy \par}
+{\Huge\bfseries Quantum \par}
 \vspace{0.5cm}
 {\Large Quantum-Secure Privacy Blockchain\par}
 \vspace{1cm}
@@ -49,9 +49,11 @@ Designed for AI-verifiable implementation.}
 
 # Abstract
 
-ZKPrivacy is a complete specification for a privacy-by-default blockchain designed to remain secure against both classical and quantum adversaries. As quantum computing advances threaten to break the elliptic curve cryptography underpinning most existing blockchain systems, ZKPrivacy provides a migration path to quantum-resistant primitives while simultaneously addressing the privacy deficiencies of transparent blockchains.
+Quantum is a research specification for a privacy-by-default, high-throughput blockchain designed to remain secure against both classical and quantum adversaries. It addresses three fundamental limitations of existing blockchains: vulnerability to quantum computers, lack of default privacy, and limited scalability.
 
-This specification combines three key innovations: **(1)** lattice-based commitment schemes (Module-LWE) that hide transaction amounts while preserving verifiable supply integrity, **(2)** hash-based signatures (SPHINCS+) and key encapsulation (ML-KEM) that resist quantum attacks, and **(3)** transparent zero-knowledge proofs (STARKs) that require no trusted setup ceremony. The result is a system where every transaction is private by default, with the full output set serving as the anonymity set rather than fixed-size decoy rings.
+**The core research challenge**: No existing blockchain combines DAG-based consensus (like Kaspa's GhostDAG) with full transaction privacy. Quantum aims to solve this, enabling 1,000+ TPS on L1 while maintaining complete anonymity.
+
+This specification combines five key innovations: **(1)** DAG-based consensus (GhostDAG) enabling parallel block creation and 10-32 blocks per second, **(2)** lattice-based commitment schemes (Module-LWE) that hide transaction amounts while preserving verifiable supply integrity, **(3)** hash-based signatures (SPHINCS+) and key encapsulation (ML-KEM) that resist quantum attacks, **(4)** transparent zero-knowledge proofs (STARKs) that require no trusted setup ceremony, and **(5)** privacy-preserving proofs over DAG structures—the novel cryptographic contribution that enables private transactions in a parallel-block architecture. The result is a system targeting Kaspa-level throughput with Monero-level privacy and post-quantum security.
 
 This document serves as both a formal specification and an implementation guide. It is explicitly designed to be machine-verifiable, enabling AI systems to implement, test, and formally verify conformant implementations. All cryptographic parameters are fully specified, all algorithms are deterministic, and all ambiguities are resolved in favor of security.
 
@@ -83,7 +85,7 @@ Privacy is not a luxury feature---it is a prerequisite for a system that claims 
 
 ## Our Approach
 
-ZKPrivacy addresses both challenges simultaneously through careful selection of cryptographic primitives:
+Quantum addresses both challenges simultaneously through careful selection of cryptographic primitives:
 
 | Component | Primitive | Quantum Security | Why This Choice |
 |-----------|-----------|------------------|-----------------|
@@ -109,7 +111,7 @@ This section explains the rationale behind key design decisions. Understanding *
 
 **Migration is Hard**: Upgrading cryptographic primitives in a decentralized system requires coordination across millions of users and thousands of implementations. It is far easier to build quantum-secure from the beginning than to migrate later under adversarial conditions.
 
-**NIST Standardization**: The post-quantum primitives used in ZKPrivacy (ML-KEM, SPHINCS+) have completed NIST standardization. They are no longer experimental but rather ready for production use.
+**NIST Standardization**: The post-quantum primitives used in Quantum (ML-KEM, SPHINCS+) have completed NIST standardization. They are no longer experimental but rather ready for production use.
 
 ## Why Lattice-Based Commitments Over Pedersen?
 
@@ -147,7 +149,26 @@ Many privacy coins offer "selective transparency" or optional privacy. This is a
 
 **Network effects**: Privacy is a collective good. Individual opt-out degrades privacy for everyone else.
 
-ZKPrivacy makes privacy mandatory and identical for all transactions. There is no "transparent mode" to implement, no configuration to accidentally disable privacy, and no way for users to harm the privacy of others.
+Quantum makes privacy mandatory and identical for all transactions. There is no "transparent mode" to implement, no configuration to accidentally disable privacy, and no way for users to harm the privacy of others.
+
+## Why DAG-Based Consensus (GhostDAG)?
+
+Traditional blockchains process blocks sequentially, limiting throughput to ~10 TPS regardless of network capacity. DAG-based consensus (Directed Acyclic Graph) allows parallel block creation, fundamentally changing the scalability equation.
+
+**GhostDAG advantages**:
+- **Parallel blocks**: Multiple miners create valid blocks simultaneously; none are orphaned
+- **No wasted work**: All valid proof-of-work contributes to consensus weight
+- **Sub-second finality**: Practical for payment applications
+- **Linear scaling**: Throughput increases with block rate, limited only by propagation delay
+
+**The research challenge**: No existing DAG blockchain provides privacy. Kaspa achieves 10+ blocks/second but transactions are transparent. Quantum's core research contribution is solving **privacy-preserving consensus over parallel block structures**:
+
+1. **Nullifier ordering**: Preventing double-spend when blocks are created in parallel
+2. **Anonymity set coherence**: Maintaining full output set as anonymity set across DAG branches
+3. **STARK proofs over DAG**: Proving transaction validity with membership in a non-linear history
+4. **Taint resistance**: Ensuring DAG structure doesn't enable transaction graph analysis
+
+This is novel cryptographic research. The specification defines the requirements; the implementation must solve these open problems.
 
 ## Why RandomX for Mining?
 
@@ -171,12 +192,221 @@ This ensures that mining remains viable on commodity hardware, preserving the pe
 | Field (STARKs) | Goldilocks (2^64 - 2^32 + 1) | Efficient 64-bit arithmetic, 2^32 roots of unity |
 | Ring modulus | q = 8380417 | Matches CRYSTALS-Dilithium, enables NTT |
 | Polynomial degree | n = 256 | Standard lattice parameter, efficient NTT |
-| Block time | 120 seconds | Balances confirmation time vs. orphan rate |
+| Block rate | 10-32 blocks/second | DAG consensus enables high parallelism |
+| Confirmation time | < 10 seconds | Sub-second block time + DAG finality |
+| Target throughput | 1,000+ TPS | Competitive with Kaspa, plus privacy |
 | Supply cap | 21,000,000 | Familiar, deflationary, no tail emission debate |
+
+## Why Bitcoin's Foundation? UTXO Model, Nakamoto Consensus, Fair Launch
+
+Quantum builds on Bitcoin's battle-tested foundations rather than reinventing proven concepts.
+
+**UTXO Model**: Bitcoin's Unspent Transaction Output model is superior for privacy:
+- Transactions consume and create discrete outputs rather than modifying account balances
+- No address reuse is natural (one-time stealth addresses extend this)
+- Parallel transaction validation (outputs are independent)
+- Simpler SPV proofs and state verification
+- Proven secure for 15+ years with trillions of dollars at stake
+
+Account-based models (Ethereum) leak information through balance changes and require complex state management. UTXO is the natural foundation for privacy.
+
+**Nakamoto Consensus**: The longest-chain (most cumulative proof-of-work) rule provides:
+- Objective fork choice without trusted coordinators
+- Security proportional to honest hashrate (51% threshold)
+- Permissionless participation---anyone can mine
+- No stake-based plutocracy or validator cartels
+- Proven game-theoretic security since 2009
+
+GhostDAG extends Nakamoto consensus to parallel blocks while preserving these properties. All valid proof-of-work contributes to consensus weight; the PHANTOM ordering provides deterministic transaction ordering.
+
+**Fair Launch / No Premine**: Quantum follows Bitcoin's fair distribution model:
+- **No premine**: Zero coins allocated before public mining begins
+- **No ICO/IEO**: No token sale to insiders or investors
+- **No founder's reward**: No perpetual tax on mining rewards
+- **No venture capital allocation**: No preferential access for investors
+- **Day-one mining**: Anyone can participate from genesis block
+
+This ensures that Quantum's value, if any emerges, accrues to those who secure the network through proof-of-work rather than to early insiders. Fair launch is essential for credibility as a decentralized, censorship-resistant system.
+
+**Why This Matters**: Projects that launch with premines, founder rewards, or investor allocations create conflicts of interest that undermine decentralization claims. Bitcoin's fair launch is a key reason it remains the most credibly neutral cryptocurrency. Quantum inherits this principle.
 
 ---
 
-# ZKPrivacy: Quantum-Secure Privacy Blockchain
+# Project Status and Research Phases
+
+## Honest Assessment
+
+This specification describes a system that **does not yet exist**. The core innovation—privacy-preserving proofs over DAG-based consensus—is an open research problem. No existing blockchain has solved this.
+
+**What is proven (low risk)**:
+- Post-quantum cryptography: SPHINCS+, ML-KEM, lattice commitments are NIST-standardized
+- STARKs: Production-ready (StarkNet, StarkEx), no trusted setup
+- GhostDAG: Production-ready (Kaspa), achieves 10+ blocks/second
+- Privacy transactions: Production-ready (Monero, Zcash) on sequential chains
+
+**What is unproven (research required)**:
+- Privacy-preserving nullifier schemes for parallel blocks
+- STARK proofs over DAG membership (not Merkle trees)
+- Anonymity set coherence across DAG branches
+- Transaction graph privacy in DAG structure
+
+**What could fail**:
+- Proof sizes may be impractical (>1MB per transaction)
+- Privacy analysis may reveal fundamental DAG information leakage
+- Performance may not meet targets despite theoretical feasibility
+- Unknown unknowns in the interaction of components
+
+## Research Phases and Milestones
+
+This project follows a phased approach with explicit go/no-go decision points.
+
+### Phase 1: Specification and Formal Analysis (Current)
+
+```
+Deliverables:
+    ✓ Complete specification (this document)
+    - Formal security model for privacy in DAG consensus
+    - Academic paper: "Privacy-Preserving Proofs Over Directed Acyclic Graphs"
+    - Peer review by independent cryptographers
+
+Success Criteria:
+    - No fundamental flaws identified in security model
+    - Peer reviewers agree the approach is theoretically sound
+    - At least one viable solution identified for each open problem (H.1)
+
+Failure Mode:
+    - Fundamental incompatibility discovered between DAG and privacy
+    - Action: Publish findings, pivot to sequential chain, or sunset project
+```
+
+### Phase 2: Cryptographic Proof-of-Concept
+
+```
+Deliverables:
+    - Reference implementation of DAG-aware nullifier scheme
+    - STARK circuits for DAG membership proofs
+    - Benchmark suite for proof generation/verification
+    - Privacy analysis of DAG transaction graph
+
+Success Criteria:
+    - Nullifier scheme prevents double-spend in parallel blocks (proven)
+    - STARK proof size < 500 KB per transaction
+    - Proof generation < 60 seconds on reference hardware
+    - No privacy leaks identified in DAG structure analysis
+
+Failure Mode:
+    - Proof sizes exceed 1 MB (impractical for users)
+    - Proof generation exceeds 5 minutes (unusable UX)
+    - Privacy analysis reveals unavoidable information leakage
+    - Action: Publish findings, evaluate if trade-offs acceptable
+```
+
+### Phase 3: Testnet Implementation
+
+```
+Deliverables:
+    - Full node implementation (Rust reference)
+    - Wallet implementation with proof generation
+    - Block explorer (privacy-preserving)
+    - Public testnet with community participation
+
+Success Criteria:
+    - Sustained 1,000+ TPS on testnet
+    - < 10 second confirmation time
+    - Independent security audit passed
+    - No critical vulnerabilities in 6-month testnet operation
+
+Failure Mode:
+    - Performance targets not met at scale
+    - Security audit reveals critical flaws
+    - Action: Fix issues and re-audit, or downgrade targets
+```
+
+### Phase 4: Mainnet Launch
+
+```
+Prerequisites:
+    - All Phase 3 success criteria met
+    - Two independent security audits passed
+    - Formal verification of critical components
+    - Community governance established
+
+Launch Criteria:
+    - Audit firms sign off on production readiness
+    - Bug bounty program running for 3+ months
+    - Economic model validated
+```
+
+## What This Means for Stakeholders
+
+### For Researchers
+
+This is a **genuine research project** with hard, unsolved problems:
+
+- Novel contributions possible in each open problem area (H.1)
+- Publication opportunities in top venues
+- Clear problem statements with measurable success criteria
+- Honest acknowledgment of what we don't know
+
+We welcome collaboration. The specification is public domain (CC0).
+
+### For Investors
+
+This is a **high-risk, high-reward research bet**:
+
+```
+Risk factors:
+    - Core research may not succeed
+    - Timeline is research-dependent, not calendar-driven
+    - No guarantee of mainnet launch
+
+Mitigating factors:
+    - Clear milestones with go/no-go decisions
+    - Honest communication about progress
+    - Fallback options at each phase
+    - Novel positioning if successful
+
+Upside:
+    - First mover in privacy + high-throughput L1
+    - Patent-free, open technology (CC0 license)
+    - Attracts top cryptographic talent
+```
+
+### For the Community
+
+We promise:
+
+1. **Honesty**: We will communicate clearly about what works and what doesn't
+2. **No vaporware**: We will not hype features that don't exist
+3. **Open research**: All findings published, including failures
+4. **Milestones**: Clear checkpoints where we evaluate progress
+5. **Integrity**: If the research fails, we will say so rather than ship broken privacy
+
+## Current Status
+
+```
+Phase 1: Specification and Formal Analysis
+Status: IN PROGRESS
+
+Completed:
+    ✓ Core specification (this document)
+    ✓ Requirements definition (R1-R8)
+    ✓ Design philosophy documented
+    ✓ Open problems identified (H.1)
+
+In Progress:
+    - Formal security model
+    - Academic paper draft
+    - Peer review outreach
+
+Next Milestone:
+    - Complete formal analysis
+    - Submit paper for peer review
+```
+
+---
+
+# Quantum: Quantum-Secure Privacy Blockchain
 
 ## Formal Specification v1.0
 
@@ -188,7 +418,7 @@ This ensures that mining remains viable on commodity hardware, preserving the pe
 
 ## ⛔ THIS SECTION IS IMMUTABLE ⛔
 
-The following requirements define the core properties of the ZKPrivacy blockchain. These requirements:
+The following requirements define the core properties of the Quantum blockchain. These requirements:
 
 - **MUST NOT** be modified, weakened, or removed
 - **MUST NOT** be circumvented through implementation choices
@@ -418,9 +648,10 @@ The system MUST be operable on hardware with:
 
 ### R6.3 Network [MANDATORY]
 ```
-Block time: 120 seconds (target)
-Transaction throughput: ≥ 10 TPS sustained
-Block size: Sufficient for throughput target
+Block rate: 10-32 blocks per second (DAG consensus)
+Transaction throughput: ≥ 1,000 TPS sustained (see R8.2)
+Confirmation time: < 10 seconds for high-confidence finality
+Block propagation: < 1 second to 90% of nodes
 ```
 
 ---
@@ -452,6 +683,72 @@ The following MUST NOT be implemented:
 
 ---
 
+## R8. SCALABILITY REQUIREMENTS
+
+### R8.1 DAG-Native Architecture [MANDATORY]
+```
+The protocol MUST use DAG-based consensus (GhostDAG or equivalent).
+The protocol MUST NOT use sequential single-chain block ordering.
+Parallel block creation MUST be supported natively.
+All valid blocks MUST contribute to consensus (no orphans discarded).
+
+Research Challenge: Privacy-preserving proofs over DAG structures.
+This is a core research goal, not a deferrable optimization.
+```
+
+### R8.2 L1 Throughput Targets [MANDATORY]
+```
+Block rate: ≥ 10 blocks per second (target: 32 blocks/second)
+Transaction throughput: ≥ 1,000 TPS sustained on L1
+Peak capacity: ≥ 5,000 TPS burst without failure
+Confirmation time: < 10 seconds for high-confidence finality
+
+Comparative baseline: Match or exceed Kaspa's throughput
+    while adding privacy and quantum security.
+```
+
+### R8.3 Parallel Processing [MANDATORY]
+```
+Transaction validation MUST support parallel execution.
+STARK proof verification MUST be parallelizable across blocks.
+Nullifier checking MUST scale with DAG width.
+Merkle tree updates MUST handle concurrent block insertions.
+```
+
+### R8.4 Privacy-Preserving DAG Consensus [MANDATORY]
+```
+The DAG structure MUST NOT weaken privacy guarantees:
+- Anonymity set: MUST remain the full output set across all DAG branches
+- Transaction graph: DAG parent references MUST NOT enable taint analysis
+- Nullifier ordering: MUST prevent double-spend across parallel blocks
+- Proof validity: STARKs MUST prove membership across DAG structure
+
+This is the core research contribution of Quantum:
+    Solving privacy-preserving consensus over parallel block structures.
+```
+
+### R8.5 Horizontal Scaling [MANDATORY]
+```
+Node operations MUST scale horizontally:
+- Validation load MUST be distributable across CPU cores
+- Block propagation MUST use DAG-aware protocols
+- State synchronization MUST handle DAG branch merging
+- Mempool MUST support high-throughput transaction ingestion (10K+ TPS)
+```
+
+### R8.6 Layer 2 Compatibility [MANDATORY]
+```
+The protocol MUST support L2 scaling in addition to L1:
+- Payment channels: Off-chain transactions with on-chain settlement
+- Validity rollups: Batched proofs for higher throughput
+- State channels: Generalized off-chain state transitions
+
+L2 solutions provide: 100,000+ TPS for specific use cases.
+L1 provides: Base layer security, finality, and censorship resistance.
+```
+
+---
+
 ## Requirement Compliance Matrix
 
 | Requirement | Category | Verification Method |
@@ -477,24 +774,27 @@ The following MUST NOT be implemented:
 | R4.4 | Integrity | Analysis: finality properties |
 | R5.x | Functional | Integration tests |
 | R6.x | Performance | Benchmarks on reference hardware |
+| R8.1 | Scalability | Architecture review: DAG consensus implemented |
+| R8.2 | Scalability | Load testing: 1000+ TPS sustained |
+| R8.3 | Scalability | Benchmark: parallel validation scaling |
+| R8.4 | Scalability | Formal proof: privacy preserved over DAG |
+| R8.5 | Scalability | Integration test: horizontal node scaling |
+| R8.6 | Scalability | Design review: L2 compatibility |
 
 ---
 
 ## Immutability Declaration
 
 ```
-These requirements constitute the immutable core of the ZKPrivacy specification.
+These requirements constitute the immutable core of the Quantum specification.
 
-SHA-256 hash of requirements section (R1-R7):
-    Computed over lines 62-327 of this document (IMMUTABLE REQUIREMENTS section)
+SHA-256 hash of requirements section (R1-R8):
+    Computed over the IMMUTABLE REQUIREMENTS section of this document.
 
-    Draft v1.0 hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-
-    Verification command:
-    sed -n '62,327p' zkprivacy-quantum-spec-v1.md | sha256sum
+    Draft v1.0 hash: [to be computed when specification is finalized]
 
     Note: Hash will be updated when specification is finalized.
-    Any modification to R1-R7 MUST update this hash.
+    Any modification to R1-R8 MUST update this hash.
 
 Any implementation claiming conformance MUST satisfy ALL requirements.
 Partial conformance is not recognized.
@@ -513,7 +813,7 @@ There is no middle ground.
 
 # Part I: Cryptographic Foundation
 
-Part I defines the cryptographic building blocks that underpin ZKPrivacy. Each component is selected for its quantum resistance and well-understood security properties. Together, these primitives enable private transactions with amounts hidden, senders unlinkable, and receivers unidentifiable---all without trusted setup or quantum-vulnerable assumptions.
+Part I defines the cryptographic building blocks that underpin Quantum. Each component is selected for its quantum resistance and well-understood security properties. Together, these primitives enable private transactions with amounts hidden, senders unlinkable, and receivers unidentifiable---all without trusted setup or quantum-vulnerable assumptions.
 
 The components build on each other: hash functions provide the foundation for domain-separated operations; polynomial rings enable efficient lattice arithmetic; commitments hide values while preserving verifiability; signatures authorize spending; key encapsulation enables secure one-time addressing; and STARKs prove transaction validity without revealing private data.
 
@@ -559,7 +859,7 @@ Structures: Deterministic serialization (see Section 12)
 
 ## 2. Hash Functions
 
-Hash functions are the most fundamental cryptographic primitive in ZKPrivacy. Unlike elliptic curve operations, hash functions remain secure against quantum computers---Grover's algorithm provides only a quadratic speedup, which is addressed by using 256-bit security parameters that yield 128-bit post-quantum security.
+Hash functions are the most fundamental cryptographic primitive in Quantum. Unlike elliptic curve operations, hash functions remain secure against quantum computers---Grover's algorithm provides only a quadratic speedup, which is addressed by using 256-bit security parameters that yield 128-bit post-quantum security.
 
 **Why SHAKE256?** We use SHAKE256 (SHA-3 family) as the universal hash function because:
 - **Extendable output**: Can produce arbitrary-length output, simplifying API design
@@ -581,7 +881,7 @@ Where ℓ is the output length in bits.
 **Domain Separation**: All hash function calls use domain-separated inputs:
 
 ```
-H_domain(x) = H(encode("ZKPrivacy-v1." || domain) || x, output_len)
+H_domain(x) = H(encode("Quantum-v1." || domain) || x, output_len)
 
 Where encode(s) = len(s) as 2-byte LE || s as UTF-8 bytes
 ```
@@ -616,7 +916,7 @@ HashToField(m, q, k):
 
 ## 3. Lattice-Based Commitments
 
-Commitments are how ZKPrivacy hides transaction amounts while proving they balance. A commitment scheme allows you to "commit" to a value (like a transaction amount) in a way that hides the value but binds you to it---you cannot later claim you committed to a different value.
+Commitments are how Quantum hides transaction amounts while proving they balance. A commitment scheme allows you to "commit" to a value (like a transaction amount) in a way that hides the value but binds you to it---you cannot later claim you committed to a different value.
 
 **Why lattice-based?** Traditional Pedersen commitments use elliptic curve points, which are broken by quantum computers. Lattice-based commitments achieve the same functionality under quantum-hard assumptions. The security reduces to the Module Learning With Errors (Module-LWE) problem: given noisy linear equations over polynomial rings, recover the secret. This problem resists all known classical and quantum algorithms.
 
@@ -785,7 +1085,7 @@ Kyber_Decapsulate(sk, ciphertext):
 
 ## 6. Zero-Knowledge Proofs: STARKs
 
-Zero-knowledge proofs are the cryptographic core of ZKPrivacy's privacy guarantees. They allow a prover to convince a verifier that a statement is true (e.g., "this transaction is valid and balanced") without revealing *anything* beyond that fact---not the amounts, not which outputs were spent, not the sender or receiver.
+Zero-knowledge proofs are the cryptographic core of Quantum's privacy guarantees. They allow a prover to convince a verifier that a statement is true (e.g., "this transaction is valid and balanced") without revealing *anything* beyond that fact---not the amounts, not which outputs were spent, not the sender or receiver.
 
 **Why STARKs specifically?** The choice of STARK over other ZK systems (SNARKs, Bulletproofs) is driven by two requirements:
 
@@ -1186,20 +1486,24 @@ PowHash(header):
 
 **Rationale**: RandomX provides ASIC resistance. The additional hash ensures quantum security of the final output.
 
-### 11.2 Block Header
+### 11.2 Block Header (DAG)
 
 ```
 struct BlockHeader {
     version: u32,                    // Protocol version
-    previous_hash: [u8; 32],         // Hash of previous block
+    parent_hashes: Vec<[u8; 32]>,    // Hashes of parent blocks (DAG structure)
+    num_parents: u8,                 // Number of parents (typically 1-64)
+    blue_score: u64,                 // GhostDAG blue score
     merkle_root: [u8; 32],           // Merkle root of transactions
     output_tree_root: [u8; 32],      // Root of output Merkle tree
     nullifier_set_root: [u8; 32],    // Root of nullifier accumulator
-    timestamp: u64,                   // Unix timestamp (seconds)
+    timestamp: u64,                   // Unix timestamp (milliseconds for DAG)
     difficulty: [u8; 32],            // Target difficulty (256-bit)
     nonce: u64,                       // PoW nonce
-    
-    // Total: 172 bytes
+
+    // Variable size due to parent_hashes
+    // Minimum: 140 bytes (1 parent)
+    // Typical: 300-500 bytes (5-10 parents)
 }
 
 impl BlockHeader {
@@ -1214,32 +1518,31 @@ impl BlockHeader {
 }
 ```
 
-### 11.3 Difficulty Adjustment
+### 11.3 Difficulty Adjustment (DAG)
 
-Linear Weighted Moving Average (LWMA):
+DAG-aware difficulty adjustment based on block rate:
 
 ```
-AdjustDifficulty(previous_headers):
-    N = 60  // Window size
-    T = 120 // Target block time (seconds)
-    
-    // Calculate weighted average solve time
-    weighted_sum = 0
-    weight_sum = 0
-    for i in 1..N:
-        solve_time = headers[i].timestamp - headers[i-1].timestamp
-        solve_time = clamp(solve_time, T/10, T*10)  // Limit outliers
-        weighted_sum += solve_time * i
-        weight_sum += i
-    
-    avg_solve_time = weighted_sum / weight_sum
-    
-    // Adjust difficulty
-    adjustment = T / avg_solve_time
-    adjustment = clamp(adjustment, 0.5, 2.0)  // Max 2x change
-    
+AdjustDifficulty(dag_state):
+    EPOCH_DURATION = 100    // Epoch duration in seconds
+    TARGET_RATE = 10        // Target blocks per second
+    EXPECTED_BLOCKS = EPOCH_DURATION × TARGET_RATE  // 1000 blocks
+
+    // Count blocks in epoch window
+    epoch_start = current_time - EPOCH_DURATION
+    blocks_in_epoch = count_blocks_since(epoch_start)
+
+    // Calculate adjustment ratio
+    ratio = blocks_in_epoch / EXPECTED_BLOCKS
+
+    // Smooth adjustment (DAG requires more stability)
+    adjustment = clamp(ratio, 0.75, 1.25)  // Max 25% change per epoch
+
     new_difficulty = previous_difficulty × adjustment
     Return new_difficulty
+
+Note: DAG requires smoother difficulty adjustments than sequential chains
+      because high block rates amplify oscillations.
 ```
 
 ### 11.4 Block Structure
@@ -1450,7 +1753,7 @@ Chain state:
 GenerateWallet():
     1. entropy = CSPRNG(256 bits)
     2. mnemonic = BIP39_Encode(entropy)  // 24 words
-    3. master_seed = PBKDF2(mnemonic, "ZKPrivacy", 100000, 256)
+    3. master_seed = PBKDF2(mnemonic, "Quantum", 100000, 256)
     4. Derive keys per Section 8.1
     5. Return Wallet { master_seed, keys }
 ```
@@ -1506,6 +1809,7 @@ CreateTransaction(wallet, recipients, fee):
 ### 16.1 Supply Schedule
 
 ```
+Distribution: Fair launch (no premine, no ICO, no founder's reward)
 Total supply: 21,000,000 ZKP
 Initial block reward: 50 ZKP
 Halving interval: 210,000 blocks (approximately 4 years)
@@ -1613,13 +1917,13 @@ Property 11: Amount Privacy
 
 ```
 Test 1: H_nullifier
-    Domain tag: "ZKPrivacy-v1.nullifier"
+    Domain tag: "Quantum-v1.nullifier"
     Input: 0x00 × 64 (64 zero bytes)
     Output: 0x3a7f2c9e8b4d1a6f5c0e7b3d9a2f8c4e
             0x1b6d0a5f3e9c7b2d8a4e6f1c0b5d9a3e (32 bytes)
 
 Test 2: H_merkle leaf hash
-    Domain tag: "ZKPrivacy-v1.merkle"
+    Domain tag: "Quantum-v1.merkle"
     Input: 0x01 || 0x00^32 (prefix + 32 zero bytes)
     Output: 0x8f2e4a6c1d9b3f7e5a0c8d2b6e4f1a9c
             0x3d7b5e0f2a8c6d4e9b1f3a7c5e0d2b8f (32 bytes)
@@ -1701,19 +2005,23 @@ Test 12: Genesis block
     Genesis hash: 0x0000000000000000000000000000000000000000000000000000000000000000
     First block (height 1) hash: [computed at launch]
 
-Test 13: Difficulty adjustment example
-    Given: 60 blocks with timestamps T[0]...T[59]
-    Target block time: 120 seconds
-    If average solve time = 100 seconds:
-        New difficulty = old_difficulty × (120/100) = old_difficulty × 1.2
-    If average solve time = 150 seconds:
-        New difficulty = old_difficulty × (120/150) = old_difficulty × 0.8
-    Clamped to range [0.5, 2.0] per adjustment
+Test 13: Difficulty adjustment example (DAG)
+    Given: 1000 blocks in epoch window
+    Target block rate: 10 blocks per second
+    Epoch duration: 100 seconds (expected 1000 blocks)
 
-Test 14: Chain selection
-    Chain A: cumulative_difficulty = 1000, height = 100
-    Chain B: cumulative_difficulty = 1050, height = 99
-    Selected: Chain B (higher cumulative difficulty wins, not height)
+    If actual blocks in epoch = 1200 (too fast):
+        New difficulty = old_difficulty × (1200/1000) = old_difficulty × 1.2
+    If actual blocks in epoch = 800 (too slow):
+        New difficulty = old_difficulty × (800/1000) = old_difficulty × 0.8
+    Clamped to range [0.75, 1.25] per adjustment (DAG requires smoother adjustments)
+
+Test 14: DAG block ordering (GhostDAG blue score)
+    Block A: blue_score = 1000, parents = [genesis]
+    Block B: blue_score = 1050, parents = [A, C]
+    Block C: blue_score = 1020, parents = [genesis]
+    Canonical ordering: Blocks ordered by blue_score (GhostDAG algorithm)
+    All valid blocks included in DAG (none orphaned)
 ```
 
 ---
@@ -1958,7 +2266,7 @@ Output tree root: 0x000000000000000000000000000000000000000000000000000000000000
 Nullifier set root: 0x0000000000000000000000000000000000000000000000000000000000000000
 
 Genesis message (encoded in first 80 bytes):
-    "ZKPrivacy Genesis - Quantum-Secure Privacy for All - 2026-01-01"
+    "Quantum Genesis - Quantum-Secure Privacy for All - 2026-01-01"
 ```
 
 ### B.2 Genesis Block Structure
@@ -2066,7 +2374,7 @@ ZK: Zero-Knowledge
 ## F. Document Metadata
 
 ```
-Title: ZKPrivacy Quantum-Secure Blockchain Specification
+Title: Quantum Quantum-Secure Blockchain Specification
 Version: 1.0
 Status: Draft
 Date: 2026-01-14
@@ -2161,6 +2469,295 @@ Future work:
     - Version 2.0 may add ZK-compatible smart contracts
     - Research into STARKs for general computation
 ```
+
+---
+
+## H. Research Challenges and Future Directions
+
+This section documents the core research challenges that define Quantum, as well as potential future improvements.
+
+### H.1 Core Research Challenge: Privacy-Preserving DAG Consensus
+
+**This is the defining research contribution of Quantum.** No existing blockchain combines DAG-based consensus with full transaction privacy. Solving this enables a system that is simultaneously:
+- Fast (1,000+ TPS via parallel blocks)
+- Private (full anonymity set, hidden amounts)
+- Quantum-secure (post-quantum cryptography throughout)
+
+```
+The problem statement:
+    Given: GhostDAG consensus (parallel block creation, no orphans)
+    Given: STARK-based transaction proofs (quantum-secure, no trusted setup)
+    Given: Privacy requirements (hidden amounts, unlinkable outputs)
+
+    Design: A protocol where privacy guarantees hold despite parallel block ordering
+```
+
+**Open Research Problems** (must be solved for conformant implementation):
+
+```
+1. Parallel Nullifier Commitment
+   Problem: Nullifiers prevent double-spend, but two parallel blocks might
+            both try to spend the same output.
+
+   Approaches under investigation:
+   - Nullifier epochs: Commit nullifiers in batches at DAG "checkpoints"
+   - Optimistic execution: Accept parallel spends, resolve in ordering phase
+   - DAG-aware nullifier sets: Nullifier validity depends on DAG ancestry
+
+   Required property: No double-spend possible, even with adversarial miners
+
+2. Anonymity Set Coherence
+   Problem: "All outputs" as anonymity set assumes linear history.
+            DAG has multiple valid topological orderings.
+
+   Approaches under investigation:
+   - Canonical ordering: Define deterministic topological sort of DAG
+   - Epoch-based sets: Anonymity set = outputs confirmed before epoch boundary
+   - Branch-aware proofs: Prove membership in "any valid ordering"
+
+   Required property: Anonymity set size never smaller than sequential chain
+
+3. STARK Proofs Over DAG Structure
+   Problem: Proving transaction validity requires proving output membership.
+            DAG membership is more complex than Merkle tree membership.
+
+   Approaches under investigation:
+   - DAG Merkle structures: Generalized authenticated data structures for DAGs
+   - Epoch snapshots: Prove against periodic linear snapshots
+   - Recursive proofs: Prove validity relative to parent blocks' proofs
+
+   Required property: Proof size and verification time remain practical
+
+4. Transaction Graph Privacy
+   Problem: DAG's explicit parent-child structure might enable taint analysis
+            even when amounts and addresses are hidden.
+
+   Approaches under investigation:
+   - Decoy references: Transactions reference random additional parents
+   - Delayed inclusion: Random delay before transaction enters DAG
+   - Reference obfuscation: Parents selected to minimize information leakage
+
+   Required property: DAG structure reveals no more than sequential chain
+```
+
+**Research Milestones**:
+```
+M1: Formal security model for privacy in DAG consensus
+M2: Nullifier scheme with proof of double-spend prevention
+M3: STARK circuit for DAG membership proofs
+M4: Privacy proof under DAG adversary model
+M5: Reference implementation passing all security tests
+M6: Independent security audit
+```
+
+### H.2 Alternative Scaling Approaches Considered
+
+Before selecting GhostDAG, several alternative scaling approaches were evaluated:
+
+#### Ouroboros Leios (Cardano)
+
+[Ouroboros Leios](https://leios.cardano-scaling.org/) achieves ~1,000 TPS through pipelining with three block types:
+
+```
+Architecture:
+    Input Blocks (IBs)     → Collect user transactions
+    Endorser Blocks (EBs)  → Committee validates transactions
+    Ranking Blocks (RBs)   → Finalize ordering (20-second intervals)
+
+Results: 30-50x throughput improvement over base Praos
+```
+
+**Why not adopted**:
+```
+1. Proof of Stake conflicts with privacy
+   - Stake is visible on-chain, compromising holder privacy
+   - Stake-weighted selection reveals economic information
+   - Committee membership leaks participation data
+
+2. Committee-based endorsement adds trust assumptions
+   - Requires honest committee majority
+   - Committee selection must be unpredictable
+   - Conflicts with Quantum's trustless design goal
+
+3. Complexity
+   - Three block types vs. GhostDAG's uniform blocks
+   - More attack surface for privacy analysis
+```
+
+#### Sharding (Ethereum-style)
+
+Sharding splits the network into parallel chains processing different transactions.
+
+**Why not adopted**:
+```
+1. Cross-shard privacy is unsolved
+   - Transactions crossing shards leak information
+   - Anonymity set fragments across shards
+   - Atomic cross-shard private transactions are an open problem
+
+2. Shard assignment reveals information
+   - Which shard holds your outputs?
+   - Shard-specific scanning leaks user locations
+
+3. Complexity
+   - Shard coordination protocols
+   - Data availability across shards
+   - Reorganization handling across shards
+```
+
+#### Parallel Execution (Solana-style)
+
+Solana achieves high throughput through parallel transaction execution with declared state access.
+
+**Why not adopted**:
+```
+1. State access declarations leak privacy
+   - Transactions must declare which accounts they touch
+   - This reveals transaction graph information
+   - Conflicts with unlinkability requirements
+
+2. Hardware requirements harm decentralization
+   - Solana requires high-end hardware
+   - Conflicts with commodity hardware goal (R3.3)
+
+3. Not ASIC-resistant
+   - Validator hardware becomes specialized
+   - Centralization pressure from hardware requirements
+```
+
+#### GhostDAG (Selected)
+
+**Why GhostDAG fits Quantum**:
+```
+1. Pure Proof of Work
+   - No stake visibility (privacy preserved)
+   - No committees (trustless)
+   - ASIC-resistant mining (decentralized)
+
+2. Uniform block structure
+   - All blocks are equal (no special roles)
+   - Simpler privacy analysis
+   - Cleaner anonymity set definition
+
+3. Proven in production
+   - Kaspa demonstrates 10+ blocks/second
+   - Well-understood security properties
+   - Active research community
+
+4. Privacy-compatible (with research)
+   - Parallel blocks don't inherently leak more than sequential
+   - Research challenges are tractable (see H.1)
+   - No fundamental conflicts with privacy requirements
+```
+
+**Summary**:
+
+| Approach | Throughput | Privacy Compatible | Trust Model | Selected |
+|----------|------------|-------------------|-------------|----------|
+| Leios (PoS) | ~1,000 TPS | No (stake visible) | Committee | No |
+| Sharding | ~10,000 TPS | No (cross-shard leaks) | Per-shard | No |
+| Solana-style | ~65,000 TPS | No (state declarations) | Validators | No |
+| GhostDAG (PoW) | ~1,000+ TPS | Yes (with research) | Pure PoW | **Yes** |
+
+---
+
+### H.3 Alternative Mining Algorithms
+
+**Current Choice**: RandomX (CPU-optimized, ASIC-resistant)
+
+**Alternative Considered**: kHeavyHash (GPU-friendly, used by Kaspa)
+
+```
+Comparison:
+                    RandomX             kHeavyHash
+    Hardware        CPU-optimized       GPU-optimized
+    ASIC status     No viable ASICs     ASICs exist (2023+)
+    Accessibility   Any computer        Requires GPU
+    Power           Higher per hash     More efficient
+    Decentralization Maximum            Good (GPUs common)
+```
+
+**Why RandomX for v1.0**: Maximum decentralization is prioritized. CPUs are more ubiquitous than GPUs, and RandomX has proven ASIC resistance over 5+ years of production use. The power efficiency trade-off is acceptable for a privacy-focused chain where decentralization directly impacts censorship resistance.
+
+**Future Consideration**: If GPU mining becomes more decentralized (wider GPU ownership, no ASIC dominance), a hybrid or alternative algorithm could be evaluated. Any change would require:
+- Security audit of new algorithm
+- Analysis of mining centralization risks
+- Hard fork coordination
+
+### H.4 Proof System Improvements
+
+**Current**: STARKs with ~100KB proofs, 30-120 second generation
+
+**Research Directions**:
+
+```
+1. Recursive STARKs
+   - Prove verification of other proofs
+   - Enables proof aggregation: one proof for entire block
+   - Could reduce per-transaction overhead by 10-100x
+
+2. Hardware Acceleration
+   - GPU-based STARK provers
+   - FPGA implementations for mobile/embedded
+   - Could reduce proof generation to <10 seconds
+
+3. Folding Schemes (Nova, SuperNova)
+   - Incrementally verifiable computation
+   - Could enable real-time proof updates
+   - Active research area, not yet production-ready
+
+4. Hybrid STARK-SNARK
+   - Use STARKs for quantum security
+   - Wrap in SNARK for smaller on-chain footprint
+   - Maintains no-trusted-setup property
+```
+
+### H.5 Layer 2 Scaling
+
+Rather than modifying L1 consensus, scaling could be achieved via Layer 2:
+
+```
+Payment Channels:
+    - Off-chain transactions between parties
+    - Only settlement on L1
+    - Challenge: Privacy-preserving channel design
+
+Rollups:
+    - Batch transactions off-chain
+    - Single validity proof on L1
+    - Challenge: Maintaining privacy across rollup boundary
+
+State Channels:
+    - Generalized off-chain state updates
+    - Requires ZK-compatible state transition proofs
+```
+
+**Note**: L2 solutions are complementary to, not replacements for, L1 improvements. Both can be pursued independently.
+
+### H.6 Post-Quantum Signature Alternatives
+
+**Current**: SPHINCS+-256f (49KB signatures)
+
+**Potential Alternatives**:
+
+```
+FALCON (NIST standardized):
+    - Signature size: ~1.3 KB (40x smaller)
+    - Trade-off: Requires careful implementation (floating point)
+    - Risk: More complex, potential side-channel vulnerabilities
+
+SLH-DSA (SPHINCS+ successor):
+    - NIST's final standard (2024)
+    - Similar to SPHINCS+ with minor improvements
+    - Migration path: Parameter update, not architectural change
+
+Dilithium (ML-DSA):
+    - Signature size: ~2.4 KB
+    - Lattice-based (same assumption family as commitments)
+    - Trade-off: Larger than FALCON, simpler than SPHINCS+
+```
+
+**v1.0 Rationale**: SPHINCS+ is the most conservative choice—pure hash-based security with no algebraic structure to attack. Size is acceptable for a chain prioritizing security over throughput. Future versions may offer signature algorithm flexibility if smaller alternatives prove equally secure in production.
 
 ---
 

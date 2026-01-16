@@ -9,19 +9,31 @@
 
 ## Overview
 
-Quantum is Phexora AI's research initiative focused on developing cryptographic protocols that remain secure against quantum computer attacks. Our approach combines established post-quantum primitives (NIST-standardized algorithms) with innovative protocol design.
+Quantum is Phexora AI's research initiative aimed at solving an unsolved problem: **combining high-throughput DAG consensus with full transaction privacy**.
 
-## Research Papers
+No existing blockchain achieves both. Kaspa has speed (10+ blocks/sec) but transparent transactions. Monero has privacy but limited throughput (~10 TPS). Quantum aims to be the first to achieve both, with quantum-secure cryptography.
 
-### ZKPrivacy: Quantum-Secure Privacy Blockchain
+**This is a research project.** The core challenge—privacy-preserving proofs over DAG structures—is novel and unproven. We publish openly and honestly about what works and what doesn't.
 
-A complete, formally verifiable specification for a quantum-secure, privacy-by-default blockchain.
+## Research Specification
 
-**Key Features:**
-- Privacy by default - no transparent transaction mode
-- Post-quantum security using SPHINCS+, ML-KEM, STARKs
+### Quantum: Privacy-Preserving DAG Blockchain
+
+A research specification targeting Kaspa-level throughput with Monero-level privacy.
+
+**Targets:**
+- 1,000+ TPS on L1 via GhostDAG consensus
+- 10-32 blocks per second
+- 100% private transactions (no transparent mode)
+- Post-quantum security (SPHINCS+, ML-KEM, STARKs)
 - No trusted setup required
-- Designed for AI-verifiable implementation
+
+**Bitcoin Foundations:**
+- UTXO model (proven secure, privacy-friendly)
+- Nakamoto consensus (PoW, permissionless, no validators)
+- Fair launch (no premine, no ICO, no founder's reward)
+
+**Status:** Phase 1 (Specification) complete. Formal security analysis in progress.
 
 **Documents:**
 - [Full Specification](papers/zkprivacy/zkprivacy-quantum-spec-v1.md)

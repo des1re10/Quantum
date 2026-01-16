@@ -19,10 +19,12 @@
 
 ### Current Papers
 
-1. **ZKPrivacy** - Quantum-Secure Privacy Blockchain
-   - Full specification for a privacy-by-default blockchain using post-quantum cryptography
+1. **Quantum** - Privacy-Preserving DAG Blockchain
+   - Research specification for the first blockchain combining DAG consensus with full privacy
+   - Targets 1,000+ TPS on L1 using GhostDAG consensus
+   - Post-quantum security: SPHINCS+, ML-KEM, STARKs, lattice commitments
    - Designed for AI-verifiable implementation
-   - Uses SPHINCS+, ML-KEM, STARKs, and lattice-based commitments
+   - Core research challenge: privacy-preserving proofs over parallel block structures
 
 ### Project Type
 

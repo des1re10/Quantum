@@ -120,6 +120,47 @@ body {
     font-family: var(--font-serif);
 }
 
+.research-label {
+    display: inline-block;
+    background: rgba(65, 105, 225, 0.1);
+    color: var(--accent-primary);
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+}
+
+.hero-stat {
+    text-align: center;
+}
+
+.hero-stat .stat-value {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--accent-primary);
+    line-height: 1;
+}
+
+.hero-stat .stat-desc {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
 .hero-badges {
     display: flex;
     justify-content: center;
@@ -135,6 +176,80 @@ body {
     font-size: 0.8rem;
     font-family: var(--font-mono);
     color: var(--accent-primary);
+}
+
+/* Challenge Section */
+.challenge-section {
+    padding: 3rem 5%;
+    background: var(--bg-secondary);
+}
+
+.challenge-section h2 {
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--accent-primary);
+    margin-bottom: 2rem;
+}
+
+.challenge-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.challenge-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.challenge-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.challenge-card ul {
+    list-style: none;
+    margin-bottom: 1rem;
+}
+
+.challenge-card li {
+    padding: 0.4rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.challenge-gap {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.challenge-novel {
+    background: rgba(25, 135, 84, 0.1);
+    color: var(--success);
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.challenge-card.existing {
+    border-color: var(--border-color);
+}
+
+.challenge-card.quantum {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 1px var(--accent-primary);
 }
 
 /* Papers Section */
@@ -198,9 +313,18 @@ body {
 
 .paper-abstract {
     color: var(--text-secondary);
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
     font-family: var(--font-serif);
     font-size: 1rem;
+}
+
+.paper-status-note {
+    background: rgba(65, 105, 225, 0.05);
+    border-left: 3px solid var(--accent-primary);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
 }
 
 .paper-tech {
@@ -557,6 +681,18 @@ body {
 
     .hero {
         padding: 7rem 5% 3rem;
+    }
+
+    .hero-stats {
+        gap: 1.5rem;
+    }
+
+    .hero-stat .stat-value {
+        font-size: 2rem;
+    }
+
+    .challenge-grid {
+        grid-template-columns: 1fr;
     }
 
     .about-content {

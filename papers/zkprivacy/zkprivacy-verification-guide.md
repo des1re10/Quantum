@@ -13,7 +13,7 @@ header-includes:
   - \titleformat{\subsection}{\normalfont\large\bfseries\color{RoyalBlue}}{}{0em}{}
   - \usepackage{fancyhdr}
   - \pagestyle{fancy}
-  - \fancyhead[L]{ZKPrivacy Verification Guide}
+  - \fancyhead[L]{Quantum Verification Guide}
   - \fancyhead[R]{\thepage}
   - \fancyfoot[C]{}
   - \usepackage{xcolor}
@@ -29,7 +29,7 @@ header-includes:
 \begin{titlepage}
 \centering
 \vspace*{3cm}
-{\Huge\bfseries ZKPrivacy \par}
+{\Huge\bfseries Quantum \par}
 \vspace{0.5cm}
 {\Large AI Implementation \& Verification Guide\par}
 \vspace{1cm}
@@ -40,7 +40,7 @@ header-includes:
 \textbf{Phexora AI}\\
 \texttt{https://quantum.phexora.ai}
 \vfill
-{\small Companion document to the ZKPrivacy Technical Specification.\\
+{\small Companion document to the Quantum Technical Specification.\\
 Designed for AI-assisted implementation and verification.}
 \end{titlepage}
 
@@ -51,7 +51,7 @@ Designed for AI-assisted implementation and verification.}
 \clearpage
 \pagenumbering{arabic}
 
-# ZKPrivacy: AI Implementation & Verification Guide
+# Quantum: AI Implementation & Verification Guide
 
 ## Purpose
 
@@ -69,7 +69,7 @@ This document provides:
 
 ## Who This Guide Is For
 
-This guide is designed for **AI systems and developers** implementing the ZKPrivacy specification. It assumes familiarity with:
+This guide is designed for **AI systems and developers** implementing the Quantum specification. It assumes familiarity with:
 - Cryptographic primitives (hash functions, commitments, signatures)
 - Zero-knowledge proof systems (particularly STARKs)
 - Blockchain architecture (transactions, blocks, consensus)
@@ -203,7 +203,7 @@ There are NO workarounds.
 
 # Part I: Implementation Task Decomposition
 
-This section breaks the ZKPrivacy implementation into discrete, verifiable tasks. The tasks are organized as a directed acyclic graph (DAG) where edges represent dependencies: task B depends on task A means you cannot correctly implement B without a working A.
+This section breaks the Quantum implementation into discrete, verifiable tasks. The tasks are organized as a directed acyclic graph (DAG) where edges represent dependencies: task B depends on task A means you cannot correctly implement B without a working A.
 
 **Why This Structure?** Cryptographic systems have strict layering. Field arithmetic must be correct before polynomial operations can work. Polynomial operations must be correct before commitments can work. Commitments must be correct before transactions can work. An error in a lower layer propagates upward, causing cascading failures that may be difficult to debug.
 
@@ -377,11 +377,11 @@ V003.3: Streaming API for large inputs
 **Test vectors** (must match specification Section 18.1):
 ```
 h_nullifier(0x00^64):
-    Domain: "ZKPrivacy-v1.nullifier"
+    Domain: "Quantum-v1.nullifier"
     Output: 0x3a7f2c9e8b4d1a6f5c0e7b3d9a2f8c4e1b6d0a5f3e9c7b2d8a4e6f1c0b5d9a3e
 
 h_merkle(0x00 || 0x00^32 || 0x00^32):
-    Domain: "ZKPrivacy-v1.merkle"
+    Domain: "Quantum-v1.merkle"
     Output: 0x5c9a3e7f1b4d8c2e6a0f5b9d3c7e1a4f8b2d6e0a4c9f3b7e1d5a8c2f6e0b4d9a
 
 Domain separation test:
@@ -680,21 +680,22 @@ Verify:
     - Only one nullifier recorded
 ```
 
-### IT003: Chain Reorganization
+### IT003: DAG Reordering
 
 ```
 Setup:
-    1. Chain at height 100
-    2. Fork at height 95 with more cumulative work
+    1. DAG with blue score 1000 at tips
+    2. Receive delayed blocks that change canonical ordering
 
 Test:
-    3. Receive fork blocks
-    4. Process reorganization
+    3. Receive late-arriving blocks with valid PoW
+    4. Process DAG reordering
 
 Verify:
-    - Chain switches to fork
-    - Transactions in orphaned blocks return to mempool
-    - State correctly reflects new chain
+    - All valid blocks remain in DAG (none orphaned)
+    - Canonical ordering updates based on GhostDAG blue score
+    - Transactions in reordered blocks maintain validity
+    - Nullifier set remains consistent after reorder
 ```
 
 ---
@@ -1159,4 +1160,4 @@ Expected report format:
 
 # End of Verification Guide
 
-This document provides complete criteria for implementing and verifying the ZKPrivacy specification. An implementation that satisfies all requirements in this document is considered conformant.
+This document provides complete criteria for implementing and verifying the Quantum specification. An implementation that satisfies all requirements in this document is considered conformant.
