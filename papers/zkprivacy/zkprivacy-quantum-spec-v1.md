@@ -170,19 +170,28 @@ Traditional blockchains process blocks sequentially, limiting throughput to ~10 
 
 This is novel cryptographic research. The specification defines the requirements; the implementation must solve these open problems.
 
-## Why RandomX for Mining?
+## Mining Algorithm (Open Research Question)
 
 **ASIC resistance** is essential for decentralization. When mining requires specialized hardware:
 - Manufacturing concentration creates geographic centralization
 - Capital requirements exclude casual participants
 - Supply chain dependencies create potential single points of failure
 
-**RandomX** achieves ASIC resistance through:
-- Random code execution that requires general-purpose CPUs
-- Memory-hard computation that limits parallelization
-- Frequent algorithm updates via data-dependent execution
+**The Challenge**: DAG consensus with 10-32 blocks/second requires fast hash verification. Traditional ASIC-resistant algorithms have trade-offs:
 
-This ensures that mining remains viable on commodity hardware, preserving the permissionless nature of the network.
+| Algorithm | Hardware | Verification Speed | ASIC Resistance | DAG Suitability |
+|-----------|----------|-------------------|-----------------|-----------------|
+| RandomX | CPU | ~2-3ms/hash | Excellent | Uncertain (designed for 2-min blocks) |
+| kHeavyHash | GPU | <0.1ms/hash | Good (ASICs emerging) | Proven (Kaspa) |
+| Blake3 | Any | Very fast | Poor | Fast but centralizes |
+
+**Current Position**: This is an open research question. The algorithm must balance:
+1. **Decentralization**: Accessible to commodity hardware
+2. **Speed**: Fast enough for high block rate validation
+3. **Security**: Resistant to ASIC/FPGA dominance
+4. **Efficiency**: Reasonable power consumption
+
+See Appendix H.3 for detailed analysis of alternatives.
 
 ## Why These Specific Parameters?
 
@@ -249,6 +258,7 @@ This specification describes a system that **does not yet exist**. The core inno
 - STARK proofs over DAG membership (not Merkle trees)
 - Anonymity set coherence across DAG branches
 - Transaction graph privacy in DAG structure
+- Mining algorithm for high-frequency DAG (RandomX vs kHeavyHash vs hybrid)
 
 **What could fail**:
 - Proof sizes may be impractical (>1MB per transaction)
@@ -569,7 +579,7 @@ There MUST NOT be any proprietary components required for participation.
 
 ### R4.1 Fixed Supply [MANDATORY]
 ```
-Maximum supply: 21,000,000 ZKP
+Maximum supply: 21,000,000 QTM
 This limit MUST NOT be changed.
 This limit MUST be enforced by consensus rules.
 There MUST NOT exist any mechanism to create coins beyond this limit.
@@ -766,7 +776,7 @@ L1 provides: Base layer security, finality, and censorship resistance.
 | R2.6 | Security | Formal proof: STARK zero-knowledge |
 | R3.1 | Decentralization | Functional test: open participation |
 | R3.2 | Decentralization | Code review: no privileged keys |
-| R3.3 | Decentralization | Analysis: RandomX ASIC resistance |
+| R3.3 | Decentralization | Analysis: Mining algorithm ASIC resistance |
 | R3.4 | Decentralization | License review: open source |
 | R4.1 | Integrity | Code review: supply cap in consensus |
 | R4.2 | Integrity | Formal proof: balance preservation |
@@ -1471,20 +1481,25 @@ VerifyTransactionProof(public_inputs, proof):
 
 **Why Proof of Work?** In a privacy-focused system, proof of stake creates problematic dynamics: stake is visible on-chain (compromising privacy) or requires trusted infrastructure to verify (compromising decentralization). Proof of work provides permissionless participation without revealing participant identity or holdings.
 
-**Why ASIC-resistant?** When mining centralizes around specialized hardware manufacturers, the network becomes vulnerable to supply chain attacks, geographic concentration, and regulatory capture. RandomX keeps mining accessible to anyone with a general-purpose CPU.
+**Why ASIC-resistant?** When mining centralizes around specialized hardware manufacturers, the network becomes vulnerable to supply chain attacks, geographic concentration, and regulatory capture. The mining algorithm must keep mining accessible to commodity hardware (CPUs or GPUs).
 
 ### 11.1 Hash Function
 
-Using RandomX with modified output processing:
+The mining algorithm is an **open research question** (see Design Philosophy and Appendix H.3). The general structure:
 
 ```
 PowHash(header):
-    1. classical_hash = RandomX(header)
-    2. quantum_hash = H_pow(classical_hash)
+    1. classical_hash = ASIC_RESISTANT_HASH(header)  // RandomX, kHeavyHash, or TBD
+    2. quantum_hash = H_pow(classical_hash)           // SHAKE256 for quantum security
     3. Return quantum_hash
 ```
 
-**Rationale**: RandomX provides ASIC resistance. The additional hash ensures quantum security of the final output.
+**Candidates**:
+- **RandomX**: Maximum ASIC resistance (CPU), but verification speed may limit DAG block rate
+- **kHeavyHash**: Proven for DAG (Kaspa), GPU-friendly, ASICs exist but GPUs remain viable
+- **Hybrid**: Custom algorithm optimized for privacy-DAG requirements
+
+**Rationale**: The classical hash provides ASIC resistance. The additional SHAKE256 hash ensures quantum security of the final output. Final algorithm choice requires empirical testing at target block rates.
 
 ### 11.2 Block Header (DAG)
 
@@ -1810,8 +1825,8 @@ CreateTransaction(wallet, recipients, fee):
 
 ```
 Distribution: Fair launch (no premine, no ICO, no founder's reward)
-Total supply: 21,000,000 ZKP
-Initial block reward: 50 ZKP
+Total supply: 21,000,000 QTM
+Initial block reward: 50 QTM
 Halving interval: 210,000 blocks (approximately 4 years)
 
 BlockReward(height):
@@ -1826,24 +1841,24 @@ Tail emission: None (pure deflationary after ~136 years)
 ### 16.2 Fee Structure
 
 ```
-Minimum fee rate: 1 satoshi per byte (1 sat = 10^-8 ZKP)
+Minimum fee rate: 1 satoshi per byte (1 sat = 10^-8 QTM)
 Recommended fee: 10 sat/byte for normal priority
 
 Fee calculation:
     base_fee = tx_size_bytes × fee_rate
     
-Minimum transaction fee ≈ 176,000 × 1 sat = 0.00176 ZKP
+Minimum transaction fee ≈ 176,000 × 1 sat = 0.00176 QTM
 ```
 
 ### 16.3 Unit Definitions
 
 ```
-1 ZKP = 10^8 satoshi
-Smallest unit: 1 satoshi = 10^-8 ZKP
+1 QTM = 10^8 satoshi
+Smallest unit: 1 satoshi = 10^-8 QTM
 
 Display formats:
-    ZKP: Up to 8 decimal places
-    mZKP: Up to 5 decimal places (1 mZKP = 0.001 ZKP)
+    QTM: Up to 8 decimal places
+    mQTM: Up to 5 decimal places (1 mQTM = 0.001 QTM)
     sat: Integer only
 ```
 
@@ -1969,7 +1984,7 @@ Test 8: Binding test (negative)
 ```
 Test 9: Minimal valid transaction (1-in, 1-out)
     Input:
-        - Value: 1000000 satoshi (0.01 ZKP)
+        - Value: 1000000 satoshi (0.01 QTM)
         - Position in tree: 0
         - Nullifier key: 0x1a2b3c4d... (32 bytes)
     Output:
@@ -2307,9 +2322,9 @@ Note: Testnet will use a different genesis block with timestamp of testnet launc
 ## C. Network Magic Numbers
 
 ```
-Mainnet magic: 0x5A4B5031 ("ZKP1" in ASCII)
-Testnet magic: 0x5A4B5430 ("ZKT0" in ASCII)
-Regtest magic: 0x5A4B5230 ("ZKR0" in ASCII)
+Mainnet magic: 0x51544D31 ("QTM1" in ASCII)
+Testnet magic: 0x51545430 ("QTT0" in ASCII)
+Regtest magic: 0x51545230 ("QTR0" in ASCII)
 
 Protocol version: 1
 Minimum supported version: 1
@@ -2661,28 +2676,48 @@ Solana achieves high throughput through parallel transaction execution with decl
 
 ---
 
-### H.3 Alternative Mining Algorithms
+### H.3 Mining Algorithm Analysis (Open Research)
 
-**Current Choice**: RandomX (CPU-optimized, ASIC-resistant)
+The mining algorithm choice is an **open research question** for DAG-based privacy blockchains. The requirements are more demanding than traditional sequential chains.
 
-**Alternative Considered**: kHeavyHash (GPU-friendly, used by Kaspa)
+**DAG-Specific Requirements**:
+1. **Fast verification**: 10-32 blocks/second means verifying potentially 320+ block headers per 10-second window
+2. **Low latency**: Block propagation must be fast to prevent DAG fragmentation
+3. **ASIC resistance**: Decentralization is critical for censorship resistance
+4. **Post-quantum consideration**: Hash-based PoW is inherently quantum-resistant
+
+**Algorithm Comparison**:
 
 ```
-Comparison:
-                    RandomX             kHeavyHash
-    Hardware        CPU-optimized       GPU-optimized
-    ASIC status     No viable ASICs     ASICs exist (2023+)
-    Accessibility   Any computer        Requires GPU
-    Power           Higher per hash     More efficient
-    Decentralization Maximum            Good (GPUs common)
+                    RandomX         kHeavyHash      Blake3-256
+Hardware            CPU             GPU             Any
+Verification        ~2-3ms/hash     <0.1ms/hash     <0.01ms/hash
+ASIC resistance     Excellent       Good*           Poor
+Decentralization    Maximum         Good            Low (ASIC farms)
+Power efficiency    Lower           Higher          Highest
+Production use      Monero (5+ yr)  Kaspa (2+ yr)   Various
+DAG suitability     Uncertain       Proven          Unproven
+
+* kHeavyHash ASICs emerged in 2023, but GPU mining remains viable
 ```
 
-**Why RandomX for v1.0**: Maximum decentralization is prioritized. CPUs are more ubiquitous than GPUs, and RandomX has proven ASIC resistance over 5+ years of production use. The power efficiency trade-off is acceptable for a privacy-focused chain where decentralization directly impacts censorship resistance.
+**Analysis**:
 
-**Future Consideration**: If GPU mining becomes more decentralized (wider GPU ownership, no ASIC dominance), a hybrid or alternative algorithm could be evaluated. Any change would require:
-- Security audit of new algorithm
-- Analysis of mining centralization risks
-- Hard fork coordination
+1. **RandomX**: Designed for Monero's 2-minute blocks. Verification at ~2-3ms/hash may create bottlenecks at high block rates. CPU mining maximizes decentralization but may not scale to DAG requirements. Needs benchmarking.
+
+2. **kHeavyHash**: Proven for DAG consensus (Kaspa). GPU-friendly provides good decentralization (GPUs are widely owned). ASICs exist but haven't eliminated GPU mining. Most practical choice based on Kaspa's success.
+
+3. **Blake3**: Very fast but provides no ASIC resistance. Would lead to mining centralization.
+
+4. **Hybrid approach**: Possible to combine algorithms (e.g., memory-hard component + fast verification). Requires custom research.
+
+**Research Required**:
+- Benchmark RandomX verification at 10-32 blocks/second
+- Analyze kHeavyHash ASIC impact on decentralization
+- Evaluate hybrid approaches for privacy-DAG specific requirements
+- Consider optical PoW or other novel approaches
+
+**Current Position**: No final decision. The specification requires ASIC resistance and DAG compatibility. Implementation phase must resolve this with empirical testing.
 
 ### H.4 Proof System Improvements
 

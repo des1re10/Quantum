@@ -134,11 +134,11 @@ Before writing ANY code, the AI MUST confirm:
 [ ] R3: DECENTRALIZATION REQUIREMENTS
     [ ] R3.1: No permissions required to participate
     [ ] R3.2: No privileged parties or special keys
-    [ ] R3.3: RandomX (ASIC-resistant) for mining
+    [ ] R3.3: ASIC-resistant mining algorithm
     [ ] R3.4: All code is open source
 
 [ ] R4: INTEGRITY REQUIREMENTS
-    [ ] R4.1: Supply capped at exactly 21,000,000 ZKP
+    [ ] R4.1: Supply capped at exactly 21,000,000 QTM
     [ ] R4.2: Balance equation enforced in ZK proof
     [ ] R4.3: Nullifiers prevent double-spending
     [ ] R4.4: Heaviest chain rule for finality
