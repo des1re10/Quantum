@@ -172,26 +172,28 @@ This is novel cryptographic research. The specification defines the requirements
 
 ## Mining Algorithm (Open Research Question)
 
-**ASIC resistance** is essential for decentralization. When mining requires specialized hardware:
-- Manufacturing concentration creates geographic centralization
-- Capital requirements exclude casual participants
-- Supply chain dependencies create potential single points of failure
+**Permissionless mining** is essential for censorship resistance. The mining algorithm must ensure:
+- Anyone can participate without permission
+- No single entity can dominate hash rate
+- Higher total hashrate = more security (costly to attack)
 
-**The Challenge**: DAG consensus with 10-32 blocks/second requires fast hash verification. Traditional ASIC-resistant algorithms have trade-offs:
+**The Challenge**: DAG consensus with 10-32 blocks/second requires fast hash verification.
 
-| Algorithm | Hardware | Verification Speed | ASIC Resistance | DAG Suitability |
-|-----------|----------|-------------------|-----------------|-----------------|
-| RandomX | CPU | ~2-3ms/hash | Excellent | Uncertain (designed for 2-min blocks) |
-| kHeavyHash | GPU | <0.1ms/hash | Good (ASICs emerging) | Proven (Kaspa) |
-| Blake3 | Any | Very fast | Poor | Fast but centralizes |
+| Algorithm | Hardware | Verification Speed | Hashrate Security | DAG Suitability |
+|-----------|----------|-------------------|-------------------|-----------------|
+| RandomX | CPU | ~2-3ms/hash | Lower total hashrate | Uncertain (designed for 2-min blocks) |
+| kHeavyHash | GPU/ASIC | <0.1ms/hash | High (Kaspa proven) | Proven (Kaspa) |
+| SHA-256d | ASIC | Very fast | Highest (Bitcoin) | Fast, proven secure |
 
 **Current Position**: This is an open research question. The algorithm must balance:
-1. **Decentralization**: Accessible to commodity hardware
+1. **Permissionless**: Anyone can mine without approval
 2. **Speed**: Fast enough for high block rate validation
-3. **Security**: Resistant to ASIC/FPGA dominance
-4. **Efficiency**: Reasonable power consumption
+3. **Security**: High total hashrate makes 51% attacks costly
+4. **Proven**: Battle-tested in production
 
-See Appendix H.3 for detailed analysis of alternatives.
+Note: ASIC mining does not inherently harm decentralization. Bitcoin and Kaspa demonstrate that ASIC/GPU mining can remain permissionless and geographically distributed. Higher hashrate provides stronger security guarantees.
+
+See Appendix H.3 for detailed analysis.
 
 ## Why These Specific Parameters?
 
@@ -258,7 +260,7 @@ This specification describes a system that **does not yet exist**. The core inno
 - STARK proofs over DAG membership (not Merkle trees)
 - Anonymity set coherence across DAG branches
 - Transaction graph privacy in DAG structure
-- Mining algorithm for high-frequency DAG (RandomX vs kHeavyHash vs hybrid)
+- Mining algorithm optimization for privacy-DAG (kHeavyHash leading candidate)
 
 **What could fail**:
 - Proof sizes may be impractical (>1MB per transaction)
@@ -559,11 +561,12 @@ There MUST NOT exist any party with special privileges including:
 - Access to backdoors or master keys
 ```
 
-### R3.3 ASIC Resistance [MANDATORY]
+### R3.3 Permissionless Mining [MANDATORY]
 ```
-The consensus mechanism MUST use an algorithm that is resistant to
-    specialized hardware (ASICs).
-Mining MUST remain viable on commodity CPU hardware.
+Mining MUST be permissionless (no approval required to participate).
+The mining algorithm MUST support high hashrate for network security.
+No single entity SHALL control majority of mining infrastructure.
+Mining algorithm choice: See Design Philosophy and Appendix H.3.
 ```
 
 ### R3.4 Open Source [MANDATORY]
@@ -776,7 +779,7 @@ L1 provides: Base layer security, finality, and censorship resistance.
 | R2.6 | Security | Formal proof: STARK zero-knowledge |
 | R3.1 | Decentralization | Functional test: open participation |
 | R3.2 | Decentralization | Code review: no privileged keys |
-| R3.3 | Decentralization | Analysis: Mining algorithm ASIC resistance |
+| R3.3 | Decentralization | Analysis: Permissionless mining, hashrate distribution |
 | R3.4 | Decentralization | License review: open source |
 | R4.1 | Integrity | Code review: supply cap in consensus |
 | R4.2 | Integrity | Formal proof: balance preservation |
@@ -1481,7 +1484,7 @@ VerifyTransactionProof(public_inputs, proof):
 
 **Why Proof of Work?** In a privacy-focused system, proof of stake creates problematic dynamics: stake is visible on-chain (compromising privacy) or requires trusted infrastructure to verify (compromising decentralization). Proof of work provides permissionless participation without revealing participant identity or holdings.
 
-**Why ASIC-resistant?** When mining centralizes around specialized hardware manufacturers, the network becomes vulnerable to supply chain attacks, geographic concentration, and regulatory capture. The mining algorithm must keep mining accessible to commodity hardware (CPUs or GPUs).
+**Why high hashrate matters:** Higher total network hashrate makes 51% attacks more expensive. Bitcoin and Kaspa demonstrate that professional mining (including ASICs) can coexist with permissionless participation and geographic distribution. Security comes from the cost to attack, not the hardware type.
 
 ### 11.1 Hash Function
 
@@ -1489,17 +1492,17 @@ The mining algorithm is an **open research question** (see Design Philosophy and
 
 ```
 PowHash(header):
-    1. classical_hash = ASIC_RESISTANT_HASH(header)  // RandomX, kHeavyHash, or TBD
-    2. quantum_hash = H_pow(classical_hash)           // SHAKE256 for quantum security
+    1. classical_hash = MINING_HASH(header)    // kHeavyHash, SHA-256d, or TBD
+    2. quantum_hash = H_pow(classical_hash)    // SHAKE256 for quantum security
     3. Return quantum_hash
 ```
 
 **Candidates**:
-- **RandomX**: Maximum ASIC resistance (CPU), but verification speed may limit DAG block rate
-- **kHeavyHash**: Proven for DAG (Kaspa), GPU-friendly, ASICs exist but GPUs remain viable
-- **Hybrid**: Custom algorithm optimized for privacy-DAG requirements
+- **kHeavyHash**: Proven for DAG (Kaspa), high hashrate, GPU/ASIC compatible
+- **SHA-256d**: Highest hashrate security (Bitcoin), extremely fast verification
+- **Custom**: Optimized for privacy-DAG requirements if needed
 
-**Rationale**: The classical hash provides ASIC resistance. The additional SHAKE256 hash ensures quantum security of the final output. Final algorithm choice requires empirical testing at target block rates.
+**Rationale**: The mining hash provides proof-of-work security through high hashrate. The additional SHAKE256 hash ensures quantum security of the final output. Final algorithm choice requires empirical testing at target block rates.
 
 ### 11.2 Block Header (DAG)
 
@@ -2632,12 +2635,12 @@ Solana achieves high throughput through parallel transaction execution with decl
    - Conflicts with unlinkability requirements
 
 2. Hardware requirements harm decentralization
-   - Solana requires high-end hardware
-   - Conflicts with commodity hardware goal (R3.3)
+   - Solana requires high-end specialized hardware
+   - Validator sets are permissioned in practice
 
-3. Not ASIC-resistant
-   - Validator hardware becomes specialized
-   - Centralization pressure from hardware requirements
+3. Centralization pressure
+   - Validator hardware is specialized (not commodity)
+   - Small validator set compared to PoW miner distribution
 ```
 
 #### GhostDAG (Selected)
@@ -2647,7 +2650,8 @@ Solana achieves high throughput through parallel transaction execution with decl
 1. Pure Proof of Work
    - No stake visibility (privacy preserved)
    - No committees (trustless)
-   - ASIC-resistant mining (decentralized)
+   - Permissionless mining (anyone can participate)
+   - High hashrate = high security
 
 2. Uniform block structure
    - All blocks are equal (no special roles)
@@ -2678,46 +2682,45 @@ Solana achieves high throughput through parallel transaction execution with decl
 
 ### H.3 Mining Algorithm Analysis (Open Research)
 
-The mining algorithm choice is an **open research question** for DAG-based privacy blockchains. The requirements are more demanding than traditional sequential chains.
+The mining algorithm choice is an **open research question** for DAG-based privacy blockchains. The focus is on **security through high hashrate** and **permissionless participation**, not ASIC resistance.
+
+**Key Insight**: Bitcoin and Kaspa prove that ASIC/GPU mining does not harm decentralization. What matters is:
+- Permissionless participation (anyone can mine)
+- Geographic distribution (no single point of failure)
+- High total hashrate (expensive to attack)
 
 **DAG-Specific Requirements**:
-1. **Fast verification**: 10-32 blocks/second means verifying potentially 320+ block headers per 10-second window
+1. **Fast verification**: 10-32 blocks/second means verifying 320+ block headers per 10-second window
 2. **Low latency**: Block propagation must be fast to prevent DAG fragmentation
-3. **ASIC resistance**: Decentralization is critical for censorship resistance
+3. **High hashrate**: More hashrate = more security against 51% attacks
 4. **Post-quantum consideration**: Hash-based PoW is inherently quantum-resistant
 
 **Algorithm Comparison**:
 
 ```
-                    RandomX         kHeavyHash      Blake3-256
-Hardware            CPU             GPU             Any
-Verification        ~2-3ms/hash     <0.1ms/hash     <0.01ms/hash
-ASIC resistance     Excellent       Good*           Poor
-Decentralization    Maximum         Good            Low (ASIC farms)
-Power efficiency    Lower           Higher          Highest
-Production use      Monero (5+ yr)  Kaspa (2+ yr)   Various
-DAG suitability     Uncertain       Proven          Unproven
-
-* kHeavyHash ASICs emerged in 2023, but GPU mining remains viable
+                    kHeavyHash      SHA-256d        RandomX
+Hardware            GPU/ASIC        ASIC            CPU
+Verification        <0.1ms/hash     <0.01ms/hash    ~2-3ms/hash
+Hashrate security   High            Highest         Lower
+Permissionless      Yes             Yes             Yes
+Production use      Kaspa (2+ yr)   Bitcoin (15 yr) Monero (5+ yr)
+DAG suitability     Proven          Proven (fast)   Uncertain
 ```
 
 **Analysis**:
 
-1. **RandomX**: Designed for Monero's 2-minute blocks. Verification at ~2-3ms/hash may create bottlenecks at high block rates. CPU mining maximizes decentralization but may not scale to DAG requirements. Needs benchmarking.
+1. **kHeavyHash**: Proven for DAG consensus (Kaspa). High hashrate with GPU/ASIC mining. Maintains permissionless participation. **Recommended starting point** based on Kaspa's success.
 
-2. **kHeavyHash**: Proven for DAG consensus (Kaspa). GPU-friendly provides good decentralization (GPUs are widely owned). ASICs exist but haven't eliminated GPU mining. Most practical choice based on Kaspa's success.
+2. **SHA-256d**: Highest hashrate security (Bitcoin). Extremely fast verification suits high block rates. ASICs provide maximum security investment. Worth considering for maximum security.
 
-3. **Blake3**: Very fast but provides no ASIC resistance. Would lead to mining centralization.
-
-4. **Hybrid approach**: Possible to combine algorithms (e.g., memory-hard component + fast verification). Requires custom research.
+3. **RandomX**: CPU-only limits total hashrate and thus security. Verification speed may bottleneck DAG. Not recommended for high-throughput DAG.
 
 **Research Required**:
-- Benchmark RandomX verification at 10-32 blocks/second
-- Analyze kHeavyHash ASIC impact on decentralization
-- Evaluate hybrid approaches for privacy-DAG specific requirements
-- Consider optical PoW or other novel approaches
+- Analyze kHeavyHash hashrate growth and miner distribution
+- Evaluate SHA-256d for DAG compatibility (verification throughput)
+- Consider merged mining possibilities for bootstrap security
 
-**Current Position**: No final decision. The specification requires ASIC resistance and DAG compatibility. Implementation phase must resolve this with empirical testing.
+**Current Position**: **kHeavyHash is the leading candidate** based on Kaspa's proven DAG performance. SHA-256d is a viable alternative if maximum hashrate security is prioritized. Final decision in implementation phase.
 
 ### H.4 Proof System Improvements
 
