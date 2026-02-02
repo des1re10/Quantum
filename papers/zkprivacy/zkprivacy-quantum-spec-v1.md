@@ -199,7 +199,7 @@ See Appendix H.3 for detailed analysis.
 
 | Parameter | Value | Rationale |
 |-----------|-------|-----------|
-| Security level | 128-bit post-quantum | NIST Level 3, balanced security/efficiency |
+| Security level | ≥128-bit post-quantum target | Hashes at 128-bit PQ; ML-KEM-1024 & SPHINCS+-256f use NIST Level 5 parameters; STARK soundness 2^-100 |
 | Field (STARKs) | Goldilocks (2^64 - 2^32 + 1) | Efficient 64-bit arithmetic, 2^32 roots of unity |
 | Ring modulus | q = 8380417 | Matches CRYSTALS-Dilithium, enables NTT |
 | Polynomial degree | n = 256 | Standard lattice parameter, efficient NTT |
@@ -250,7 +250,7 @@ This ensures that Quantum's value, if any emerges, accrues to those who secure t
 This specification describes a system that **does not yet exist**. The core innovation—privacy-preserving proofs over DAG-based consensus—is an open research problem. No existing blockchain has solved this.
 
 **What is proven (low risk)**:
-- Post-quantum cryptography: SPHINCS+, ML-KEM, lattice commitments are NIST-standardized
+- Post-quantum cryptography: SPHINCS+ and ML-KEM are NIST-standardized; lattice commitments rely on standard lattice assumptions but are not standardized
 - STARKs: Production-ready (StarkNet, StarkEx), no trusted setup
 - GhostDAG: Production-ready (Kaspa), achieves 10+ blocks/second
 - Privacy transactions: Production-ready (Monero, Zcash) on sequential chains
@@ -659,6 +659,8 @@ The system MUST be operable on hardware with:
 - 4-core CPU
 ```
 
+Note: "full node" here refers to a pruned full node that retains the current state and a bounded recent history. Archival nodes will require significantly more storage at target throughput.
+
 ### R6.3 Network [MANDATORY]
 ```
 Block rate: 10-32 blocks per second (DAG consensus)
@@ -855,8 +857,8 @@ R_q        ℤ_q[X]/(X^n + 1) for n = power of 2
 
 ```
 λ = 256    Primary security parameter
-           Targets 128-bit post-quantum security
-           (256-bit classical security)
+           Targets ≥128-bit post-quantum security overall
+           (hashes at 128-bit PQ; KEM/signatures use NIST Level 5 parameters)
 ```
 
 ### 1.3 Endianness and Encoding
@@ -947,7 +949,7 @@ k = 4                      // Module rank for commitments
 η = 2                      // Secret/noise coefficient bound
 ```
 
-**Rationale**: These parameters provide 128-bit post-quantum security based on Module-LWE hardness assumption, aligned with CRYSTALS-Kyber/Dilithium parameters.
+**Rationale**: These parameters align with CRYSTALS-Dilithium-style module parameters (q, n, k). The target is ≥128-bit post-quantum security, subject to formal analysis.
 
 ### 3.2 Polynomial Operations
 
@@ -1234,7 +1236,7 @@ Part II specifies how the cryptographic primitives from Part I combine into a wo
 1. **Creating outputs**: The sender generates commitments to amounts, encrypts output data to recipients using their view keys, and creates new "notes" (outputs)
 2. **Spending inputs**: To spend previous outputs, the sender reveals nullifiers (deterministic tags that mark outputs as spent) without revealing *which* outputs they correspond to
 3. **Proving validity**: The sender generates a STARK proof that the transaction is balanced (inputs = outputs + fee), all spent outputs existed, and all nullifiers are correctly formed
-4. **Authorization**: The sender signs the transaction with their spend key
+4. **Authorization**: The sender signs the transaction with the input spend keys
 5. **Propagation**: The transaction propagates through the network using Dandelion++ to hide the sender's IP address
 6. **Inclusion**: Miners validate the proof and signature, check nullifiers aren't already spent, and include the transaction in a block
 
@@ -1296,9 +1298,10 @@ ScanOutput(ViewSK, Ciphertext, EncryptedData):
     1. SharedSecret = Kyber_Decapsulate(ViewSK, Ciphertext)
     2. OneTimeKey = H_address(SharedSecret)
     3. DecryptionKey = H_kdf("decrypt" || OneTimeKey, 256)
-    4. Data = AES256_GCM_Decrypt(DecryptionKey, EncryptedData)
-    5. If decryption succeeds, output belongs to us
-    6. Return Data or ⊥
+    4. Parse EncryptedData = nonce || ciphertext || tag
+    5. Data = AES256_GCM_Decrypt(DecryptionKey, nonce, ciphertext, tag)
+    6. If decryption succeeds, output belongs to us
+    7. Return Data or ⊥
 ```
 
 ---
@@ -1310,11 +1313,11 @@ ScanOutput(ViewSK, Ciphertext, EncryptedData):
 ```
 struct Output {
     // Public (stored on-chain)
-    commitment: LatticeCommitment,     // k × n coefficients in ℤ_q
+    commitment: LatticeCommitment,     // k × n coefficients in ℤ_q (~3,072 bytes)
     kyber_ciphertext: [u8; 1568],      // For stealth address
-    encrypted_data: [u8; 128],         // AES-GCM encrypted (value, blinding_seed)
+    encrypted_data: [u8; 148],         // AES-GCM: nonce(12) || ciphertext(120) || tag(16)
     
-    // Size: approximately 13 KB per output
+    // Size: approximately 4.8 KB per output
 }
 
 // Encrypted data plaintext structure:
@@ -1324,6 +1327,11 @@ struct OutputPlaintext {
     memo: [u8; 64],          // 64 bytes, arbitrary user data
     checksum: [u8; 16],      // 16 bytes, for integrity
 }
+
+// Encryption (deterministic nonce):
+// nonce = H_kdf("nonce" || OneTimeKey, 96)  // 12 bytes
+// ciphertext, tag = AES256_GCM_Encrypt(DecryptionKey, nonce, OutputPlaintext)
+// encrypted_data = nonce || ciphertext || tag
 ```
 
 ### 9.2 Nullifier
@@ -1357,7 +1365,7 @@ struct Transaction {
     // STARK proof of validity
     validity_proof: StarkProof,
     
-    // Signature authorizing the transaction
+    // Signatures authorizing the transaction
     authorization: TransactionAuthorization,
     
     // Merkle root at time of creation
@@ -1365,11 +1373,10 @@ struct Transaction {
 }
 
 struct TransactionAuthorization {
-    // Aggregated SPHINCS+ signature over transaction hash
-    // For multi-input transactions, signatures are aggregated
-    signature: [u8; 49856],
+    // SPHINCS+ signatures over transaction hash (one per input key)
+    signatures: Vec<[u8; 49856]>,
     
-    // Public key(s) used (for verification)
+    // Public keys used (one per input)
     // These are derived one-time keys, not main wallet keys
     signing_keys: Vec<[u8; 64]>,
 }
@@ -1380,14 +1387,14 @@ struct TransactionAuthorization {
 ```
 2-input, 2-output transaction:
     Nullifiers: 2 × 32 = 64 bytes
-    Outputs: 2 × 13,000 ≈ 26,000 bytes
+    Outputs: 2 × 4,788 ≈ 9,576 bytes
     Fee: 8 bytes
     STARK proof: ~100,000 bytes
-    Signature: ~50,000 bytes
+    Signatures: 2 × 49,856 ≈ 99,712 bytes
     Anchor: 32 bytes
     Overhead: ~100 bytes
     
-    Total: ~176 KB per transaction
+    Total: ~205 KB per transaction
 ```
 
 ---
@@ -1590,7 +1597,7 @@ ValidateBlock(block, dag_state):
            a. Check tx.anchor references valid DAG block
            b. Check all nullifiers are not in nullifier set
            c. Verify tx.validity_proof
-           d. Verify tx.authorization signature
+           d. Verify tx.authorization signatures
 
     8. Check header.merkle_root == MerkleRoot(block.transactions)
     9. Check header.output_tree_root == updated output tree root
@@ -1820,12 +1827,14 @@ CreateTransaction(wallet, recipients, fee):
     witness = PrepareWitness(wallet, inputs, outputs, fee)
     proof = GenerateTransactionProof(public_inputs, witness)
     
-    // Sign transaction
+    // Sign transaction (one signature per input key)
     tx_hash = H_merkle(SerializeTransactionWithoutSig(...))
-    signature = SPHINCS_Sign(wallet.spend_sk, tx_hash)
+    signatures = []
+    for sk in input_signing_keys:
+        signatures.append(SPHINCS_Sign(sk, tx_hash))
     
     // Assemble transaction
-    Return Transaction { nullifiers, outputs, fee, proof, signature, anchor }
+    Return Transaction { nullifiers, outputs, fee, proof, signatures, signing_keys, anchor }
 ```
 
 ---
@@ -2006,7 +2015,7 @@ Test 9: Minimal valid transaction (1-in, 1-out)
     Expected nullifier: H_nullifier(nk || commitment || 0) = 0x4f8a2c...
     Balance check: 1000000 = 999999 + 1 ✓
 
-    Serialized size: ~89 KB (1 input, 1 output)
+    Serialized size: ~151 KB (1 input, 1 output)
 
 Test 10: Standard transaction (2-in, 2-out)
     Inputs: 500000 sat + 500000 sat = 1000000 sat
@@ -2014,12 +2023,12 @@ Test 10: Standard transaction (2-in, 2-out)
     Fee: 10000 sat
     Balance check: 1000000 = 990000 + 10000 ✓
 
-    Serialized size: ~176 KB
+    Serialized size: ~205 KB
 
 Test 11: Maximum transaction (16-in, 16-out)
     Maximum inputs: 16
     Maximum outputs: 16
-    Serialized size: ~1.4 MB
+    Serialized size: ~0.95 MB
     Proof generation time: < 120 seconds (extended limit for max size)
 ```
 
@@ -2431,21 +2440,22 @@ This section documents known limitations and design trade-offs:
 ### G.1 Transaction Size
 
 ```
-Issue: Transactions are large (~176 KB for 2-in, 2-out)
+Issue: Transactions are large (~205 KB for 2-in, 2-out)
 
 Breakdown:
     - STARK proof: ~100 KB (dominant factor)
-    - SPHINCS+ signature: ~50 KB
-    - Lattice commitments: ~13 KB per output
+    - SPHINCS+ signatures: ~50 KB per input (2-in example: ~100 KB)
+    - Lattice commitments: ~3 KB per output
     - Kyber ciphertext: ~1.5 KB per output
+    - Encrypted data: ~0.15 KB per output
 
 Impact with DAG (10-32 blocks/second):
-    - Higher bandwidth requirements (~1.7 GB/sec at 1000 TPS)
-    - Larger blockchain storage (~5.5 TB/year at 1000 TPS)
+    - Higher bandwidth requirements (~0.205 GB/sec at 1000 TPS)
+    - Larger blockchain storage (~6.5 PB/year at 1000 TPS)
     - Requires high-bandwidth nodes for full validation
 
 DAG scaling:
-    - At 10 blocks/sec with 100 tx/block = 1,000 TPS (17.6 MB/sec)
+    - At 10 blocks/sec with 100 tx/block = 1,000 TPS (~205 MB/sec, ~20.5 MB/block)
     - Parallel blocks distribute load across network
     - Light clients only validate headers + proofs
 

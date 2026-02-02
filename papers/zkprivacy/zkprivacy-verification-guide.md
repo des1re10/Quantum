@@ -96,7 +96,7 @@ This guide embodies three principles:
 2. **Fail-safe defaults**: When uncertain, reject rather than accept
 3. **Deterministic verification**: All tests produce identical results across implementations
 
-The immutable requirements (R1-R7) are not negotiable. They define the security boundaries that, if violated, invalidate the entire implementation. Before writing any code, internalize these requirements completely.
+The immutable requirements (R1-R8) are not negotiable. They define the security boundaries that, if violated, invalidate the entire implementation. Before writing any code, internalize these requirements completely.
 
 ---
 
@@ -104,7 +104,7 @@ The immutable requirements (R1-R7) are not negotiable. They define the security 
 
 ## ⛔ BEFORE ANY IMPLEMENTATION ⛔
 
-The implementing AI system MUST first verify understanding of the immutable requirements (Section R1-R7 of the main specification). These requirements are **non-negotiable** and **cannot be modified**.
+The implementing AI system MUST first verify understanding of the immutable requirements (Section R1-R8 of the main specification). These requirements are **non-negotiable** and **cannot be modified**.
 
 ### Pre-Implementation Checklist
 
@@ -156,6 +156,14 @@ Before writing ANY code, the AI MUST confirm:
 [ ] R7: NON-REQUIREMENTS ACKNOWLEDGED
     [ ] R7.1: No smart contracts in v1
     [ ] R7.2: No backdoors, no censorship, no blacklisting
+
+[ ] R8: SCALABILITY REQUIREMENTS
+    [ ] R8.1: DAG-native architecture (GhostDAG or equivalent)
+    [ ] R8.2: ≥1,000 TPS sustained, 10-32 blocks/sec
+    [ ] R8.3: Parallel validation and nullifier checking
+    [ ] R8.4: Privacy preserved over DAG structure
+    [ ] R8.5: Horizontal scaling with added nodes
+    [ ] R8.6: L2 compatibility constraints documented
 ```
 
 ### Automatic Requirement Violation Detection
@@ -187,7 +195,7 @@ pub fn verify_requirements_compliance() -> Result<(), RequirementViolation> {
 ### Requirement Violation = Implementation Failure
 
 ```
-IF any requirement R1-R7 is violated:
+IF any requirement R1-R8 is violated:
     THEN implementation is INVALID
     THEN implementation MUST be rejected
     THEN implementation MUST be restarted from scratch
