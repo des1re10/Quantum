@@ -1499,7 +1499,7 @@ The mining algorithm is an **open research question** (see Design Philosophy and
 
 ```
 PowHash(header):
-    1. classical_hash = MINING_HASH(header)    // kHeavyHash, SHA-256d, or TBD
+    1. classical_hash = MINING_HASH(header)    // kHeavyHash, SHA-256d, or to be defined
     2. quantum_hash = H_pow(classical_hash)    // SHAKE256 for quantum security
     3. Return quantum_hash
 ```
@@ -2316,7 +2316,7 @@ struct GenesisBlock {
         merkle_root: [0u8; 32],
         output_tree_root: [0u8; 32],
         nullifier_set_root: [0u8; 32],
-        timestamp: 1767225600,           // TBD: launch timestamp
+        timestamp: 1767225600,           // Launch timestamp to be defined
         difficulty: GENESIS_DIFFICULTY,
         nonce: 0,
     },
