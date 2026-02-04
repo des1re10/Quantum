@@ -119,12 +119,7 @@ What it does:
 
 ### Local Testing
 
-```bash
-# Simple Python server for local preview
-cd /mnt/d/workspace/VisualStudio/Quantum
-python3 -m http.server 8080
-# Open: http://localhost:8080
-```
+See `AGENTS.md` for local start commands.
 
 ### Deployment
 
