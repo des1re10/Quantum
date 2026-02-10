@@ -81,6 +81,11 @@ set_terminal_title "$PROJECT_NAME - $DEPLOY_TARGET Startup"
 setup_sudo_auth
 _setup_exit_trap
 
+# ============================================================================
+# CLEAR PYTHON BYTECODE CACHE
+# ============================================================================
+clear_python_cache
+
 # Define sudo wrapper function - uses -A flag with common_functions
 run_sudo() {
     sudo -A "$@"
