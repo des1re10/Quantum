@@ -19,3 +19,14 @@
 
 ## Notes
 - Deploy scripts: `tools/Scripts/Startup/quantum_deploy_script.sh`
+
+## Fail-Fast Policy (Mandatory)
+- For all Python changes, follow: `/mnt/d/workspace/VisualStudio/Libraries/Scripts/audit_prompts/03_defensive_programming_violations.md`.
+- Do not add defensive fallbacks for required dependencies/fields.
+- Do not use `hasattr()`/`getattr(..., default)` on required code paths.
+- Do not use silent fallback patterns like `x = x or []`, `dict.get("key", default)` for required fields, or broad `except: return None`.
+- Use direct access for required values and raise explicit exceptions when invariants are violated.
+- Only keep fallback behavior when it is truly required by external systems/data quality and document it with `# REQUIRED FALLBACK:` including:
+- Why it is required
+- Evidence/example that triggers it
+- What breaks if removed
