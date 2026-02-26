@@ -165,8 +165,15 @@ else
     echo "Deploying to TEST server: $WEB_ROOT"
 fi
 
-# Source Libraries path (from pCloud - Libraries is at parent level, not inside Quantum)
-SOURCE_LIBRARIES="$HOME/pCloudDrive/Crypto Folder/Quantum Sources/Libraries"
+# Source Libraries path:
+# - In archive mode, SOURCE_BASE points to /tmp/.../Quantum Sources/Quantum
+# - In file-tree mode, SOURCE_BASE points to ~/pCloudDrive/.../Quantum Sources/Quantum
+# In both cases, Libraries is the sibling directory of SOURCE_BASE.
+if [ -n "${SOURCE_LIBRARIES_OVERRIDE:-}" ]; then
+    SOURCE_LIBRARIES="$SOURCE_LIBRARIES_OVERRIDE"
+else
+    SOURCE_LIBRARIES="$(dirname "$SOURCE_BASE")/Libraries"
+fi
 
 # Verify source directory exists
 if [ ! -d "$SOURCE_BASE" ]; then
