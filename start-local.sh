@@ -6,6 +6,27 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PAPERS_DIR="$SCRIPT_DIR/papers/zkprivacy"
+LIBRARIES_PYTHON="$(cd "$SCRIPT_DIR/../Libraries/Python" && pwd)"
+DEFAULT_PORT="9180"
+PORT="${1:-}"
+
+if [ -z "$PORT" ]; then
+    REGISTRY_PORT="$(python3 - <<PY 2>/dev/null
+import sys
+sys.path.insert(0, r"$LIBRARIES_PYTHON")
+from ApplicationRegistry import get_application
+config = get_application("quantum")
+print(getattr(config, "local_preview_port", "") or "")
+PY
+)"
+    if [[ "$REGISTRY_PORT" =~ ^[0-9]+$ ]]; then
+        PORT="$REGISTRY_PORT"
+    else
+        PORT="$DEFAULT_PORT"
+    fi
+fi
+
+cd "$SCRIPT_DIR"
 
 echo "================================================"
 echo "  Quantum - Post-Quantum Cryptography Research"
@@ -75,8 +96,8 @@ fi
 
 # Start Python HTTP server
 echo "Starting local web server..."
-echo "URL: http://localhost:8080"
+echo "URL: http://localhost:$PORT"
 echo "Press Ctrl+C to stop"
 echo ""
 
-python3 -m http.server 8080
+python3 -m http.server "$PORT"

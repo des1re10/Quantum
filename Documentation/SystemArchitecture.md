@@ -90,7 +90,7 @@ Static resources:
 |-------------|-----|---------|
 | Production | https://quantum.phexora.ai | Public site |
 | Test | https://test.quantum.phexora.ai | Staging |
-| Local | http://localhost:8080 | Development |
+| Local | http://localhost:9180 | Development |
 
 ### Deployment Flow
 

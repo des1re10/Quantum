@@ -73,7 +73,7 @@ cd quantum
 # Or on Windows: start-local.bat
 
 # Open in browser
-# http://localhost:8080
+# http://localhost:9180
 ```
 
 ## Contributing
