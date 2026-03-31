@@ -226,7 +226,7 @@ fi
 # Verify required files exist
 echo ""
 echo "Verifying source files..."
-REQUIRED_FILES=("index.html")
+REQUIRED_FILES=("index.html" "assets" "papers")
 MISSING_FILES=0
 
 for file in "${REQUIRED_FILES[@]}"; do
@@ -331,6 +331,14 @@ echo "=== Deploying Quantum ==="
 QUANTUM_OUTPUT=$(bash "$LIBRARIES_DEPLOY_SCRIPT" "Quantum" "$SOURCE_BASE" "$TARGET_DIR" "$DEPLOY_TARGET" "n" 2>&1)
 echo "$QUANTUM_OUTPUT"
 
+echo "  Verifying deployed site files..."
+for required_path in "index.html" "assets" "papers"; do
+    if [ ! -e "$TARGET_DIR/$required_path" ]; then
+        echo "ERROR: Required deployment output missing: $TARGET_DIR/$required_path"
+        exit 1
+    fi
+done
+
 # === Copy to web root (Quantum-specific: static website served by nginx) ===
 echo ""
 echo "[2/6] Deploying to web root..."
@@ -338,20 +346,33 @@ if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
     echo "  Deploying to web root: $WEB_ROOT"
     # Copy to temp directory first (pCloud FUSE doesn't allow root access)
     TEMP_DIR=$(mktemp -d)
-    cp "$TARGET_DIR/index.html" "$TEMP_DIR/" 2>/dev/null || true
-    cp -r "$TARGET_DIR/assets" "$TEMP_DIR/" 2>/dev/null || true
-    cp -r "$TARGET_DIR/papers" "$TEMP_DIR/" 2>/dev/null || true
+    cp "$TARGET_DIR/index.html" "$TEMP_DIR/"
+    cp -r "$TARGET_DIR/assets" "$TEMP_DIR/"
+    cp -r "$TARGET_DIR/papers" "$TEMP_DIR/"
 
     # Remove existing files/directories to allow clean replacement
-    sudo rm -f "$WEB_ROOT/index.html" 2>/dev/null || true
-    sudo rm -rf "$WEB_ROOT/assets" 2>/dev/null || true
-    sudo rm -rf "$WEB_ROOT/papers" 2>/dev/null || true
+    sudo rm -f "$WEB_ROOT/index.html"
+    sudo rm -rf "$WEB_ROOT/assets"
+    sudo rm -rf "$WEB_ROOT/papers"
 
     # Move from temp to web root with sudo
-    sudo mv "$TEMP_DIR/index.html" "$WEB_ROOT/" 2>/dev/null || true
-    sudo mv "$TEMP_DIR/assets" "$WEB_ROOT/" 2>/dev/null || true
-    sudo mv "$TEMP_DIR/papers" "$WEB_ROOT/" 2>/dev/null || true
-    rmdir "$TEMP_DIR" 2>/dev/null || true
+    sudo mv "$TEMP_DIR/index.html" "$WEB_ROOT/"
+    sudo mv "$TEMP_DIR/assets" "$WEB_ROOT/"
+    sudo mv "$TEMP_DIR/papers" "$WEB_ROOT/"
+    rmdir "$TEMP_DIR"
+
+    if [ ! -f "$WEB_ROOT/index.html" ]; then
+        echo "ERROR: Web root deployment missing index.html"
+        exit 1
+    fi
+    if [ ! -d "$WEB_ROOT/assets" ]; then
+        echo "ERROR: Web root deployment missing assets directory"
+        exit 1
+    fi
+    if [ ! -d "$WEB_ROOT/papers" ]; then
+        echo "ERROR: Web root deployment missing papers directory"
+        exit 1
+    fi
     echo "  ✓ Web root deployment complete"
 else
     echo "  ⏭️  Web root deployment skipped (no sudo)"
