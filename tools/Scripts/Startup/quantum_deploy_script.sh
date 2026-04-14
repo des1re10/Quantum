@@ -12,6 +12,7 @@
 # Fix own line endings first (handles Windows CRLF -> Unix LF)
 # IMPORTANT: Properly resolve symlinks to avoid overwriting shortcuts in ~/Desktop/Run scripts/
 SCRIPT_PATH="${BASH_SOURCE[0]}"
+SCRIPT_REAL_PATH=""
 if [ -L "$SCRIPT_PATH" ]; then
     # Script is being run via symlink - resolve to actual file
     SCRIPT_REAL_PATH=$(readlink -f "$SCRIPT_PATH" 2>/dev/null)
@@ -28,6 +29,14 @@ fi
 
 # Ensure all messages and errors are displayed (with function error propagation)
 set -eE
+set -o pipefail
+if [ -n "${SCRIPT_REAL_PATH:-}" ] && [ -f "$SCRIPT_REAL_PATH" ]; then
+    SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_REAL_PATH")" >/dev/null 2>&1 && pwd)"
+else
+    SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_PATH")" >/dev/null 2>&1 && pwd)"
+fi
+QUANTUM_OUTPUT_FILE=""
+LIBRARIES_OUTPUT_FILE=""
 
 # Error handler function - shows detailed error info
 function error_handler() {
@@ -42,6 +51,8 @@ function error_handler() {
     echo "[ERROR] Failed command: $command"
     echo "=================================================================="
     echo ""
+
+    rm -f "${QUANTUM_OUTPUT_FILE:-}" "${LIBRARIES_OUTPUT_FILE:-}" 2>/dev/null || true
 
     # Skip waiting for input in AUTO_DEPLOY mode
     if [ "$AUTO_DEPLOY" == "1" ]; then
@@ -78,6 +89,10 @@ else
     exit 1
 fi
 
+if [ -n "${SOURCE_BASE_OVERRIDE:-}" ]; then
+    SOURCE_BASE="$SOURCE_BASE_OVERRIDE"
+fi
+
 echo "================================================"
 echo "  Quantum - Server Deployment"
 echo "================================================"
@@ -90,13 +105,12 @@ echo "Source directory: $SOURCE_BASE"
 #   1. Deployed Libraries folder (sibling to project folder)
 #   2. Same directory as script
 #   3. pCloud Libraries - for manual execution from cloud
-SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 DEPLOYED_LIBS_DIR="$(dirname "$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")")/Libraries/Scripts"
 
 LIBRARIES_DEPLOY_SCRIPT=""
 LIBRARIES_FUNCTIONS_SCRIPT=""
 
-for SEARCH_DIR in "${LOCAL_DEPLOY_SCRIPTS_DIR:-}" "$DEPLOYED_LIBS_DIR" "$SCRIPT_DIR" "$HOME/pCloudDrive/Crypto Folder/Quantum Sources/Libraries/Scripts"; do
+for SEARCH_DIR in "${LOCAL_DEPLOY_SCRIPTS_DIR:-}" "$DEPLOYED_LIBS_DIR" "$SCRIPT_DIR" "$(dirname "$SOURCE_BASE")/Libraries/Scripts"; do
     [ -z "$SEARCH_DIR" ] && continue
     if [ -f "$SEARCH_DIR/deploy_common.sh" ]; then
         LIBRARIES_DEPLOY_SCRIPT="$SEARCH_DIR/deploy_common.sh"
@@ -112,7 +126,7 @@ if [ -z "$LIBRARIES_DEPLOY_SCRIPT" ] || [ ! -f "$LIBRARIES_DEPLOY_SCRIPT" ]; the
     echo "  0. Local deploy dir: ${LOCAL_DEPLOY_SCRIPTS_DIR:-not set}/deploy_common.sh"
     echo "  1. Deployed Libraries: $DEPLOYED_LIBS_DIR/deploy_common.sh"
     echo "  2. Script directory: $SCRIPT_DIR/deploy_common.sh"
-    echo "  3. pCloud Libraries: $HOME/pCloudDrive/Crypto Folder/Quantum Sources/Libraries/Scripts/deploy_common.sh"
+    echo "  3. pCloud Libraries: $(dirname "$SOURCE_BASE")/Libraries/Scripts/deploy_common.sh"
     echo "Please ensure deploy_common.sh is in one of these locations"
     keep_terminal_open
     exit 1
@@ -328,8 +342,11 @@ fi
 # === Deploy Quantum using shared script ===
 echo ""
 echo "=== Deploying Quantum ==="
-QUANTUM_OUTPUT=$(bash "$LIBRARIES_DEPLOY_SCRIPT" "Quantum" "$SOURCE_BASE" "$TARGET_DIR" "$DEPLOY_TARGET" "n" 2>&1)
-echo "$QUANTUM_OUTPUT"
+QUANTUM_OUTPUT_FILE="$(mktemp)"
+bash "$LIBRARIES_DEPLOY_SCRIPT" "Quantum" "$SOURCE_BASE" "$TARGET_DIR" "$DEPLOY_TARGET" "n" 2>&1 | tee "$QUANTUM_OUTPUT_FILE"
+QUANTUM_OUTPUT=$(<"$QUANTUM_OUTPUT_FILE")
+rm -f "$QUANTUM_OUTPUT_FILE"
+QUANTUM_OUTPUT_FILE=""
 
 echo "  Verifying deployed site files..."
 for required_path in "index.html" "assets" "papers"; do
@@ -383,8 +400,11 @@ echo ""
 echo "[3/6] Deploying Libraries..."
 if [ -d "$SOURCE_LIBRARIES" ] && [ -f "$LIBRARIES_DEPLOY_SCRIPT" ]; then
     echo "=== Deploying Libraries (using shared script) ==="
-    LIBRARIES_OUTPUT=$(bash "$LIBRARIES_DEPLOY_SCRIPT" "Libraries" "$SOURCE_LIBRARIES" "$TARGET_LIBRARIES" "$DEPLOY_TARGET" "n" 2>&1)
-    echo "$LIBRARIES_OUTPUT"
+    LIBRARIES_OUTPUT_FILE="$(mktemp)"
+    bash "$LIBRARIES_DEPLOY_SCRIPT" "Libraries" "$SOURCE_LIBRARIES" "$TARGET_LIBRARIES" "$DEPLOY_TARGET" "n" 2>&1 | tee "$LIBRARIES_OUTPUT_FILE"
+    LIBRARIES_OUTPUT=$(<"$LIBRARIES_OUTPUT_FILE")
+    rm -f "$LIBRARIES_OUTPUT_FILE"
+    LIBRARIES_OUTPUT_FILE=""
 elif [ -d "$SOURCE_LIBRARIES" ]; then
     echo "  Note: Using simple copy (shared script not found)"
     if [ -d "$SOURCE_LIBRARIES/Scripts" ]; then
