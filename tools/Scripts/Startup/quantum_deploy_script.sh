@@ -425,10 +425,8 @@ MANIFEST_FILE="$TARGET_DIR/deployment_sync_manifest.json"
 validate_sync_manifest "$MANIFEST_FILE"
 
 # Cleanup source manifests
-if [ "$AUTO_DEPLOY" != "1" ] || [ "${AUTO_DEPLOY_DELETE_SOURCE:-y}" != "n" ]; then
+if should_cleanup_source_manifests; then
     cleanup_source_manifests "$SOURCE_BASE" "$SOURCE_LIBRARIES"
-else
-    echo "[AUTO_DEPLOY] Skipping source manifest cleanup (deferred for multi-variant deployment)"
 fi
 
 # Display combined deployment summary
