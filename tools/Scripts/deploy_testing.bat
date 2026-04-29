@@ -99,6 +99,11 @@ echo 2. SSH to production server
 echo 3. Run: ~/Quantum/Quantum/tools/Scripts/Startup/quantum_deploy_script.sh
 echo.
 
-if not defined AUTO_DEPLOY pause
+if not defined AUTO_DEPLOY (
+    if exist "%~dp0..\..\..\Libraries\Scripts\post_deploy_git_operations.bat" (
+        call "%~dp0..\..\..\Libraries\Scripts\post_deploy_git_operations.bat" "%PROJECT_NAME%" "%SOURCE_DIR%"
+    )
+    pause
+)
 endlocal
 exit /b 0
