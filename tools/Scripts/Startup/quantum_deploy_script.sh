@@ -201,6 +201,11 @@ if [ ! -d "$SOURCE_BASE" ]; then
     exit 1
 fi
 
+if [ ! -d "$SOURCE_LIBRARIES" ]; then
+    echo "ERROR: Libraries source directory not found: $SOURCE_LIBRARIES"
+    exit 1
+fi
+
 # Check sudo availability
 HAS_PASSWORDLESS_SUDO=0
 
@@ -398,27 +403,12 @@ fi
 # === Deploy Libraries ===
 echo ""
 echo "[3/6] Deploying Libraries..."
-if [ -d "$SOURCE_LIBRARIES" ] && [ -f "$LIBRARIES_DEPLOY_SCRIPT" ]; then
-    echo "=== Deploying Libraries (using shared script) ==="
-    LIBRARIES_OUTPUT_FILE="$(mktemp)"
-    bash "$LIBRARIES_DEPLOY_SCRIPT" "Libraries" "$SOURCE_LIBRARIES" "$TARGET_LIBRARIES" "$DEPLOY_TARGET" "n" 2>&1 | tee "$LIBRARIES_OUTPUT_FILE"
-    LIBRARIES_OUTPUT=$(<"$LIBRARIES_OUTPUT_FILE")
-    rm -f "$LIBRARIES_OUTPUT_FILE"
-    LIBRARIES_OUTPUT_FILE=""
-elif [ -d "$SOURCE_LIBRARIES" ]; then
-    echo "  Note: Using simple copy (shared script not found)"
-    if [ -d "$SOURCE_LIBRARIES/Scripts" ]; then
-        mkdir -p "$TARGET_LIBRARIES/Scripts"
-        cp -r "$SOURCE_LIBRARIES/Scripts/"* "$TARGET_LIBRARIES/Scripts/" 2>/dev/null || true
-        find "$TARGET_LIBRARIES/Scripts" -name "*.sh" -exec sed -i 's/\r$//' {} \; 2>/dev/null || true
-        chmod +x "$TARGET_LIBRARIES/Scripts/"*.sh 2>/dev/null || true
-        SCRIPTS_COUNT=$(find "$TARGET_LIBRARIES/Scripts" -type f 2>/dev/null | wc -l)
-        echo "  ✓ Scripts/ ($SCRIPTS_COUNT files)"
-    fi
-else
-    echo "  ⚠️ Warning: Libraries not found at $SOURCE_LIBRARIES"
-    LIBRARIES_OUTPUT=""
-fi
+echo "=== Deploying Libraries (using shared script) ==="
+LIBRARIES_OUTPUT_FILE="$(mktemp)"
+bash "$LIBRARIES_DEPLOY_SCRIPT" "Libraries" "$SOURCE_LIBRARIES" "$TARGET_LIBRARIES" "$DEPLOY_TARGET" "n" 2>&1 | tee "$LIBRARIES_OUTPUT_FILE"
+LIBRARIES_OUTPUT=$(<"$LIBRARIES_OUTPUT_FILE")
+rm -f "$LIBRARIES_OUTPUT_FILE"
+LIBRARIES_OUTPUT_FILE=""
 
 # Validate sync manifest
 MANIFEST_FILE="$TARGET_DIR/deployment_sync_manifest.json"
