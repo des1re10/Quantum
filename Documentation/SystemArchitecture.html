@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>System Architecture</title>
+  <link rel="stylesheet" href="../../Libraries/Documentation/assets/documentation.css">
+</head>
+<body>
+  <div class="doc-layout">
+    <aside class="doc-nav" aria-label="Dokumentnavigation">
+      <strong>System Architecture</strong>
+      <a href="#system-architecture" class="level-1">System Architecture</a>
+      <a href="#overview" class="level-2">Overview</a>
+      <a href="#technology-stack" class="level-2">Technology Stack</a>
+      <a href="#site-structure" class="level-2">Site Structure</a>
+      <a href="#landing-page-index-html" class="level-3">Landing Page (`index.html`)</a>
+      <a href="#research-papers-papers" class="level-3">Research Papers (`papers/`)</a>
+      <a href="#assets-assets" class="level-3">Assets (`assets/`)</a>
+      <a href="#design-system" class="level-2">Design System</a>
+      <a href="#brand-colors" class="level-3">Brand Colors</a>
+      <a href="#typography" class="level-3">Typography</a>
+      <a href="#deployment-architecture" class="level-2">Deployment Architecture</a>
+      <a href="#environments" class="level-3">Environments</a>
+      <a href="#deployment-flow" class="level-3">Deployment Flow</a>
+      <a href="#server-configuration" class="level-3">Server Configuration</a>
+      <a href="#paper-format" class="level-2">Paper Format</a>
+      <a href="#why-markdown" class="level-3">Why Markdown?</a>
+      <a href="#pdf-generation" class="level-3">PDF Generation</a>
+      <a href="#content-principles" class="level-2">Content Principles</a>
+      <a href="#infrastructure-dependencies" class="level-2">Infrastructure Dependencies</a>
+      <a href="#shared-libraries" class="level-3">Shared Libraries</a>
+      <a href="#no-backend-dependencies" class="level-3">No Backend Dependencies</a>
+      <a href="#related-projects" class="level-2">Related Projects</a>
+    </aside>
+    <main class="doc-content">
+      <header class="hero">
+        <p class="kicker">Quantum Dokumentation</p>
+        <h1>System Architecture</h1>
+        <p>Autoritative HTML-Quelle fuer langlebige, menschenlesbare Entwicklungsdokumentation.</p>
+      </header>
+      <article class="doc-section">
+<h1 id="system-architecture">System Architecture</h1>
+<p>*Last Updated: January 2026*</p>
+<p>---</p>
+<h2 id="overview">Overview</h2>
+<p>Quantum is a <strong>static documentation website</strong> for post-quantum cryptography research. Unlike full-stack applications, it has no backend server, database, or dynamic content generation.</p>
+<pre><code>Static HTML/CSS → Nginx → Browser
+       ↑
+  Research Papers (Markdown/PDF)</code></pre>
+<p>---</p>
+<h2 id="technology-stack">Technology Stack</h2>
+<table>
+<thead><tr><th>Component</th><th>Technology</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>Frontend</td><td>Pure HTML/CSS</td><td>Landing page and navigation</td></tr>
+<tr><td>Papers</td><td>Markdown + PDF</td><td>Research documentation</td></tr>
+<tr><td>Hosting</td><td>Nginx</td><td>Static file serving</td></tr>
+<tr><td>SSL</td><td>Let&#39;s Encrypt</td><td>HTTPS certificates</td></tr>
+<tr><td>Deployment</td><td>pCloud sync</td><td>Windows → Cloud → Server</td></tr>
+</tbody></table>
+<p>---</p>
+<h2 id="site-structure">Site Structure</h2>
+<h3 id="landing-page-index-html">Landing Page (<code>index.html</code>)</h3>
+<p>Single-page website with:</p>
+<ul>
+<li>Project introduction and mission statement</li>
+<li>Paper cards linking to research documents</li>
+<li>Technology overview</li>
+<li>Navigation to papers</li>
+</ul>
+<h3 id="research-papers-papers">Research Papers (<code>papers/</code>)</h3>
+<p>Each paper is contained in its own directory:</p>
+<pre><code>papers/
+└── zkprivacy/
+    ├── zkprivacy-quantum-spec-v1.md      # Full specification
+    ├── zkprivacy-quantum-spec-v1.pdf     # PDF export
+    ├── zkprivacy-verification-guide.md   # Implementation guide
+    ├── zkprivacy-verification-guide.pdf  # PDF export
+    └── figures/                          # Diagrams and images</code></pre>
+<h3 id="assets-assets">Assets (<code>assets/</code>)</h3>
+<p>Static resources:</p>
+<ul>
+<li><code>css/style.css</code> - Main stylesheet</li>
+<li><code>images/</code> - Site images and favicon</li>
+</ul>
+<p>---</p>
+<h2 id="design-system">Design System</h2>
+<h3 id="brand-colors">Brand Colors</h3>
+<table>
+<thead><tr><th>Color</th><th>Hex</th><th>Usage</th></tr></thead><tbody>
+<tr><td>Background</td><td><code>#ffffff</code>, <code>#f8f9fa</code></td><td>Page background</td></tr>
+<tr><td>Primary</td><td><code>#4169E1</code> (RoyalBlue)</td><td>Links, buttons, accents</td></tr>
+<tr><td>Secondary</td><td><code>#5a7fd4</code></td><td>Hover states</td></tr>
+<tr><td>Tertiary</td><td><code>#2c4a8c</code></td><td>Active states</td></tr>
+<tr><td>Text</td><td><code>#1a1a2e</code>, <code>#4a4a5a</code></td><td>Body text, headings</td></tr>
+<tr><td>Border</td><td><code>#dee2e6</code></td><td>Dividers, card borders</td></tr>
+</tbody></table>
+<h3 id="typography">Typography</h3>
+<table>
+<thead><tr><th>Purpose</th><th>Font Family</th></tr></thead><tbody>
+<tr><td>Headings</td><td>Inter (sans-serif)</td></tr>
+<tr><td>Body</td><td>Crimson Pro (serif)</td></tr>
+<tr><td>Code</td><td>JetBrains Mono (monospace)</td></tr>
+</tbody></table>
+<p>---</p>
+<h2 id="deployment-architecture">Deployment Architecture</h2>
+<h3 id="environments">Environments</h3>
+<table>
+<thead><tr><th>Environment</th><th>URL</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>Production</td><td>https://quantum.phexora.ai</td><td>Public site</td></tr>
+<tr><td>Test</td><td>https://test.quantum.phexora.ai</td><td>Staging</td></tr>
+<tr><td>Local</td><td>http://localhost:9180</td><td>Development</td></tr>
+</tbody></table>
+<h3 id="deployment-flow">Deployment Flow</h3>
+<pre><code>Windows Development
+       │
+       ▼
+deploy_testing.bat ──► pCloud (sync)
+                           │
+                           ▼
+                    quantum_deploy_script.sh (server)
+                           │
+                           ▼
+                    /var/www/quantum/
+                           │
+                           ▼
+                    run_quantum.sh (nginx config)</code></pre>
+<h3 id="server-configuration">Server Configuration</h3>
+<p>The <code>run_quantum.sh</code> script:</p>
+<ol>
+<li>Creates maintenance page</li>
+<li>Manages SSL certificates via Let&#39;s Encrypt</li>
+<li>Generates nginx configuration</li>
+<li>Reloads nginx service</li>
+</ol>
+<p>---</p>
+<h2 id="paper-format">Paper Format</h2>
+<h3 id="why-markdown">Why Markdown?</h3>
+<p>Research papers are written in Markdown for:</p>
+<ul>
+<li><strong>Version control</strong>: Clean diffs, easy collaboration</li>
+<li><strong>Portability</strong>: Convert to PDF, LaTeX, HTML</li>
+<li><strong>Simplicity</strong>: Focus on content, not formatting</li>
+<li><strong>Accessibility</strong>: Readable in any text editor</li>
+</ul>
+<h3 id="pdf-generation">PDF Generation</h3>
+<p>PDFs are generated using DocWizard-Pro (Pandoc-based):</p>
+<pre><code class="language-bash">./build-pdfs.sh    # Linux
+build-pdfs.bat     # Windows</code></pre>
+<p>---</p>
+<h2 id="content-principles">Content Principles</h2>
+<ol>
+<li><strong>Academic but accessible</strong> - Rigorous content, clear explanations</li>
+<li><strong>Technical accuracy</strong> - Correct over simplified</li>
+<li><strong>Structured</strong> - Clear headers, logical flow</li>
+<li><strong>Self-contained</strong> - Each paper stands alone</li>
+</ol>
+<p>---</p>
+<h2 id="infrastructure-dependencies">Infrastructure Dependencies</h2>
+<h3 id="shared-libraries">Shared Libraries</h3>
+<table>
+<thead><tr><th>Library</th><th>Path</th><th>Usage</th></tr></thead><tbody>
+<tr><td>Deploy Functions</td><td><code>Libraries/Scripts/deploy_functions.sh</code></td><td>Deployment utilities</td></tr>
+<tr><td>Deploy Common</td><td><code>Libraries/Scripts/deploy_common.sh</code></td><td>Common deployment logic</td></tr>
+<tr><td>Common Functions</td><td><code>Libraries/Scripts/common_functions.sh</code></td><td>Shared bash utilities</td></tr>
+</tbody></table>
+<h3 id="no-backend-dependencies">No Backend Dependencies</h3>
+<p>Unlike other Phexora projects, Quantum has:</p>
+<ul>
+<li>No Python backend</li>
+<li>No database (Redis/PostgreSQL)</li>
+<li>No authentication system</li>
+<li>No API endpoints</li>
+</ul>
+<p>---</p>
+<h2 id="related-projects">Related Projects</h2>
+<table>
+<thead><tr><th>Project</th><th>Relationship</th></tr></thead><tbody>
+<tr><td>TheLastLight</td><td>Similar static site architecture</td></tr>
+<tr><td>PhexoraAI</td><td>Parent organization website</td></tr>
+<tr><td>Libraries/Scripts</td><td>Shared deployment infrastructure</td></tr>
+</tbody></table>
+<p>---</p>
+<p>*This document describes the technical architecture of the Quantum static site.*</p>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

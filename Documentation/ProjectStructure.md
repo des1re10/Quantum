@@ -11,7 +11,7 @@ Quantum/
 │
 ├── Documentation/
 │   ├── ProjectStructure.md           # This file
-│   ├── SystemArchitecture.md         # System design and deployment
+│   ├── SystemArchitecture.html         # System design and deployment
 │   └── ReleaseNotes.md               # Version history
 │
 ├── papers/                           # Research papers and specifications
