@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quantum - Investor Brief</title>
+  <style>
+
+:root {
+  --page: #f6f7f9;
+  --surface: #ffffff;
+  --soft: #eef4f0;
+  --ink: #18212f;
+  --muted: #5d6778;
+  --line: #d8dee8;
+  --accent: #267365;
+  --accent-strong: #18594e;
+  --blue: #245fba;
+  --amber: #a45f00;
+  --red: #b42318;
+  --shadow: 0 18px 45px rgba(24, 33, 47, 0.08);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+a { color: var(--accent-strong); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.doc-layout {
+  display: grid;
+  grid-template-columns: minmax(230px, 280px) minmax(0, 1fr);
+  gap: 1.5rem;
+  width: min(1480px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1rem 0 3rem;
+}
+.doc-nav {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 1rem;
+}
+.doc-nav strong { display: block; margin-bottom: 0.75rem; }
+.doc-nav a {
+  display: block;
+  border-radius: 6px;
+  padding: 0.42rem 0.5rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+.doc-nav a:hover, .doc-nav a:focus { background: #edf5f2; color: var(--accent-strong); }
+.doc-content { min-width: 0; overflow-wrap: break-word; }
+.hero {
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(38, 115, 101, 0.95), rgba(24, 33, 47, 0.95)), #1f3f45;
+  color: #ffffff;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+}
+.hero h1 { margin: 0 0 0.6rem; font-size: 2.25rem; line-height: 1.1; letter-spacing: 0; }
+.hero p { max-width: 880px; color: rgba(255,255,255,0.86); }
+.kicker { margin: 0 0 0.5rem; color: rgba(255,255,255,0.72); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.badge-row { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0.9rem 0 0; }
+.badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 0.18rem 0.55rem; background: #e9f4f1; color: var(--accent-strong); font-size: 0.82rem; font-weight: 800; }
+.badge.blue { background: #eaf1ff; color: var(--blue); }
+.badge.amber { background: #fff2d8; color: var(--amber); }
+.badge.red { background: #ffe9e7; color: var(--red); }
+.doc-section, .info-card, .callout {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.doc-section { margin-top: 1rem; padding: 1.25rem; }
+.doc-section > h2:first-child { margin-top: 0; }
+h2, h3 { scroll-margin-top: 1.5rem; line-height: 1.2; letter-spacing: 0; }
+h2 { margin: 0 0 0.85rem; font-size: 1.55rem; }
+h3 { margin: 1.1rem 0 0.55rem; font-size: 1.16rem; }
+ul { padding-left: 1.35rem; }
+li + li { margin-top: 0.25rem; }
+.meta-grid, .card-grid { display: grid; gap: 0.85rem; margin: 1rem 0; }
+.meta-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.info-card, .callout { padding: 1rem; }
+.info-card strong { display: block; margin-bottom: 0.35rem; }
+.info-card span { color: var(--muted); font-size: 0.93rem; }
+.callout { border-left: 5px solid var(--accent); background: var(--soft); }
+.callout.warning { border-left-color: var(--amber); background: #fff8eb; }
+.callout.risk { border-left-color: var(--red); background: #fff1ef; }
+.source-note { margin: 1rem 0 0; color: var(--muted); font-size: 0.9rem; }
+@media (max-width: 1100px) {
+  .doc-layout { grid-template-columns: 1fr; }
+  .doc-nav { position: sticky; z-index: 10; max-height: none; overflow-x: auto; overflow-y: hidden; display: flex; gap: 0.45rem; align-items: center; white-space: nowrap; }
+  .doc-nav strong { flex: 0 0 auto; margin: 0 0.25rem 0 0; }
+  .doc-nav a { flex: 0 0 auto; min-height: 2.75rem; border: 1px solid transparent; padding: 0.55rem 0.7rem; }
+  .meta-grid, .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .doc-layout { width: min(100% - 1rem, 1480px); gap: 1rem; }
+  .hero { padding: 1.35rem; }
+  .hero h1 { font-size: 1.85rem; }
+  .meta-grid, .card-grid { grid-template-columns: 1fr; }
+}
+@media print {
+  body { background: #fff; }
+  .doc-layout { display: block; width: 100%; padding: 0; }
+  .doc-nav { display: none; }
+  .hero, .doc-section, .info-card, .callout { box-shadow: none; }
+  .doc-section { break-inside: avoid; }
+}
+
+  </style>
+</head>
+<body>
+  <div class="doc-layout">
+    <nav class="doc-nav" aria-label="Dokumentnavigation">
+      <strong>Quantum</strong>
+      <a href="#one-liner">One-Liner</a>
+      <a href="#das-hauptproblem">Das Hauptproblem</a>
+      <a href="#die-loesung">Die Lösung</a>
+      <a href="#investorenrelevante-produktflaechen">Investorenrelevante Produktflächen</a>
+      <a href="#produktumfang">Produktumfang</a>
+      <a href="#geschaeftsmodell">Geschäftsmodell</a>
+      <a href="#naechste-meilensteine">Nächste Meilensteine</a>
+    </nav>
+    <main class="doc-content">
+      <header class="hero">
+        <p class="kicker">Investor Brief / Onepager</p>
+        <h1>Quantum</h1>
+        <p>Quantum ist ein Forschungs- und Spezifikationspfad für quantenresistente, private und skalierbare Blockchain-Architektur.</p>
+        <div class="badge-row"><span class="badge amber">Development</span><span class="badge ">Research</span><span class="badge ">PQC</span></div>
+      </header>
+
+      <section class="doc-section" id="kurzprofil">
+        <h2>Kurzprofil</h2>
+        <div class="card-grid">
+          <div class="info-card"><strong>Status</strong><span>Development</span></div>
+          <div class="info-card"><strong>Zielgruppe</strong><span>Forschung, Kryptographie-Community, spätere Ökosystempartner</span></div>
+          <div class="info-card"><strong>Produkt</strong><span>Spezifikationen und Forschung, noch kein operativer SaaS-Launch</span></div>
+          <div class="info-card"><strong>Nächster Fokus</strong><span>Technische Validierung und Community-Review</span></div>
+        </div>
+        <p class="source-note">Stand: 1. Juni 2026. Vorläufiger Investor Brief; keine Rechts-, Finanz-, Steuer-, Medizin- oder Anlageberatung.</p>
+      </section>
+
+      <section class="doc-section" id="one-liner">
+        <h2>One-Liner</h2>
+        <p>Quantum bündelt Research zu einer Blockchain-Architektur, die Privacy, Skalierung und Post-Quantum-Kryptographie gemeinsam adressieren soll.</p>
+      </section>
+      <section class="doc-section" id="das-hauptproblem">
+        <h2>Das Hauptproblem</h2>
+        <ul>
+          <li>Langfristige Daten sind durch künftige kryptographische Brüche gefährdet.</li>
+          <li>Viele Blockchain-Designs erzwingen Trade-offs zwischen Privacy, Skalierung und Sicherheit.</li>
+          <li>Für ein glaubwürdiges neues Netzwerk braucht es prüfbare Spezifikationen statt nur Vision.</li>
+        </ul>
+      </section>
+      <section class="doc-section" id="die-loesung">
+        <h2>Die Lösung</h2>
+        <ul>
+          <li>NIST-orientierte Post-Quantum-Bausteine wie SPHINCS+ und ML-KEM im Forschungsdesign.</li>
+          <li>Privacy-by-default und skalierbarer Konsens als Zielarchitektur.</li>
+          <li>Offene Spezifikationen, die extern überprüft werden können.</li>
+        </ul>
+      </section>
+      <section class="doc-section" id="investorenrelevante-produktflaechen">
+        <h2>Investorenrelevante Produktflächen</h2>
+        <div class="card-grid">
+          <div class="info-card"><strong>Research Asset</strong><span>Öffentliche Markdown-/PDF-Papers schaffen prüfbare Substanz und können als Deep-Tech-IP-Seed dienen.</span></div>
+          <div class="info-card"><strong>DAG + Privacy Thesis</strong><span>Die zentrale These kombiniert hohen DAG-Durchsatz mit Privacy-by-default, ohne dies bereits als bewiesenes Netzwerk zu verkaufen.</span></div>
+          <div class="info-card"><strong>PQC Stack</strong><span>SPHINCS+-Signaturen, ML-KEM, STARKs, lattice-basierte Commitments und SHAKE256 bilden den Forschungsrahmen.</span></div>
+          <div class="info-card"><strong>Fair-Launch Position</strong><span>UTXO, PoW, kein Premine/ICO/Founder-Reward sind als Designprinzipien investorenseitig relevant.</span></div>
+          <div class="info-card"><strong>Static Research Site</strong><span>quantum.phexora.ai ist bewusst eine schlanke Forschungsseite ohne Backend, Auth oder Token-Sale-Mechanik.</span></div>
+          <div class="info-card"><strong>Validation Path</strong><span>Formal Security Analysis, externe Kryptographie-Review und Prototyping sind die nächsten Werttreiber.</span></div>
+        </div>
+      </section>
+      <section class="doc-section" id="produktumfang">
+        <h2>Produktumfang</h2>
+        <div class="card-grid">
+          <div class="info-card"><strong>Research</strong><span>Papers, Spezifikationen und Verification Guide für technische Review.</span></div>
+          <div class="info-card"><strong>Architecture</strong><span>GhostDAG-Zielbild, UTXO-Modell, Privacy-by-default und Post-Quantum-Bausteine.</span></div>
+          <div class="info-card"><strong>Community</strong><span>Fair-Launch-, Open-Review- und Security-Research-orientierter Ansatz.</span></div>
+        </div>
+      </section>
+      <section class="doc-section" id="geschaeftsmodell">
+        <h2>Geschäftsmodell</h2>
+        <ul>
+          <li>Kurzfristig kein klassisches App-Geschäft, sondern Forschungs- und Ökosystemaufbau.</li>
+          <li>Mögliche spätere Pfade: Grants, Stiftungsstruktur, Tooling, Infrastruktur-Services.</li>
+          <li>Die Investoreneinordnung trennt klar zwischen Research, Token-Ökonomie und operativem Produkt.</li>
+        </ul>
+      </section>
+      <section class="doc-section" id="naechste-meilensteine">
+        <h2>Nächste Meilensteine</h2>
+        <ul>
+          <li>Technische Claims durch Paper, Proofs oder externe Review belegbar machen.</li>
+          <li>Roadmap in Research, Prototype und Ecosystem trennen.</li>
+          <li>Rechtliche und regulatorische Aussagen zu Token/Fair Launch separat prüfen.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
