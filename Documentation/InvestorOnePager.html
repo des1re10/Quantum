@@ -139,7 +139,7 @@ li + li { margin-top: 0.25rem; }
       <header class="hero">
         <p class="kicker">Investor Brief / Onepager</p>
         <h1>Quantum</h1>
-        <p>Quantum ist ein Forschungs- und Spezifikationspfad für quantenresistente, private und skalierbare Blockchain-Architektur.</p>
+        <p>Heutige Blockchains zwingen Nutzer und Entwickler meist zu einem Trade-off: schnell, privat oder langfristig quantenresistent. Quantum untersucht, ob diese drei Anforderungen in einer Architektur zusammengeführt werden können.</p>
         <div class="badge-row"><span class="badge amber">Development</span><span class="badge ">Research</span><span class="badge ">PQC</span></div>
       </header>
 
@@ -156,14 +156,15 @@ li + li { margin-top: 0.25rem; }
 
       <section class="doc-section" id="one-liner">
         <h2>One-Liner</h2>
-        <p>Quantum bündelt Research zu einer Blockchain-Architektur, die Privacy, Skalierung und Post-Quantum-Kryptographie gemeinsam adressieren soll.</p>
+        <p>Heutige Blockchains lösen jeweils nur einen Teil des Problems: Bitcoin und Ethereum sind transparent und langfristig durch Quantenangriffe auf elliptische Kurven gefährdet, schnelle DAG-Chains wie Kaspa skalieren ohne volle Transaktionsprivacy, und Privacy-Coins wie Monero erreichen nicht denselben Durchsatz. Quantum ist der Research-Pfad für eine Architektur, die Privacy, Skalierung und Post-Quantum-Sicherheit gemeinsam adressieren soll.</p>
       </section>
       <section class="doc-section" id="das-hauptproblem">
         <h2>Das Hauptproblem</h2>
         <ul>
-          <li>Langfristige Daten sind durch künftige kryptographische Brüche gefährdet.</li>
-          <li>Viele Blockchain-Designs erzwingen Trade-offs zwischen Privacy, Skalierung und Sicherheit.</li>
-          <li>Für ein glaubwürdiges neues Netzwerk braucht es prüfbare Spezifikationen statt nur Vision.</li>
+          <li>Viele große Netzwerke nutzen ECDSA/EdDSA-ähnliche Annahmen; ausreichend starke Quantencomputer könnten diese Signaturen langfristig brechen.</li>
+          <li>Transparente Ledgers machen Zahlungsflüsse, Balances und Unternehmensaktivität analysierbar; das schwächt Fungibilität, Geschäftsschutz und persönliche Sicherheit.</li>
+          <li>Der Markt ist fragmentiert: Bitcoin ist robust, aber langsam und transparent; Kaspa ist schnell, aber transparent; Monero ist privat, aber nicht auf denselben L1-Durchsatz ausgelegt.</li>
+          <li>Für ein glaubwürdiges neues Netzwerk braucht es prüfbare Spezifikationen und externe Review, weil die Kombination aus DAG-Durchsatz, Privacy und Post-Quantum-Kryptographie noch nicht bewiesen ist.</li>
         </ul>
       </section>
       <section class="doc-section" id="die-loesung">
