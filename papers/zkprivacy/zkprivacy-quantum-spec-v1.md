@@ -158,7 +158,7 @@ Traditional blockchains process blocks sequentially, limiting throughput to ~10 
 **GhostDAG advantages**:
 - **Parallel blocks**: Multiple miners create valid blocks simultaneously; none are orphaned
 - **No wasted work**: All valid proof-of-work contributes to consensus weight
-- **Sub-second finality**: Practical for payment applications
+- **Fast finality**: High-confidence confirmation in under 10 seconds, practical for payment applications
 - **Linear scaling**: Throughput increases with block rate, limited only by propagation delay
 
 **The research challenge**: No existing DAG blockchain provides privacy. Kaspa achieves 10+ blocks/second but transactions are transparent. Quantum's core research contribution is solving **privacy-preserving consensus over parallel block structures**:
@@ -646,20 +646,34 @@ The system MUST support light clients that can:
 
 ### R6.1 Transaction Processing [MANDATORY]
 ```
-Proof generation: MUST complete in < 120 seconds on reference hardware
-Proof verification: MUST complete in < 2 seconds
-Block validation: MUST complete in < 30 seconds for 1000 transactions
+Proof generation: MUST complete in < 60 seconds for a typical (2-in/2-out)
+    transaction and < 120 seconds for a maximum-size (16-in/16-out)
+    transaction on reference hardware
+Proof verification: MUST complete in < 1 second per individual proof
+Batch verification: amortized cost MUST be < 10 ms per transaction via
+    aggregated proofs (Section 11.4) — REQUIRED for target throughput;
+    1,000 TPS × 1 s/proof cannot be sustained on commodity hardware
+Block validation: MUST complete in < 10 seconds for 1000 transactions
+    (using aggregated/batch verification)
 ```
 
 ### R6.2 Storage [MANDATORY]
 ```
 The system MUST be operable on hardware with:
-- 500 GB storage for full node (initial years)
-- 16 GB RAM
-- 4-core CPU
+- 4 TB NVMe storage for a pruned full node
+- 32 GB RAM
+- 8-core CPU
+- 1 Gbps network connectivity (sustained target throughput, see G.1)
 ```
 
-Note: "full node" here refers to a pruned full node that retains the current state and a bounded recent history. Archival nodes will require significantly more storage at target throughput.
+Notes:
+- "Full node" here refers to a pruned full node that retains the current
+  state and a bounded recent history. Archival nodes require petabyte-scale
+  storage at target throughput (see G.1).
+- The nullifier set can never be pruned (spent-output detection requires
+  the full set). At 1,000 TPS with 2 inputs/tx this grows ~2 TB/year and
+  dominates long-run pruned-node storage. Accumulator-based representations
+  are a research direction (H.4).
 
 ### R6.3 Network [MANDATORY]
 ```
@@ -979,30 +993,49 @@ Setup(1^λ):
 Commit(pp, v, r):
     Input: 
         pp = A (public parameters)
-        v ∈ ℤ_q (value to commit, encoded as constant polynomial)
+        v ∈ [0, 2^64) (transaction amount in base units)
         r ∈ R_q^k (randomness vector with small coefficients)
+    
+    Value encoding (REQUIRED — a single coefficient cannot hold a 64-bit
+    amount, since q ≈ 2^23):
+        Decompose v into 4 limbs of 16 bits: v = Σ_{j=0}^{3} v_j · 2^{16j}
+        Enc(v) = polynomial with coefficients (v_0, v_1, v_2, v_3, 0, ..., 0)
     
     Constraint: All coefficients of r_i must be in [-η, η]
     
     Output:
-        c = A · r + v · e_1 ∈ R_q^k
+        c = A · r + Enc(v) · e_1 ∈ R_q^k
         Where e_1 = (1, 0, ..., 0)^T
     
     Return (c, r)  // c is commitment, r is opening
+
+    Note on limb headroom: 16-bit limbs in a 23-bit modulus leave 2^7 of
+    headroom, so limb-wise sums of up to 128 commitments stay below q
+    without wrap-around. Consensus-level balance is NOT derived from modular
+    commitment sums — it is proven over the integers inside the STARK
+    (Section 10.1, constraints 1, 2, 6), so no value can be created mod q.
 ```
 
 **Verify Opening**:
 ```
-VerifyOpening(pp, c, v, r):
-    1. Check all coefficients of r_i are in [-η, η]
-    2. Check c == A · r + v · e_1
+VerifyOpening(pp, c, v, r, ℓ):
+    Input: ℓ = number of homomorphically accumulated commitments (ℓ = 1
+           for a fresh commitment)
+    1. Check all coefficients of r_i are in [-ℓ·η, ℓ·η]
+    2. Check c == A · r + Enc(v) · e_1
     3. Return accept/reject
+
+    Note (relaxed openings): adding commitments adds their randomness, so the
+    opening bound grows linearly with the number of summands. Binding must
+    therefore be analyzed for relaxed openings with bound B = ℓ·η, as in
+    BDLOP-style lattice commitments. The formal analysis (Phase 1) MUST
+    establish the maximum ℓ for which Module-SIS binding still holds.
 ```
 
 **Properties**:
 - **Hiding**: Computationally hiding under Module-LWE
-- **Binding**: Computationally binding under Module-SIS
-- **Homomorphic**: Commit(v1, r1) + Commit(v2, r2) = Commit(v1+v2, r1+r2)
+- **Binding**: Computationally binding under Module-SIS (for relaxed openings up to bound ℓ·η, see above)
+- **Homomorphic**: Commit(v1, r1) + Commit(v2, r2) = Commit(v1+v2, r1+r2), valid while limb sums stay below q (≤ 128 summands) and the opening bound holds
 
 ### 3.4 Randomness Generation
 
@@ -1144,11 +1177,13 @@ Properties:
 
 ```
 Blowup factor: β = 8
-Number of queries: 80
+Number of queries: 34
 Grinding bits: 20
 Folding factor: 4
 
-Resulting security: ~100 bits (sufficient for 2^-100 soundness)
+Resulting security: ~122 bits conjectured
+    (34 queries × log2(8) bits/query + 20 grinding bits = 122,
+     exceeding the 2^-100 soundness target with margin)
 ```
 
 ### 6.5 STARK Proof Structure
@@ -1188,6 +1223,9 @@ MerkleHash(left, right):
 
 LeafHash(data):
     Return H_merkle(0x01 || data)
+
+Domain prefixes: 0x00 = internal node, 0x01 = leaf,
+                 0x02 = note commitment (Section 9.1)
 ```
 
 ### 7.2 Tree Parameters
@@ -1236,9 +1274,9 @@ Part II specifies how the cryptographic primitives from Part I combine into a wo
 1. **Creating outputs**: The sender generates commitments to amounts, encrypts output data to recipients using their view keys, and creates new "notes" (outputs)
 2. **Spending inputs**: To spend previous outputs, the sender reveals nullifiers (deterministic tags that mark outputs as spent) without revealing *which* outputs they correspond to
 3. **Proving validity**: The sender generates a STARK proof that the transaction is balanced (inputs = outputs + fee), all spent outputs existed, and all nullifiers are correctly formed
-4. **Authorization**: The sender signs the transaction with the input spend keys
+4. **Authorization**: The sender signs the transaction sighash with the spend keys bound into the spent notes; the signatures are verified *inside* the STARK proof, so the keys are never revealed on-chain (revealing them would link spends by the same wallet)
 5. **Propagation**: The transaction propagates through the network using Dandelion++ to hide the sender's IP address
-6. **Inclusion**: Miners validate the proof and signature, check nullifiers aren't already spent, and include the transaction in a block
+6. **Inclusion**: Miners validate the proof, check nullifiers aren't already spent, and include the transaction in a block
 
 This design provides complete privacy: observers see only nullifiers (unlinkable to outputs) and new commitments (hiding amounts and recipients).
 
@@ -1253,28 +1291,43 @@ MasterSeed: 256 bits (from CSPRNG or BIP39)
     │
     ├─→ H_kdf("spend" || MasterSeed, 256) → SpendSeed
     │       │
-    │       └─→ SPHINCS_KeyGen(SpendSeed || 0^352) → (SpendPK, SpendSK)
-    │
-    ├─→ H_kdf("view" || MasterSeed, 256) → ViewSeed
+    │       ├─→ SPHINCS_KeyGen(H_kdf("spx" || SpendSeed, 768)) → (SpendPK, SpendSK)
+    │       │       └─→ SpendPKHash = H_address("spend-pk" || SpendPK)
     │       │
-    │       └─→ Kyber_KeyGen(ViewSeed) → (ViewPK, ViewSK)
+    │       └─→ H_kdf("nullifier-key" || SpendSeed, 256) → NullifierKey (nk, secret)
+    │               └─→ NullifierPK = H_address("nk-pub" || nk)
     │
-    └─→ H_kdf("nullifier" || MasterSeed, 256) → NullifierKey (256 bits)
+    └─→ H_kdf("view" || MasterSeed, 256) → ViewSeed
+            │
+            └─→ Kyber_KeyGen(H_kdf("kem" || ViewSeed, 512)) → (ViewPK, ViewSK)
+
+Notes:
+- Seeds are expanded via H_kdf to the exact seed lengths the primitives
+  require: 768 bits (96 bytes) for SPHINCS+, 512 bits (64 bytes) for ML-KEM.
+- nk MUST remain secret. NullifierPK = H(nk) is published in the address and
+  is bound into every note created for this wallet (Section 9.1). This is what
+  prevents anyone other than the recipient — including the original sender,
+  who knows the value commitment's opening — from deriving a valid nullifier.
 ```
 
 ### 8.2 Address Format
 
 ```
-Address = (SpendPK, ViewPK)
+Address = (SpendPK, ViewPK, NullifierPK)
 
 Serialized:
     SpendPK: 64 bytes (SPHINCS+ public key)
     ViewPK: 1,568 bytes (ML-KEM-1024 public key)
-    Total: 1,632 bytes
+    NullifierPK: 32 bytes (hash of nullifier key, see Section 8.1)
+    Total: 1,664 bytes
 
-Encoded: Bech32m with HRP "zkp1"
-    zkp1[1632 bytes base32 encoded]
-    
+Encoded: "qtm" || version byte || Base32(payload || checksum)
+    checksum = first 8 bytes of H("addr-checksum" || version || payload)
+
+    Note: Bech32m is deliberately NOT used. Its checksum guarantees
+    (BIP-350) only hold up to 90 characters; a 1,664-byte payload far
+    exceeds that limit.
+
 Shortened address (for display):
     First 32 bytes of H("address-short" || Address)
     Used for human verification, not transactions
@@ -1314,11 +1367,26 @@ ScanOutput(ViewSK, Ciphertext, EncryptedData):
 struct Output {
     // Public (stored on-chain)
     commitment: LatticeCommitment,     // k × n coefficients in ℤ_q (~3,072 bytes)
+    note_commitment: [u8; 32],         // Ownership binding; the Merkle tree leaf
     kyber_ciphertext: [u8; 1568],      // For stealth address
     encrypted_data: [u8; 148],         // AES-GCM: nonce(12) || ciphertext(120) || tag(16)
     
     // Size: approximately 4.8 KB per output
 }
+
+// Note commitment (ownership binding):
+//   s = H_kdf("note-blind" || SharedSecret, 256)   // known to sender and recipient
+//   note_commitment = H_merkle(0x02 || serialize(commitment)
+//                              || SpendPKHash_recipient || NullifierPK_recipient || s)
+//
+// The note commitment — not the raw value commitment — is the leaf inserted
+// into the output Merkle tree. It binds the output to the recipient's spend
+// and nullifier keys without revealing them (the blinding s prevents
+// dictionary tests against known addresses). Spending requires proving this
+// binding in zero-knowledge (Section 10.1, constraints 7–9), so knowledge of
+// the value commitment's opening alone — which the sender has — is NOT
+// sufficient to spend. Recipients recompute note_commitment during scanning
+// to confirm ownership.
 
 // Encrypted data plaintext structure:
 struct OutputPlaintext {
@@ -1362,24 +1430,24 @@ struct Transaction {
     // Fee (public, in base units)
     fee: u64,
     
-    // STARK proof of validity
+    // STARK proof of validity AND spend authorization
     validity_proof: StarkProof,
-    
-    // Signatures authorizing the transaction
-    authorization: TransactionAuthorization,
     
     // Merkle root at time of creation
     anchor: [u8; 32],
 }
 
-struct TransactionAuthorization {
-    // SPHINCS+ signatures over transaction hash (one per input key)
-    signatures: Vec<[u8; 49856]>,
-    
-    // Public keys used (one per input)
-    // These are derived one-time keys, not main wallet keys
-    signing_keys: Vec<[u8; 64]>,
-}
+// There is NO on-chain signature structure. Spend authorization is part of
+// the STARK statement (Section 10.1, constraint 8): the prover supplies the
+// SPHINCS+ public keys and signatures as private witness, and the circuit
+// verifies them against the sighash and the key hashes bound into the spent
+// notes. Publishing the signatures or public keys would link all spends by
+// the same wallet; verifying them in-circuit preserves unlinkability and
+// removes ~50 KB per input from the on-chain transaction.
+//
+// sighash = H_merkle(serialization of nullifiers || outputs || fee || anchor)
+// The sighash is a public input of the proof, which binds the proof to this
+// exact transaction content (non-malleability).
 ```
 
 ### 9.4 Transaction Size Estimate
@@ -1387,14 +1455,16 @@ struct TransactionAuthorization {
 ```
 2-input, 2-output transaction:
     Nullifiers: 2 × 32 = 64 bytes
-    Outputs: 2 × 4,788 ≈ 9,576 bytes
+    Outputs: 2 × 4,820 ≈ 9,640 bytes
     Fee: 8 bytes
     STARK proof: ~100,000 bytes
-    Signatures: 2 × 49,856 ≈ 99,712 bytes
     Anchor: 32 bytes
     Overhead: ~100 bytes
     
-    Total: ~205 KB per transaction
+    Total: ~110 KB per transaction
+
+    (SPHINCS+ signatures are witness data verified inside the proof and do
+    not appear on-chain; see Section 9.3.)
 ```
 
 ---
@@ -1408,45 +1478,66 @@ For a transaction with m inputs and n outputs:
 ```
 Public inputs:
     - nullifiers[0..m]: Nullifiers of spent outputs
-    - output_commitments[0..n]: Commitments of new outputs
+    - output_commitments[0..n]: Value commitments of new outputs
+    - output_note_commitments[0..n]: Note commitments of new outputs
     - fee: Transaction fee
     - anchor: Merkle root
+    - sighash: Hash of the transaction content (Section 9.3)
     
 Private inputs (witness):
     - input_values[0..m]: Values of spent outputs
     - input_blindings[0..m]: Blinding factors of spent outputs
     - input_positions[0..m]: Positions in Merkle tree
     - input_merkle_paths[0..m]: Merkle authentication paths
-    - input_nullifier_keys[0..m]: Nullifier keys
+    - input_note_blinds[0..m]: Note blindings s (Section 9.1)
+    - input_nullifier_keys[0..m]: Nullifier keys nk
+    - input_spend_pks[0..m]: SPHINCS+ public keys of spent notes
+    - input_spend_sigs[0..m]: SPHINCS+ signatures over sighash
     - output_values[0..n]: Values of new outputs
     - output_blindings[0..n]: Blinding factors of new outputs
-    - spend_authorization: Proof of spend authority
+    - output_owner_data[0..n]: (SpendPKHash, NullifierPK, s) per new note
     
 Constraints:
     1. Balance: Σ input_values = Σ output_values + fee
-    2. Range: ∀i: 0 ≤ output_values[i] < 2^64
+    2. Range: ∀i: 0 ≤ output_values[i] < 2^64 (16-bit limb decomposition, Section 3.3)
     3. Commitments: ∀j: output_commitments[j] = Commit(output_values[j], output_blindings[j])
+       and output_note_commitments[j] correctly binds output_owner_data[j] (Section 9.1)
     4. Nullifiers: ∀i: nullifiers[i] = H_nullifier(input_nullifier_keys[i] || input_commitments[i] || input_positions[i])
-    5. Membership: ∀i: MerkleVerify(input_commitments[i], input_positions[i], input_merkle_paths[i], anchor) = true
+    5. Membership: ∀i: MerkleVerify(input_note_commitments[i], input_positions[i], input_merkle_paths[i], anchor) = true
+       where input_note_commitments[i] is recomputed in-circuit from the witness (constraint 7)
     6. No overflow: Σ input_values < 2^64 (prevent wrap-around)
+    7. Note binding: ∀i: input_note_commitments[i] =
+           H_merkle(0x02 || input_commitments[i] || H_address("spend-pk" || input_spend_pks[i])
+                    || H_address("nk-pub" || input_nullifier_keys[i]) || input_note_blinds[i])
+       (ties the spent note to the spend key AND proves the witness nk is the
+        one the note was created for — the sender of a note cannot satisfy
+        this with their own nk, which closes the re-spend/double-nullifier attack)
+    8. Spend authorization: ∀i: SPHINCS_Verify(input_spend_pks[i], sighash, input_spend_sigs[i]) = 1
+       (verified in-circuit; SPHINCS+ verification is pure hashing and therefore
+        STARK-friendly, but its trace cost is a primary engineering challenge — see H.1)
+    9. Sighash binding: sighash is a public input; any change to nullifiers,
+       outputs, fee, or anchor invalidates the proof (non-malleability)
 ```
 
 ### 10.2 AIR Constraints (Detailed)
 
 ```
 // Trace layout (columns)
-Column 0-7: Input value decomposition (8 × 8-bit limbs per value)
-Column 8-15: Output value decomposition
-Column 16-79: Commitment verification
+Column 0-3: Input value decomposition (4 × 16-bit limbs per value, Section 3.3)
+Column 4-7: Output value decomposition
+Column 8-79: Commitment verification
 Column 80-119: Merkle path verification
-Column 120-127: Hash computation state
+Column 120-127: Hash computation state (note binding, nullifiers, SPHINCS+ verification)
 
 // Transition constraints (polynomial degree ≤ 8)
-// Balance constraint (accumulator pattern):
+// Balance constraint (accumulator pattern; fee subtracted in final row):
 trace[i+1][ACC] = trace[i][ACC] + trace[i][INPUT_VAL] - trace[i][OUTPUT_VAL]
 
-// Range constraint (8-bit decomposition):
-∀ limb: limb × (limb - 1) × ... × (limb - 255) = 0
+// Range constraint (16-bit limbs):
+// A naive product constraint over all limb values would have degree 2^16,
+// violating the degree-≤8 bound. Limbs are instead range-checked via a
+// lookup argument against a precomputed 16-bit table (or, equivalently,
+// constrained by full bit decomposition with degree-2 booleanity checks).
 
 // Commitment constraint:
 // Verify lattice multiplication step-by-step
@@ -1563,8 +1654,11 @@ AdjustDifficulty(dag_state):
     // Smooth adjustment (DAG requires more stability)
     adjustment = clamp(ratio, 0.75, 1.25)  // Max 25% change per epoch
 
-    new_difficulty = previous_difficulty × adjustment
-    Return new_difficulty
+    // header.difficulty is a TARGET (pow_valid: pow_hash < target).
+    // Too many blocks (ratio > 1) must make mining HARDER, i.e. SHRINK
+    // the target — divide, do not multiply.
+    new_target = previous_target / adjustment
+    Return new_target
 
 Note: DAG requires smoother difficulty adjustments than sequential chains
       because high block rates amplify oscillations.
@@ -1577,7 +1671,9 @@ struct Block {
     header: BlockHeader,
     transactions: Vec<Transaction>,
     
-    // Aggregated proof (optional optimization)
+    // Aggregated proof. REQUIRED for operation at target throughput:
+    // per-transaction verification cannot sustain 1,000 TPS on commodity
+    // hardware (see R6.1). Optional only at low transaction volume.
     aggregated_proof: Option<AggregatedStarkProof>,
 }
 ```
@@ -1596,8 +1692,8 @@ ValidateBlock(block, dag_state):
     7. For each transaction tx in block.transactions:
            a. Check tx.anchor references valid DAG block
            b. Check all nullifiers are not in nullifier set
-           c. Verify tx.validity_proof
-           d. Verify tx.authorization signatures
+           c. Verify tx.validity_proof (or the block's aggregated proof;
+              spend authorization is part of the proof statement, Section 10.1)
 
     8. Check header.merkle_root == MerkleRoot(block.transactions)
     9. Check header.output_tree_root == updated output tree root
@@ -1653,7 +1749,6 @@ SerializeTransaction(tx):
     
     result.append(u64_le(tx.fee))
     result.append(SerializeStarkProof(tx.validity_proof))
-    result.append(SerializeAuthorization(tx.authorization))
     result.append(tx.anchor)  // 32 bytes
     
     Return concat(result)
@@ -1666,13 +1761,19 @@ SerializeTransaction(tx):
 ### 13.1 Transport Layer
 
 ```
-Protocol: Noise_XX_25519_ChaChaPoly_BLAKE2b
-    (Quantum-resistant upgrade: Noise_XX_Kyber_ChaChaPoly_SHA3)
+Protocol: Noise XX pattern instantiated with ML-KEM-1024
+    (Noise_XX_MLKEM1024_ChaChaPoly_SHA3, post-quantum KEM-based handshake)
+
+    Classical-only handshakes (X25519 or any elliptic-curve DH) are
+    PROHIBITED — R2.1 applies to the transport layer as well. Recorded
+    P2P traffic is subject to the same harvest-now-decrypt-later threat
+    as on-chain data.
 
 Port: 19333 (mainnet), 19334 (testnet)
 
 Message framing:
-    Length: 4 bytes (u32, max 16 MB)
+    Length: 4 bytes (u32, max 64 MB — must accommodate full blocks,
+            which reach tens of MB at target throughput; see G.1)
     Type: 1 byte
     Payload: Length - 1 bytes
 ```
@@ -1786,7 +1887,7 @@ DAG state:
 GenerateWallet():
     1. entropy = CSPRNG(256 bits)
     2. mnemonic = BIP39_Encode(entropy)  // 24 words
-    3. master_seed = PBKDF2(mnemonic, "Quantum", 100000, 256)
+    3. master_seed = PBKDF2-HMAC-SHA512(mnemonic, "Quantum", 100000, 256)
     4. Derive keys per Section 8.1
     5. Return Wallet { master_seed, keys }
 ```
@@ -1823,18 +1924,19 @@ CreateTransaction(wallet, recipients, fee):
         change_output = CreateOutput(wallet.address, change)
         outputs.append(change_output)
     
-    // Generate validity proof
-    witness = PrepareWitness(wallet, inputs, outputs, fee)
-    proof = GenerateTransactionProof(public_inputs, witness)
+    // Compute sighash over the final transaction content (Section 9.3)
+    sighash = H_merkle(Serialize(nullifiers || outputs || fee || anchor))
     
-    // Sign transaction (one signature per input key)
-    tx_hash = H_merkle(SerializeTransactionWithoutSig(...))
-    signatures = []
-    for sk in input_signing_keys:
-        signatures.append(SPHINCS_Sign(sk, tx_hash))
+    // Sign sighash with the spend key of each spent note; signatures and
+    // public keys go into the WITNESS, never on-chain (Section 10.1)
+    spend_sigs = [SPHINCS_Sign(wallet.spend_sk, sighash) for each input]
+    
+    // Generate validity proof (includes in-circuit signature verification)
+    witness = PrepareWitness(wallet, inputs, outputs, fee, spend_sigs)
+    proof = GenerateTransactionProof(public_inputs(sighash, ...), witness)
     
     // Assemble transaction
-    Return Transaction { nullifiers, outputs, fee, proof, signatures, signing_keys, anchor }
+    Return Transaction { nullifiers, outputs, fee, proof, anchor }
 ```
 
 ---
@@ -1845,17 +1947,34 @@ CreateTransaction(wallet, recipients, fee):
 
 ```
 Distribution: Fair launch (no premine, no ICO, no founder's reward)
-Total supply: 21,000,000 QTM
-Initial block reward: 50 QTM
-Halving interval: 210,000 blocks (approximately 4 years)
+Total supply: 21,000,000 QTM (cap; actual emission sums slightly below,
+              as in Bitcoin, due to integer rounding)
+
+The schedule is defined for the DAG block rate, NOT copied from Bitcoin's
+10-minute blocks. At the target rate of 10 blocks/second:
+
+Initial block reward: 1,000,000 satoshi (0.01 QTM)
+Halving interval: 1,050,000,000 blocks (~3.3 years at 10 blocks/second)
 
 BlockReward(height):
-    halvings = height / 210000
+    HALVING_INTERVAL = 1_050_000_000
+    halvings = height / HALVING_INTERVAL
     if halvings >= 64:
         return 0
-    return 50 >> halvings  // Integer division, rounds down
+    return 1_000_000 >> halvings  // satoshi; integer shift, rounds down
 
-Tail emission: None (pure deflationary after ~136 years)
+Sanity check:
+    Σ emission = 1,050,000,000 × Σ_{i=0}^{19} floor(1,000,000 / 2^i)
+               = 1,050,000,000 × 1,999,993 sat
+               ≈ 20,999,926 QTM  (< 21,000,000 cap ✓)
+    Reward reaches 0 after 20 halvings (~66 years of emission).
+
+Block-rate invariance: emission is defined per unit time (10^7 sat/second
+initially). If a consensus parameter change alters the target block rate R,
+the per-block reward MUST be scaled by 10/R and the halving interval by
+R/10, keeping emission per second and total supply invariant.
+
+Tail emission: None (pure deflationary after ~66 years)
 ```
 
 ### 16.2 Fee Structure
@@ -1867,7 +1986,8 @@ Recommended fee: 10 sat/byte for normal priority
 Fee calculation:
     base_fee = tx_size_bytes × fee_rate
     
-Minimum transaction fee ≈ 176,000 × 1 sat = 0.00176 QTM
+Minimum transaction fee (2-in/2-out, ~110 KB, see Section 9.4):
+    ≈ 110,000 × 1 sat = 0.0011 QTM
 ```
 
 ### 16.3 Unit Definitions
@@ -1924,7 +2044,12 @@ Property 7: Output Uniqueness
     Each (commitment, position) pair is unique
 
 Property 8: Spend Authorization
-    Only the holder of SpendSK can create valid nullifiers
+    Spending a note requires (a) a SPHINCS+ signature under the SpendPK whose
+    hash is bound into the note commitment, and (b) knowledge of the nk
+    preimage of the note's NullifierPK. Both are enforced by circuit
+    constraints 7-8 (Section 10.1). In particular, the note's CREATOR cannot
+    spend or re-nullify it: they know the value commitment's opening but
+    neither SpendSK nor nk.
 ```
 
 ### 17.3 Privacy Properties
@@ -1951,29 +2076,30 @@ Property 11: Amount Privacy
 ### 18.1 Hash Function Test Vectors
 
 ```
+⚠ STATUS: PLACEHOLDER. The concrete byte values below MUST be generated by
+the reference implementation before this specification is finalized. They
+are deliberately NOT given as literal hashes here — publishing invented
+values as "canonical" would cause every correct implementation to fail.
+
 Test 1: H_nullifier
     Domain tag: "Quantum-v1.nullifier"
     Input: 0x00 × 64 (64 zero bytes)
-    Output: 0x3a7f2c9e8b4d1a6f5c0e7b3d9a2f8c4e
-            0x1b6d0a5f3e9c7b2d8a4e6f1c0b5d9a3e (32 bytes)
+    Output: [TO BE COMPUTED — 32 bytes, SHAKE256 with domain prefix per Section 2.1]
 
 Test 2: H_merkle leaf hash
     Domain tag: "Quantum-v1.merkle"
     Input: 0x01 || 0x00^32 (prefix + 32 zero bytes)
-    Output: 0x8f2e4a6c1d9b3f7e5a0c8d2b6e4f1a9c
-            0x3d7b5e0f2a8c6d4e9b1f3a7c5e0d2b8f (32 bytes)
+    Output: [TO BE COMPUTED — 32 bytes]
 
 Test 3: H_merkle node hash
     Input: 0x00 || leaf1 || leaf2 (prefix + two 32-byte children)
     Where leaf1 = leaf2 = output from Test 2
-    Output: 0x5c9a3e7f1b4d8c2e6a0f5b9d3c7e1a4f
-            0x8b2d6e0a4c9f3b7e1d5a8c2f6e0b4d9a (32 bytes)
+    Output: [TO BE COMPUTED — 32 bytes]
 
 Test 4: Domain separation verification
-    H_nullifier(0x00^32) = 0x3a7f2c9e...
-    H_commitment(0x00^32) = 0x7e1a4f8b...
-    H_merkle(0x00^32) = 0xc5d9a3e7...
-    All outputs are distinct (domain separation working)
+    H_nullifier(0x00^32), H_commitment(0x00^32), H_merkle(0x00^32)
+    Required property: all three outputs are pairwise distinct
+    (verifiable today from the construction; literal values to be computed)
 ```
 
 ### 18.2 Commitment Test Vectors
@@ -1992,7 +2118,8 @@ Test 6: Unit value commitment
 Test 7: Homomorphic property
     Let r1, r2 be random polynomial vectors with coefficients in [-2, 2]
     Commit(100, r1) + Commit(50, r2) = Commit(150, r1+r2)
-    Verification: Extract value component, verify 100 + 50 = 150 mod q
+    Verification: Extract value limbs (Section 3.3), verify limb-wise
+    100 + 50 = 150; opening checked with relaxed bound ℓ = 2
 
 Test 8: Binding test (negative)
     Property: Cannot find (v1, r1) ≠ (v2, r2) such that Commit(v1, r1) = Commit(v2, r2)
@@ -2012,10 +2139,10 @@ Test 9: Minimal valid transaction (1-in, 1-out)
         - Recipient: test address
     Fee: 1 satoshi
 
-    Expected nullifier: H_nullifier(nk || commitment || 0) = 0x4f8a2c...
+    Expected nullifier: H_nullifier(nk || commitment || 0) = [TO BE COMPUTED]
     Balance check: 1000000 = 999999 + 1 ✓
 
-    Serialized size: ~151 KB (1 input, 1 output)
+    Serialized size: ~105 KB (1 input, 1 output)
 
 Test 10: Standard transaction (2-in, 2-out)
     Inputs: 500000 sat + 500000 sat = 1000000 sat
@@ -2023,12 +2150,13 @@ Test 10: Standard transaction (2-in, 2-out)
     Fee: 10000 sat
     Balance check: 1000000 = 990000 + 10000 ✓
 
-    Serialized size: ~205 KB
+    Serialized size: ~110 KB
 
 Test 11: Maximum transaction (16-in, 16-out)
     Maximum inputs: 16
     Maximum outputs: 16
-    Serialized size: ~0.95 MB
+    Serialized size: ~0.4 MB (outputs ~77 KB + proof, which grows with
+        16 in-circuit signature verifications)
     Proof generation time: < 120 seconds (extended limit for max size)
 ```
 
@@ -2037,7 +2165,7 @@ Test 11: Maximum transaction (16-in, 16-out)
 ```
 Test 12: Genesis block
     See Appendix B for complete genesis block structure
-    Genesis hash: 0x0000000000000000000000000000000000000000000000000000000000000000
+    Genesis hash: [TO BE COMPUTED at mainnet launch — see B.3]
     First block (height 1) hash: [computed at launch]
 
 Test 13: Difficulty adjustment example (DAG)
@@ -2046,10 +2174,10 @@ Test 13: Difficulty adjustment example (DAG)
     Epoch duration: 100 seconds (expected 1000 blocks)
 
     If actual blocks in epoch = 1200 (too fast):
-        New difficulty = old_difficulty × (1200/1000) = old_difficulty × 1.2
+        New target = old_target / 1.2 (smaller target → harder mining)
     If actual blocks in epoch = 800 (too slow):
-        New difficulty = old_difficulty × (800/1000) = old_difficulty × 0.8
-    Clamped to range [0.75, 1.25] per adjustment (DAG requires smoother adjustments)
+        New target = old_target / 0.8 (larger target → easier mining)
+    Adjustment ratio clamped to [0.75, 1.25] per epoch (DAG requires smoother adjustments)
 
 Test 14: DAG block ordering (GhostDAG blue score)
     Block A: blue_score = 1000, parents = [genesis]
@@ -2078,9 +2206,11 @@ Test 14: DAG block ordering (GhostDAG blue score)
 ### 19.2 Performance Targets
 
 ```
-Proof generation: < 60 seconds per transaction (consumer CPU)
-Proof verification: < 1 second per transaction
-Block validation: < 10 seconds per block (1000 transactions)
+Proof generation: < 60 seconds per typical transaction (consumer CPU);
+    < 120 seconds for maximum-size (16-in/16-out) transactions
+Proof verification: < 1 second per individual proof;
+    amortized < 10 ms per transaction via batch/aggregated verification
+Block validation: < 10 seconds per block (1000 transactions, aggregated)
 Wallet scanning: < 1 second per block
 Merkle proof: < 10 ms
 Nullifier lookup: < 1 ms
@@ -2156,10 +2286,21 @@ Optional:
 
 ### A.1 Polynomial Multiplication (NTT)
 
+Two distinct NTTs exist in Quantum and must not be conflated:
+1. The RING NTT mod q = 8380417 (ζ = 1753) for lattice commitments. Because
+   R_q = ℤ_q[X]/(X^256 + 1) is NEGACYCLIC, this NTT requires the standard
+   pre/post twist by powers of ζ (as in CRYSTALS-Dilithium) — a plain cyclic
+   NTT computes the wrong product.
+2. The STARK field FFT over Goldilocks (p = 2^64 - 2^32 + 1) used by the
+   prover for trace interpolation.
+
+The skeleton below shows the butterfly structure only (cyclic form, generic
+modulus). Production code MUST add the negacyclic twist for case 1 and use
+constant-time modular reduction (Montgomery/Barrett), not the `%` operator.
+
 ```rust
-// Goldilocks field element
 type Felt = u64;
-const P: u64 = 0xFFFFFFFF00000001; // 2^64 - 2^32 + 1
+const P: u64 = 0xFFFFFFFF00000001; // modulus (Goldilocks shown; use q = 8380417 for R_q)
 
 fn ntt(a: &mut [Felt; 256], omega: Felt) {
     let n = 256;
@@ -2212,8 +2353,13 @@ fn commit(a: &[PolyVec; K], v: u64, r: &PolyVec) -> PolyVec {
         }
     }
     
-    // c[0] += v (as constant term)
-    c[0][0] = (c[0][0] + (v % Q as u64) as i32) % Q as i32;
+    // c[0] += Enc(v): 4 limbs of 16 bits in coefficients 0..3 (Section 3.3).
+    // Never reduce v mod q directly — that silently wraps any amount
+    // above ~0.08 QTM and breaks supply integrity.
+    for limb in 0..4 {
+        let v_limb = ((v >> (16 * limb)) & 0xFFFF) as i32;
+        c[0][limb] = (c[0][limb] + v_limb) % Q as i32;
+    }
     
     c
 }
@@ -2291,7 +2437,8 @@ impl StarkProver {
 Version: 1
 Timestamp: 2026-01-01T00:00:00Z (Unix: 1767225600)
 Difficulty target: 0x00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-                   (approximately 2^236, allows ~16 hashes to find valid block)
+                   (approximately 2^236; expected ~2^20 ≈ 10^6 hash
+                    attempts per block — trivial for launch hardware)
 Previous hash: 0x0000000000000000000000000000000000000000000000000000000000000000
 Nonce: 0 (genesis block has special validation rules)
 
@@ -2361,10 +2508,12 @@ Minimum supported version: 1
 ```
 Cryptography:
     - sha3: SHAKE256 implementation
-    - blake3: Fast hashing
-    - curve25519-dalek: For any EC operations needed
+    - blake3: Fast hashing (non-consensus uses only)
     - pqcrypto-kyber: ML-KEM implementation
     - pqcrypto-sphincsplus: SPHINCS+ implementation
+
+    Note: elliptic-curve libraries (curve25519-dalek etc.) MUST NOT be
+    dependencies — R2.1 prohibits EC cryptography anywhere in the system.
 
 Proof systems:
     - winterfell: STARK prover/verifier
@@ -2411,7 +2560,7 @@ ZK: Zero-Knowledge
 ## F. Document Metadata
 
 ```
-Title: Quantum Quantum-Secure Blockchain Specification
+Title: Quantum — Quantum-Secure Privacy Blockchain, Technical Specification
 Version: 1.0
 Status: Draft
 Date: 2026-01-14
@@ -2440,27 +2589,27 @@ This section documents known limitations and design trade-offs:
 ### G.1 Transaction Size
 
 ```
-Issue: Transactions are large (~205 KB for 2-in, 2-out)
+Issue: Transactions are large (~110 KB for 2-in, 2-out)
 
 Breakdown:
-    - STARK proof: ~100 KB (dominant factor)
-    - SPHINCS+ signatures: ~50 KB per input (2-in example: ~100 KB)
+    - STARK proof: ~100 KB (dominant factor; SPHINCS+ signatures are
+      witness data verified in-circuit and never appear on-chain)
     - Lattice commitments: ~3 KB per output
     - Kyber ciphertext: ~1.5 KB per output
-    - Encrypted data: ~0.15 KB per output
+    - Note commitment + encrypted data: ~0.2 KB per output
 
 Impact with DAG (10-32 blocks/second):
-    - Higher bandwidth requirements (~0.205 GB/sec at 1000 TPS)
-    - Larger blockchain storage (~6.5 PB/year at 1000 TPS)
-    - Requires high-bandwidth nodes for full validation
+    - Higher bandwidth requirements (~110 MB/sec at 1000 TPS sustained)
+    - Larger blockchain storage (~3.5 PB/year archival at 1000 TPS)
+    - Requires high-bandwidth nodes for full validation (≥1 Gbps, R6.2)
 
 DAG scaling:
-    - At 10 blocks/sec with 100 tx/block = 1,000 TPS (~205 MB/sec, ~20.5 MB/block)
+    - At 10 blocks/sec with 100 tx/block = 1,000 TPS (~110 MB/sec, ~11 MB/block)
     - Parallel blocks distribute load across network
     - Light clients only validate headers + proofs
 
 Mitigation:
-    - Proof aggregation for blocks (future optimization)
+    - Proof aggregation for blocks (REQUIRED at target throughput, R6.1)
     - Recursive STARKs for smaller proofs (research area)
     - Accept bandwidth trade-off for quantum security + privacy
 ```
@@ -2486,11 +2635,12 @@ Mitigation:
 ### G.3 Address Size
 
 ```
-Issue: Addresses are large (1,632 bytes)
+Issue: Addresses are large (1,664 bytes)
 
 Cause:
     - SPHINCS+ public key: 64 bytes
     - ML-KEM-1024 public key: 1,568 bytes
+    - Nullifier public key: 32 bytes
 
 Impact:
     - Cannot use short addresses for display
@@ -2581,6 +2731,27 @@ The problem statement:
    - Reference obfuscation: Parents selected to minimize information leakage
 
    Required property: DAG structure reveals no more than sequential chain
+
+5. In-Circuit Post-Quantum Spend Authorization
+   Problem: Spend authorization verifies SPHINCS+ signatures INSIDE the
+            STARK (Section 10.1, constraint 8) because revealing signature
+            keys on-chain would link spends by the same wallet — and unlike
+            elliptic-curve schemes, hash-based keys cannot be re-randomized
+            into sender-derivable one-time keys (the PQ stealth-address
+            problem). SPHINCS+ verification is pure hashing and therefore
+            STARK-compatible, but it requires thousands of hash evaluations
+            per input, dominating prover cost.
+
+   Approaches under investigation:
+   - Optimized SPHINCS+ parameter sets for in-circuit verification
+   - Hash-preimage spend authorization (prove knowledge of SpendSeed
+     instead of verifying a signature; cheaper, but loses the key
+     separation useful for hardware wallets)
+   - STARK-friendly hash choices (e.g. Poseidon2/Rescue over Goldilocks)
+     for the note-binding and nullifier constraints
+
+   Required property: Proof generation stays within R6.1 limits with
+   spend authorization fully enforced in zero-knowledge
 ```
 
 **Research Milestones**:
@@ -2773,6 +2944,12 @@ DAG suitability     Proven          Proven (fast)   Uncertain
    - Use STARKs for quantum security
    - Wrap in SNARK for smaller on-chain footprint
    - Maintains no-trusted-setup property
+
+5. Nullifier Set Accumulators
+   - The nullifier set grows unboundedly (~2 TB/year at target throughput)
+     and cannot be pruned (see R6.2)
+   - Hash-based accumulators with non-membership proofs could bound
+     node storage at the cost of larger transactions
 ```
 
 ### H.5 Layer 2 Scaling

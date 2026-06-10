@@ -1,17 +1,23 @@
 # Project Structure
 
-*Last Updated: January 2026*
+*Last Updated: June 2026*
 
 ```
 Quantum/
 ├── CLAUDE.md                         # Development guidelines for Claude Code
+├── AGENTS.md                         # Agent instructions (local start commands)
 ├── README.md                         # Project overview and quick start
 ├── index.html                        # Landing page (static HTML)
+├── impressum.html                    # Legal notice (Impressum)
+├── privacy.html                      # Privacy policy
+├── terms.html                        # Terms of use
 ├── .gitignore                        # Git ignore rules
 │
 ├── Documentation/
 │   ├── ProjectStructure.md           # This file
-│   ├── SystemArchitecture.html         # System design and deployment
+│   ├── SystemArchitecture.html       # System design and deployment
+│   ├── InvestorOnePager.html         # Investor one-pager
+│   ├── Quantum_Market_Thesis.md      # Market thesis
 │   └── ReleaseNotes.md               # Version history
 │
 ├── papers/                           # Research papers and specifications

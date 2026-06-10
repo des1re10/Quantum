@@ -41,14 +41,14 @@
       </header>
       <article class="doc-section">
 <h1 id="system-architecture">System Architecture</h1>
-<p>*Last Updated: January 2026*</p>
-<p>---</p>
+<p><em>Last Updated: June 2026</em></p>
+<hr>
 <h2 id="overview">Overview</h2>
 <p>Quantum is a <strong>static documentation website</strong> for post-quantum cryptography research. Unlike full-stack applications, it has no backend server, database, or dynamic content generation.</p>
 <pre><code>Static HTML/CSS → Nginx → Browser
        ↑
   Research Papers (Markdown/PDF)</code></pre>
-<p>---</p>
+<hr>
 <h2 id="technology-stack">Technology Stack</h2>
 <table>
 <thead><tr><th>Component</th><th>Technology</th><th>Purpose</th></tr></thead><tbody>
@@ -58,7 +58,7 @@
 <tr><td>SSL</td><td>Let&#39;s Encrypt</td><td>HTTPS certificates</td></tr>
 <tr><td>Deployment</td><td>pCloud sync</td><td>Windows → Cloud → Server</td></tr>
 </tbody></table>
-<p>---</p>
+<hr>
 <h2 id="site-structure">Site Structure</h2>
 <h3 id="landing-page-index-html">Landing Page (<code>index.html</code>)</h3>
 <p>Single-page website with:</p>
@@ -83,7 +83,7 @@
 <li><code>css/style.css</code> - Main stylesheet</li>
 <li><code>images/</code> - Site images and favicon</li>
 </ul>
-<p>---</p>
+<hr>
 <h2 id="design-system">Design System</h2>
 <h3 id="brand-colors">Brand Colors</h3>
 <table>
@@ -102,7 +102,7 @@
 <tr><td>Body</td><td>Crimson Pro (serif)</td></tr>
 <tr><td>Code</td><td>JetBrains Mono (monospace)</td></tr>
 </tbody></table>
-<p>---</p>
+<hr>
 <h2 id="deployment-architecture">Deployment Architecture</h2>
 <h3 id="environments">Environments</h3>
 <table>
@@ -133,7 +133,7 @@ deploy_testing.bat ──► pCloud (sync)
 <li>Generates nginx configuration</li>
 <li>Reloads nginx service</li>
 </ol>
-<p>---</p>
+<hr>
 <h2 id="paper-format">Paper Format</h2>
 <h3 id="why-markdown">Why Markdown?</h3>
 <p>Research papers are written in Markdown for:</p>
@@ -147,7 +147,7 @@ deploy_testing.bat ──► pCloud (sync)
 <p>PDFs are generated using DocWizard-Pro (Pandoc-based):</p>
 <pre><code class="language-bash">./build-pdfs.sh    # Linux
 build-pdfs.bat     # Windows</code></pre>
-<p>---</p>
+<hr>
 <h2 id="content-principles">Content Principles</h2>
 <ol>
 <li><strong>Academic but accessible</strong> - Rigorous content, clear explanations</li>
@@ -155,7 +155,7 @@ build-pdfs.bat     # Windows</code></pre>
 <li><strong>Structured</strong> - Clear headers, logical flow</li>
 <li><strong>Self-contained</strong> - Each paper stands alone</li>
 </ol>
-<p>---</p>
+<hr>
 <h2 id="infrastructure-dependencies">Infrastructure Dependencies</h2>
 <h3 id="shared-libraries">Shared Libraries</h3>
 <table>
@@ -172,7 +172,7 @@ build-pdfs.bat     # Windows</code></pre>
 <li>No authentication system</li>
 <li>No API endpoints</li>
 </ul>
-<p>---</p>
+<hr>
 <h2 id="related-projects">Related Projects</h2>
 <table>
 <thead><tr><th>Project</th><th>Relationship</th></tr></thead><tbody>
@@ -180,8 +180,8 @@ build-pdfs.bat     # Windows</code></pre>
 <tr><td>PhexoraAI</td><td>Parent organization website</td></tr>
 <tr><td>Libraries/Scripts</td><td>Shared deployment infrastructure</td></tr>
 </tbody></table>
-<p>---</p>
-<p>*This document describes the technical architecture of the Quantum static site.*</p>
+<hr>
+<p><em>This document describes the technical architecture of the Quantum static site.</em></p>
       </article>
     </main>
   </div>
