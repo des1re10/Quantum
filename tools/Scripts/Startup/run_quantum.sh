@@ -31,12 +31,14 @@ if [ "$DEPLOY_TARGET" == "main" ]; then
     WEB_ROOT="/var/www/quantum"
     DOMAIN="quantum.phexora.ai"
     NGINX_CONFIG_NAME="quantum.conf"
+    NGINX_SSL_SESSION_CACHE_NAME="QuantumTLS"
     MAINTENANCE_PAGE="/var/www/html/maintenance_quantum.html"
     MAINTENANCE_PAGE_FILENAME="maintenance_quantum.html"
 else
     WEB_ROOT="/var/www/quantum-test"
     DOMAIN="test.quantum.phexora.ai"
     NGINX_CONFIG_NAME="quantum-test.conf"
+    NGINX_SSL_SESSION_CACHE_NAME="QuantumTestTLS"
     MAINTENANCE_PAGE="/var/www/html/maintenance_quantum_test.html"
     MAINTENANCE_PAGE_FILENAME="maintenance_quantum_test.html"
 fi
@@ -248,6 +250,7 @@ if ! ALLOW_HTTP_ONLY_NGINX=1 \
     MAINTENANCE_PAGE="$MAINTENANCE_PAGE" \
     NGINX_SITE_NAME="$NGINX_CONFIG_NAME" \
     NGINX_SERVER_NAMES="$DOMAIN" \
+    NGINX_SSL_SESSION_CACHE_NAME="$NGINX_SSL_SESSION_CACHE_NAME" \
     NGINX_STATIC_ROOT_TRY_FILES="\$uri \$uri/ =404" \
     NGINX_ENABLE_STANDARD_API=0 \
     NGINX_ENABLE_STANDARD_WS=0 \
