@@ -3,186 +3,162 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>System Architecture</title>
-  <link rel="stylesheet" href="../../Libraries/Documentation/assets/documentation.css">
+  <meta name="description" content="Technische Architektur der statischen Quantum-Forschungswebsite.">
+  <title>Quantum – Systemarchitektur</title>
+  <link rel="stylesheet" href="assets/documentation.css">
 </head>
 <body>
   <div class="doc-layout">
     <aside class="doc-nav" aria-label="Dokumentnavigation">
-      <strong>System Architecture</strong>
-      <a href="#system-architecture" class="level-1">System Architecture</a>
-      <a href="#overview" class="level-2">Overview</a>
-      <a href="#technology-stack" class="level-2">Technology Stack</a>
-      <a href="#site-structure" class="level-2">Site Structure</a>
-      <a href="#landing-page-index-html" class="level-3">Landing Page (`index.html`)</a>
-      <a href="#research-papers-papers" class="level-3">Research Papers (`papers/`)</a>
-      <a href="#assets-assets" class="level-3">Assets (`assets/`)</a>
-      <a href="#design-system" class="level-2">Design System</a>
-      <a href="#brand-colors" class="level-3">Brand Colors</a>
-      <a href="#typography" class="level-3">Typography</a>
-      <a href="#deployment-architecture" class="level-2">Deployment Architecture</a>
-      <a href="#environments" class="level-3">Environments</a>
-      <a href="#deployment-flow" class="level-3">Deployment Flow</a>
-      <a href="#server-configuration" class="level-3">Server Configuration</a>
-      <a href="#paper-format" class="level-2">Paper Format</a>
-      <a href="#why-markdown" class="level-3">Why Markdown?</a>
-      <a href="#pdf-generation" class="level-3">PDF Generation</a>
-      <a href="#content-principles" class="level-2">Content Principles</a>
-      <a href="#infrastructure-dependencies" class="level-2">Infrastructure Dependencies</a>
-      <a href="#shared-libraries" class="level-3">Shared Libraries</a>
-      <a href="#no-backend-dependencies" class="level-3">No Backend Dependencies</a>
-      <a href="#related-projects" class="level-2">Related Projects</a>
+      <strong>Systemarchitektur</strong>
+      <a href="#ueberblick">Überblick</a>
+      <a href="#grenzen">Systemgrenzen</a>
+      <a href="#artefakte">Quellen und Artefakte</a>
+      <a href="#lokal">Lokale Ausführung</a>
+      <a href="#pdf">PDF-Erzeugung</a>
+      <a href="#deployment">Deployment</a>
+      <a href="#umgebungen">Umgebungen</a>
+      <a href="#abhaengigkeiten">Abhängigkeiten</a>
+      <a href="#sicherheit">Sicherheitsgrenze</a>
+      <a href="#pruefung">Prüfung</a>
     </aside>
+
     <main class="doc-content">
       <header class="hero">
-        <p class="kicker">Quantum Dokumentation</p>
-        <h1>System Architecture</h1>
-        <p>Autoritative HTML-Quelle fuer langlebige, menschenlesbare Entwicklungsdokumentation.</p>
+        <p class="kicker">Quantum-Dokumentation</p>
+        <h1>Systemarchitektur</h1>
+        <p>Maßgebliche Beschreibung der statischen Forschungswebsite, ihrer Build-Abhängigkeiten und ihrer Deployment-Grenzen.</p>
+        <div class="badge-row">
+          <span class="badge">Statische Website</span>
+          <span class="badge">Kein Backend</span>
+          <span class="badge warning">Forschungsdokumentation</span>
+        </div>
       </header>
-      <article class="doc-section">
-<h1 id="system-architecture">System Architecture</h1>
-<p><em>Last Updated: June 2026</em></p>
-<hr>
-<h2 id="overview">Overview</h2>
-<p>Quantum is a <strong>static documentation website</strong> for post-quantum cryptography research. Unlike full-stack applications, it has no backend server, database, or dynamic content generation.</p>
-<pre><code>Static HTML/CSS → Nginx → Browser
-       ↑
-  Research Papers (Markdown/PDF)</code></pre>
-<hr>
-<h2 id="technology-stack">Technology Stack</h2>
-<table>
-<thead><tr><th>Component</th><th>Technology</th><th>Purpose</th></tr></thead><tbody>
-<tr><td>Frontend</td><td>Pure HTML/CSS</td><td>Landing page and navigation</td></tr>
-<tr><td>Papers</td><td>Markdown + PDF</td><td>Research documentation</td></tr>
-<tr><td>Hosting</td><td>Nginx</td><td>Static file serving</td></tr>
-<tr><td>SSL</td><td>Let&#39;s Encrypt</td><td>HTTPS certificates</td></tr>
-<tr><td>Deployment</td><td>pCloud sync</td><td>Windows → Cloud → Server</td></tr>
-</tbody></table>
-<hr>
-<h2 id="site-structure">Site Structure</h2>
-<h3 id="landing-page-index-html">Landing Page (<code>index.html</code>)</h3>
-<p>Single-page website with:</p>
-<ul>
-<li>Project introduction and mission statement</li>
-<li>Paper cards linking to research documents</li>
-<li>Technology overview</li>
-<li>Navigation to papers</li>
-</ul>
-<h3 id="research-papers-papers">Research Papers (<code>papers/</code>)</h3>
-<p>Each paper is contained in its own directory:</p>
-<pre><code>papers/
-└── zkprivacy/
-    ├── zkprivacy-quantum-spec-v1.md      # Full specification
-    ├── zkprivacy-quantum-spec-v1.pdf     # PDF export
-    ├── zkprivacy-verification-guide.md   # Implementation guide
-    ├── zkprivacy-verification-guide.pdf  # PDF export
-    └── figures/                          # Diagrams and images</code></pre>
-<h3 id="assets-assets">Assets (<code>assets/</code>)</h3>
-<p>Static resources:</p>
-<ul>
-<li><code>css/style.css</code> - Main stylesheet</li>
-<li><code>images/</code> - Site images and favicon</li>
-</ul>
-<hr>
-<h2 id="design-system">Design System</h2>
-<h3 id="brand-colors">Brand Colors</h3>
-<table>
-<thead><tr><th>Color</th><th>Hex</th><th>Usage</th></tr></thead><tbody>
-<tr><td>Background</td><td><code>#ffffff</code>, <code>#f8f9fa</code></td><td>Page background</td></tr>
-<tr><td>Primary</td><td><code>#4169E1</code> (RoyalBlue)</td><td>Links, buttons, accents</td></tr>
-<tr><td>Secondary</td><td><code>#5a7fd4</code></td><td>Hover states</td></tr>
-<tr><td>Tertiary</td><td><code>#2c4a8c</code></td><td>Active states</td></tr>
-<tr><td>Text</td><td><code>#1a1a2e</code>, <code>#4a4a5a</code></td><td>Body text, headings</td></tr>
-<tr><td>Border</td><td><code>#dee2e6</code></td><td>Dividers, card borders</td></tr>
-</tbody></table>
-<h3 id="typography">Typography</h3>
-<table>
-<thead><tr><th>Purpose</th><th>Font Family</th></tr></thead><tbody>
-<tr><td>Headings</td><td>Inter (sans-serif)</td></tr>
-<tr><td>Body</td><td>Crimson Pro (serif)</td></tr>
-<tr><td>Code</td><td>JetBrains Mono (monospace)</td></tr>
-</tbody></table>
-<hr>
-<h2 id="deployment-architecture">Deployment Architecture</h2>
-<h3 id="environments">Environments</h3>
-<table>
-<thead><tr><th>Environment</th><th>URL</th><th>Purpose</th></tr></thead><tbody>
-<tr><td>Production</td><td>https://quantum.phexora.ai</td><td>Public site</td></tr>
-<tr><td>Test</td><td>https://test.quantum.phexora.ai</td><td>Staging</td></tr>
-<tr><td>Local</td><td>http://localhost:9180</td><td>Development</td></tr>
-</tbody></table>
-<h3 id="deployment-flow">Deployment Flow</h3>
-<pre><code>Windows Development
-       │
-       ▼
-deploy_testing.bat ──► pCloud (sync)
-                           │
-                           ▼
-                    quantum_deploy_script.sh (server)
-                           │
-                           ▼
-                    /var/www/quantum/
-                           │
-                           ▼
-                    run_quantum.sh (nginx config)</code></pre>
-<h3 id="server-configuration">Server Configuration</h3>
-<p>The <code>run_quantum.sh</code> script:</p>
-<ol>
-<li>Creates maintenance page</li>
-<li>Manages SSL certificates via Let&#39;s Encrypt</li>
-<li>Generates nginx configuration</li>
-<li>Reloads nginx service</li>
-</ol>
-<hr>
-<h2 id="paper-format">Paper Format</h2>
-<h3 id="why-markdown">Why Markdown?</h3>
-<p>Research papers are written in Markdown for:</p>
-<ul>
-<li><strong>Version control</strong>: Clean diffs, easy collaboration</li>
-<li><strong>Portability</strong>: Convert to PDF, LaTeX, HTML</li>
-<li><strong>Simplicity</strong>: Focus on content, not formatting</li>
-<li><strong>Accessibility</strong>: Readable in any text editor</li>
-</ul>
-<h3 id="pdf-generation">PDF Generation</h3>
-<p>PDFs are generated using DocWizard-Pro (Pandoc-based):</p>
-<pre><code class="language-bash">./build-pdfs.sh    # Linux
-build-pdfs.bat     # Windows</code></pre>
-<hr>
-<h2 id="content-principles">Content Principles</h2>
-<ol>
-<li><strong>Academic but accessible</strong> - Rigorous content, clear explanations</li>
-<li><strong>Technical accuracy</strong> - Correct over simplified</li>
-<li><strong>Structured</strong> - Clear headers, logical flow</li>
-<li><strong>Self-contained</strong> - Each paper stands alone</li>
-</ol>
-<hr>
-<h2 id="infrastructure-dependencies">Infrastructure Dependencies</h2>
-<h3 id="shared-libraries">Shared Libraries</h3>
-<table>
-<thead><tr><th>Library</th><th>Path</th><th>Usage</th></tr></thead><tbody>
-<tr><td>Deploy Functions</td><td><code>Libraries/Scripts/deploy_functions.sh</code></td><td>Deployment utilities</td></tr>
-<tr><td>Deploy Common</td><td><code>Libraries/Scripts/deploy_common.sh</code></td><td>Common deployment logic</td></tr>
-<tr><td>Common Functions</td><td><code>Libraries/Scripts/common_functions.sh</code></td><td>Shared bash utilities</td></tr>
-</tbody></table>
-<h3 id="no-backend-dependencies">No Backend Dependencies</h3>
-<p>Unlike other Phexora projects, Quantum has:</p>
-<ul>
-<li>No Python backend</li>
-<li>No database (Redis/PostgreSQL)</li>
-<li>No authentication system</li>
-<li>No API endpoints</li>
-</ul>
-<hr>
-<h2 id="related-projects">Related Projects</h2>
-<table>
-<thead><tr><th>Project</th><th>Relationship</th></tr></thead><tbody>
-<tr><td>TheLastLight</td><td>Similar static site architecture</td></tr>
-<tr><td>PhexoraAI</td><td>Parent organization website</td></tr>
-<tr><td>Libraries/Scripts</td><td>Shared deployment infrastructure</td></tr>
-</tbody></table>
-<hr>
-<p><em>This document describes the technical architecture of the Quantum static site.</em></p>
-      </article>
+
+      <section class="doc-section" id="ueberblick">
+        <h2>Überblick</h2>
+        <p><strong>Stand: 9. Juli 2026.</strong> Quantum ist derzeit ausschließlich ein Repository für eine statische Website und Forschungsdokumente. Es enthält keine Blockchain-Node-Implementierung.</p>
+        <pre><code>Markdown-Quellen ── DocWizard/Pandoc ──► PDF-Artefakte
+        │                                  │
+        └──────────────┬───────────────────┘
+                       ▼
+index.html + LICENSE + assets/ + papers/ ── Nginx ──► Browser</code></pre>
+        <div class="callout warning">
+          <strong>Wichtige Trennung:</strong> Die im Paper beschriebene Protokollarchitektur ist ein Forschungsentwurf. Die in diesem Dokument beschriebene Softwarearchitektur ist die tatsächlich vorhandene Dokumentationswebsite.
+        </div>
+      </section>
+
+      <section class="doc-section" id="grenzen">
+        <h2>Systemgrenzen</h2>
+        <div class="card-grid">
+          <div class="info-card"><strong>Vorhanden</strong><span>HTML, CSS, Markdown, PDF, lokale Start- und Deployment-Skripte.</span></div>
+          <div class="info-card"><strong>Nicht vorhanden</strong><span>Backend, API, Datenbank, Authentifizierung, Wallet, Node, Konsenscode oder Testnet.</span></div>
+          <div class="info-card"><strong>Öffentlich ausgeliefert</strong><span><code>index.html</code>, <code>LICENSE</code>, <code>assets/</code> und <code>papers/</code>.</span></div>
+        </div>
+        <p>Es gibt keine Laufzeitabhängigkeit zu Python, Redis, PostgreSQL, Node.js oder einem Frontend-Framework. Python, Pandoc und DocWizard-Pro werden nur zur PDF-Erzeugung verwendet.</p>
+      </section>
+
+      <section class="doc-section" id="artefakte">
+        <h2>Quellen und erzeugte Artefakte</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Inhalt</th><th>Maßgebliche Quelle</th><th>Artefakt</th></tr></thead>
+            <tbody>
+              <tr><td>Protokollentwurf</td><td><code>papers/zkprivacy/zkprivacy-quantum-spec-v1.md</code></td><td>gleichnamige PDF</td></tr>
+              <tr><td>Verifikationsplan</td><td><code>papers/zkprivacy/zkprivacy-verification-guide.md</code></td><td>gleichnamige PDF</td></tr>
+              <tr><td>Öffentliche Landingpage</td><td><code>index.html</code></td><td>direkt ausgeliefert</td></tr>
+              <tr><td>Forschungslizenz</td><td><code>LICENSE</code></td><td>direkt ausgeliefert</td></tr>
+              <tr><td>Interne langlebige Dokumente</td><td>HTML-Dateien in <code>Documentation/</code></td><td>keine automatische Veröffentlichung</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>PDFs werden nicht manuell bearbeitet. Nach jeder relevanten Markdown-Änderung müssen beide PDFs neu erzeugt und zusammen mit den Quellen geprüft werden.</p>
+        <p>Die vollständige Dateistruktur wird ausschließlich in <a href="ProjectStructure.md"><code>ProjectStructure.md</code></a> gepflegt.</p>
+      </section>
+
+      <section class="doc-section" id="lokal">
+        <h2>Lokale Ausführung</h2>
+        <p>Der lokale Einstieg erfolgt über die im <a href="../README.md">README</a> dokumentierten Startskripte. Der in der gemeinsamen Anwendungsregistrierung reservierte Vorschau-Port ist <code>9180</code>.</p>
+        <p>Die Dokumente unter <code>Documentation/</code> können direkt als Dateien geöffnet werden. Ihr Stylesheet liegt deshalb bewusst unter <code>Documentation/assets/</code>; diese dokumentierte lokale Ausnahme vermeidet eine nicht auslieferbare relative Abhängigkeit auf ein benachbartes Repository.</p>
+      </section>
+
+      <section class="doc-section" id="pdf">
+        <h2>PDF-Erzeugung</h2>
+        <p>Die Build-Skripte rufen den Konverter aus dem benachbarten Repository <code>DocWizard-Pro/Src/universal_converter.py</code> auf.</p>
+        <p>Die ausführbaren Befehle stehen im <a href="../README.md">README</a>. Build-Abhängigkeiten sind Python, Pandoc und die von DocWizard-Pro benötigten PDF-Werkzeuge. Sie sind keine Laufzeitabhängigkeiten der Website. Ein erfolgreicher Prozess muss Exit-Code 0 liefern, beide PDFs aktualisieren und darf keine Platzhalter oder veraltete Quellen übernehmen.</p>
+      </section>
+
+      <section class="doc-section" id="deployment">
+        <h2>Deployment</h2>
+        <pre><code>Windows-Arbeitskopie
+  │
+  ├─ tools/Scripts/deploy_testing.bat
+  ▼
+pCloud-Quelle
+  │
+  ├─ tools/Scripts/Startup/quantum_deploy_script.sh
+  ▼
+Server-Arbeitskopie
+  │
+  ├─ index.html + LICENSE + assets/ + papers/
+  ▼
+/var/www/quantum[-test] ── Nginx/HTTPS</code></pre>
+        <p>Das Server-Deployment kopiert ausschließlich <code>index.html</code>, <code>LICENSE</code>, <code>assets/</code> und <code>papers/</code> in den Web-Root. <code>Documentation/</code>, Quellrichtlinien und Build-Skripte bleiben in der Server-Arbeitskopie und sind nicht Teil der öffentlichen Website.</p>
+        <p><code>run_quantum.sh</code> verwendet die gemeinsame statische Nginx-Infrastruktur für Web-Root, HTTPS und Wartungsseite. Die Nginx-Konfiguration wird nicht manuell im Repository gepflegt.</p>
+      </section>
+
+      <section class="doc-section" id="umgebungen">
+        <h2>Umgebungen</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Umgebung</th><th>Adresse</th><th>Statusgrenze</th></tr></thead>
+            <tbody>
+              <tr><td>Produktion</td><td><a href="https://quantum.phexora.ai">quantum.phexora.ai</a></td><td>Am 9. Juli 2026 erreichbar; Betriebszustand ist zeitabhängig.</td></tr>
+              <tr><td>Test</td><td><code>test.quantum.phexora.ai</code></td><td>In Skripten vorgesehen; am 9. Juli 2026 nicht per DNS auflösbar. Nicht als verfügbare Umgebung zusichern.</td></tr>
+              <tr><td>Lokal</td><td><code>http://localhost:9180</code></td><td>Nur während eines lokalen Servers erreichbar.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc-section" id="abhaengigkeiten">
+        <h2>Abhängigkeiten und Eigentümer</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Verantwortung</th><th>Eigentümer</th><th>Phase</th></tr></thead>
+            <tbody>
+              <tr><td>Landingpage-Design</td><td><code>assets/css/style.css</code></td><td>Laufzeit</td></tr>
+              <tr><td>Interne Dokumentgestaltung</td><td><code>Documentation/assets/documentation.css</code></td><td>lokale Dokumentansicht</td></tr>
+              <tr><td>PDF-Konvertierung</td><td><code>DocWizard-Pro</code></td><td>Build</td></tr>
+              <tr><td>Deployment-Orchestrierung</td><td><code>Libraries/Scripts</code> über Quantum-Skripte</td><td>Deployment</td></tr>
+              <tr><td>Port, Domain und App-Metadaten</td><td><code>Libraries/Python/ApplicationRegistry.py</code></td><td>Infrastruktur</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Die lokale Dokument-CSS ist eine bewusst begrenzte Ausnahme vom gemeinsamen Dokumentationsstil: <code>Documentation/</code> wird nicht zusammen mit <code>Libraries/</code> ausgeliefert, und die frühere relative Verknüpfung erzeugte bei HTTP-Vorschauen einen 404-Fehler.</p>
+      </section>
+
+      <section class="doc-section" id="sicherheit">
+        <h2>Sicherheitsgrenze</h2>
+        <ul>
+          <li>Die Website führt keinen benutzerkontrollierten Code aus und verarbeitet keine Konten, Zahlungen oder personenbezogenen Formulardaten.</li>
+          <li>Öffentliche Dateien dürfen keine Schlüssel, Secrets, internen Serverpfade oder unveröffentlichte Zugangsdaten enthalten.</li>
+          <li>Externe Links verwenden bei neuen Tabs <code>rel="noopener"</code>.</li>
+          <li>Die Forschungsdokumente dürfen Anforderungen darstellen, aber offene Sicherheits- oder Leistungsnachweise nicht als abgeschlossen bezeichnen.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="pruefung">
+        <h2>Prüfung nach Änderungen</h2>
+        <ol>
+          <li>HTML mit einem Parser oder Validator prüfen.</li>
+          <li>Alle lokalen Links und Assets gegen die tatsächliche Quellstruktur prüfen.</li>
+          <li>Markdown mit Pandoc parsen und PDFs neu erzeugen.</li>
+          <li>Landingpage lokal unter Port 9180 prüfen; PDF-Links öffnen.</li>
+          <li>Behauptungen zwischen README, Landingpage, Paper und Investor-Dokumenten abgleichen.</li>
+          <li>Vor Deployment den tatsächlichen Zielhost und DNS-Status separat verifizieren.</li>
+        </ol>
+      </section>
     </main>
   </div>
 </body>

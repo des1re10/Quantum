@@ -1,107 +1,114 @@
 # Quantum
 
-**Post-Quantum Cryptography Research by Phexora AI**
+**Open post-quantum privacy and scalability research by Phexora AI**
 
 [![Website](https://img.shields.io/badge/Website-quantum.phexora.ai-6366f1)](https://quantum.phexora.ai)
-[![License](https://img.shields.io/badge/License-CC0-success)](https://creativecommons.org/publicdomain/zero/1.0/)
+[![Research text: CC0 1.0](https://img.shields.io/badge/Research%20text-CC0--1.0-success)](LICENSE)
 
----
+## What Quantum is
 
-## Overview
+Quantum is a research program for a private note-based DAG protocol. A
+releasable design must satisfy three requirements together:
 
-Quantum is Phexora AI's research initiative aimed at solving an unsolved problem: **combining high-throughput DAG consensus with full transaction privacy**.
+- **post-quantum security:** at least 128 bits of composed post-quantum security
+  across every security-critical layer, without classical fallbacks;
+- **privacy and network anonymity by default:** no transparent transfer mode,
+  with sender, recipient, amount, graph relationship, and origin metadata
+  protected within a published threat model;
+- **scalability:** at least 1,000 accepted layer-1 transactions per second in a
+  reproducible end-to-end test with all privacy and validation work enabled.
 
-No existing blockchain achieves both. Kaspa has speed (10+ blocks/sec) but transparent transactions. Monero has privacy but limited throughput (~10 TPS). Quantum aims to be the first to achieve both, with quantum-secure cryptography.
+These are release requirements, not achieved capabilities.
 
-**This is a research project.** The core challenge—privacy-preserving proofs over DAG structures—is novel and unproven. We publish openly and honestly about what works and what doesn't.
+## Current status
 
-## Research Specification
+**Research design 0.2.0-research — not implementation-ready or production-safe.**
 
-### Quantum: Privacy-Preserving DAG Blockchain
+This repository currently contains a static documentation website, a research
+design, and a verification plan. It does not contain a node, wallet,
+blockchain implementation, testnet, external security audit, or completed
+performance benchmark.
 
-A research specification targeting Kaspa-level throughput with Monero-level privacy.
+| Area | Status |
+|---|---|
+| SHAKE256, ML-KEM-1024, SLH-DSA-SHAKE-256f | Standards selected; integration not verified |
+| Lattice commitment | Blocking research gate |
+| STARK validity proof | Blocking research gate |
+| GHOSTDAG and private state ordering | Blocking research gate |
+| Network anonymity | Blocking research gate |
+| ≥1,000 accepted L1 TPS | Acceptance target; not yet benchmarked |
 
-**Targets:**
-- 1,000+ TPS on L1 via GhostDAG consensus
-- 10-32 blocks per second
-- 100% private transactions (no transparent mode)
-- Post-quantum security (SPHINCS+, ML-KEM, STARKs)
-- No trusted setup required
+The project must stop before production if any of the three core requirements
+cannot be demonstrated.
 
-**Bitcoin Foundations:**
-- UTXO model (proven secure, privacy-friendly)
-- Nakamoto consensus (PoW, permissionless, no validators)
-- Fair launch (no premine, no ICO, no founder's reward)
+## Research documents
 
-**Status:** Phase 1 (Specification) complete. Formal security analysis in progress.
+- [Research design specification](papers/zkprivacy/zkprivacy-quantum-spec-v1.md)
+- [Implementation and verification plan](papers/zkprivacy/zkprivacy-verification-guide.md)
+- [Market and claim thesis](Documentation/Quantum_Market_Thesis.html)
+- [Static-site system architecture](Documentation/SystemArchitecture.html)
 
-**Documents:**
-- [Full Specification](papers/zkprivacy/zkprivacy-quantum-spec-v1.md)
-- [Verification Guide](papers/zkprivacy/zkprivacy-verification-guide.md)
+The specification filename retains “v1” for link compatibility. The normative
+revision is declared inside the document.
 
-## Technology Stack
+## Candidate protocol directions
 
-| Component | Technology |
-|-----------|------------|
-| Signatures | SPHINCS+-256f (hash-based) |
-| Key Encapsulation | ML-KEM-1024 (Kyber) |
-| Zero-Knowledge Proofs | STARKs (transparent, hash-based) |
-| Commitments | Lattice-based (Module-LWE) |
-| Hash Functions | SHAKE256 (SHA-3 family) |
+| Responsibility | Candidate direction | Evidence boundary |
+|---|---|---|
+| Hash/XOF | SHAKE256, NIST FIPS 202 | Standard selected |
+| Authorization | SLH-DSA-SHAKE-256f, NIST FIPS 205 | In-proof cost and integration open |
+| Key encapsulation | ML-KEM-1024, NIST FIPS 203 | Authenticated composition open |
+| Validity proof | Transparent STARK | Exact AIR/FRI/ZK profile open |
+| Note commitment | Reviewed lattice construction | Construction and parameters open |
+| Consensus | Versioned GHOSTDAG-based PoW profile | State ordering, DAA and finality open |
+| Origin privacy | Dedicated anonymous transport layer | Protocol and analysis open |
 
-## Security Assumptions
+Selecting a standardized primitive does not prove the security, anonymity, or
+performance of the composed protocol.
 
-All cryptographic primitives are based on:
-- **Hash function security** (collision resistance, preimage resistance)
-- **Module-LWE hardness** (lattice problems)
-- **Module-SIS hardness** (short integer solutions)
+## Local documentation site
 
-No reliance on:
-- Elliptic curve discrete logarithm problem
-- Integer factorization
-- Any problem vulnerable to Shor's algorithm
-
-## Local Development
-
-```bash
-# Clone the repository
+~~~bash
 git clone https://github.com/des1re10/Quantum.git
-cd quantum
-
-# Start local server
+cd Quantum
 ./start-local.sh
-# Or on Windows: start-local.bat
+# Open http://localhost:9180
+~~~
 
-# Open in browser
-# http://localhost:9180
-```
+On Windows, use <code>start-local.bat</code>.
+
+## PDF generation
+
+The Markdown papers are the authoritative sources. PDF files are generated
+through the adjacent DocWizard-Pro repository:
+
+~~~bash
+./build-pdfs.sh
+# On Windows: build-pdfs.bat
+~~~
+
+Both PDFs must be regenerated after material paper changes.
 
 ## Contributing
 
-We welcome feedback from:
-- Cryptographers
-- Security researchers
-- Blockchain developers
-- Anyone interested in post-quantum security
+Useful contributions include:
 
-Please open an issue or pull request for:
-- Technical corrections
-- Clarifications
-- Suggestions for improvements
+- corrections to the threat model or validity relation;
+- concrete, cited commitment or STARK analyses;
+- deterministic GHOSTDAG/state-ordering models;
+- anonymous-network threat analysis;
+- independent implementations and interoperability vectors;
+- reproducible performance and storage budgets.
 
-## License
+Do not describe an open gate as verified. Cryptographic, consensus, anonymity,
+and release approvals require independent human specialist review.
 
-All research papers in this repository are released under [CC0 (Public Domain)](https://creativecommons.org/publicdomain/zero/1.0/).
+## License and legal boundary
 
-You are free to:
-- Copy, modify, and distribute the work
-- Use it for commercial purposes
-- Without asking permission
+Repository-authored research text and documentation are dedicated under
+[CC0 1.0 Universal](LICENSE). That dedication does not cover repository scripts,
+styles, company or product identifiers, or third-party material unless a
+separate notice says otherwise. CC0 does not grant patent or trademark rights.
 
-## About Phexora AI
-
-[Phexora AI](https://phexora.ai) is a technology company focused on privacy-preserving solutions and blockchain technology.
-
----
-
-**Quantum** - Building cryptography for the post-quantum era.
+This research is not legal, tax, financial, or investment advice and is not an
+offer to sell a token, security, or network service.

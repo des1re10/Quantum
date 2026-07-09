@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Quantum Markt-, Positionierungs- und Claim-Thesis für die Anforderungen Post-Quanten-Sicherheit, Anonymität und Skalierbarkeit.">
+  <title>Quantum – Markt- und Claim-Thesis</title>
+  <link rel="stylesheet" href="assets/documentation.css">
+</head>
+<body>
+  <div class="doc-layout">
+    <aside class="doc-nav" aria-label="Dokumentnavigation">
+      <strong>Markt- und Claim-Thesis</strong>
+      <a href="#zweck">Zweck</a>
+      <a href="#kernthese">Kernthese</a>
+      <a href="#anforderungen">Anforderungen</a>
+      <a href="#evidenz">Evidenzstatus</a>
+      <a href="#zielgruppen">Zielgruppen</a>
+      <a href="#positionierung">Positionierung</a>
+      <a href="#claims">Claim-Register</a>
+      <a href="#meilensteine">Meilensteine</a>
+      <a href="#partner">Partner und Finanzierung</a>
+      <a href="#risiken">Risiken und Recht</a>
+      <a href="#quellen">Quellen</a>
+    </aside>
+
+    <main class="doc-content">
+      <header class="hero">
+        <p class="kicker">Interne Positionierungsquelle</p>
+        <h1>Quantum Markt- und Claim-Thesis</h1>
+        <p>Wie Quantum das gemeinsame Ziel aus Post-Quanten-Sicherheit, standardmäßiger Anonymität und Skalierbarkeit glaubwürdig untersucht, ohne Forschungsziele als erreichte Eigenschaften zu verkaufen.</p>
+        <div class="badge-row">
+          <span class="badge warning">Research Design</span>
+          <span class="badge">Stand 9. Juli 2026</span>
+          <span class="badge risk">Keine Anlagewerbung</span>
+        </div>
+      </header>
+
+      <section class="doc-section" id="zweck">
+        <h2>Zweck</h2>
+        <p>Dieses Dokument ist die interne Quelle für Positionierung, Outreach, Roadmap-Entscheidungen und externe Kurztexte. Es trennt vier Ebenen:</p>
+        <ol>
+          <li>nicht verhandelbare Produktanforderungen;</li>
+          <li>derzeit ausgewählte Standards oder Forschungsrichtungen;</li>
+          <li>noch fehlende Nachweise;</li>
+          <li>Formulierungen, die erst nach bestandenen Gates zulässig sind.</li>
+        </ol>
+        <div class="callout warning"><strong>Aktueller Status:</strong> Quantum ist ein offener Forschungs- und Spezifikationspfad. Es gibt weder Protokollimplementierung noch Testnet, externes Audit oder erreichten Durchsatznachweis.</div>
+      </section>
+
+      <section class="doc-section" id="kernthese">
+        <h2>Kernthese</h2>
+        <p>Öffentliche Ledger machen wirtschaftliche Beziehungen häufig analysierbar. Klassische Public-Key-Verfahren sind langfristig durch ausreichend leistungsfähige Quantencomputer bedroht. Hoher Blockdurchsatz löst weder Transaktionsprivacy noch die Metadaten des P2P-Netzes automatisch.</p>
+        <p>Quantum untersucht deshalb eine Architektur, in der private UTXO-Transaktionen, ausschließlich post-quanten-taugliche Sicherheitsbausteine, DAG-basierter Proof of Work und ein eigener Netzwerk-Anonymitätslayer gemeinsam geprüft werden. Der relevante Forschungswert liegt nicht in der Liste der Komponenten, sondern im Nachweis, dass ihre Zusammensetzung sicher und leistungsfähig ist.</p>
+      </section>
+
+      <section class="doc-section" id="anforderungen">
+        <h2>Nicht verhandelbare Anforderungen</h2>
+        <div class="card-grid">
+          <div class="info-card"><strong>Post-Quanten-Sicherheit</strong><span>Mindestens 128 Bit komponierte PQ-Sicherheit für alle sicherheitskritischen Komponenten, ohne klassische Fallbacks.</span></div>
+          <div class="info-card"><strong>Anonymität by default</strong><span>Keine transparenten Transfers; Sender, Empfänger, Betrag und Graphbezug bleiben im definierten Ledger- und Netzwerkmodell verborgen.</span></div>
+          <div class="info-card"><strong>Skalierbarkeit</strong><span>Mindestens 1.000 akzeptierte L1-Transaktionen pro Sekunde in einem reproduzierbaren End-to-End-Test.</span></div>
+        </div>
+        <p>Ein Produktlaunch ist nur zulässig, wenn alle drei Anforderungen gleichzeitig erfüllt sind. Eine leichtere transparente Betriebsart, klassische Transport-Fallbacks oder ein Benchmark ohne Privacy-Proofs wären keine akzeptable Zwischenlösung.</p>
+      </section>
+
+      <section class="doc-section" id="evidenz">
+        <h2>Evidenzstatus</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Bereich</th><th>Status</th><th>Was noch fehlt</th></tr></thead>
+            <tbody>
+              <tr><td>SHAKE256</td><td class="status-selected">Standard ausgewählt</td><td>Domain-Vektoren sowie begründete Output-Längen für jede Sicherheitsanforderung</td></tr>
+              <tr><td>SLH-DSA / ML-KEM</td><td class="status-selected">NIST-Standards ausgewählt</td><td>Exakte Integration, KATs, Empfänger-Key-Privacy, Side-Channel- und Kompositionsreview</td></tr>
+              <tr><td>Lattice Commitment</td><td class="status-open">Offenes Gate</td><td>Konstruktion, Parameter, Reduktion, Estimator und Review</td></tr>
+              <tr><td>STARK-Profil</td><td class="status-open">Offenes Gate</td><td>AIR, FRI, ZK-Masking, QROM-Soundness und Benchmarks</td></tr>
+              <tr><td>DAG und privater Zustand</td><td class="status-open">Offenes Gate</td><td>Deterministische GHOSTDAG-Integration, DAA und Konfliktbeweis</td></tr>
+              <tr><td>Netzwerk-Anonymität</td><td class="status-open">Offenes Gate</td><td>Protokoll, globaler Beobachter, Experimente und externe Review</td></tr>
+              <tr><td>≥1.000 akzeptierte TPS</td><td class="status-target">Abnahmeziel</td><td>Vollständiger Prototyp und reproduzierbarer 24-Stunden-Test</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc-section" id="zielgruppen">
+        <h2>Primäre Zielgruppen dieser Phase</h2>
+        <ul>
+          <li>Kryptographinnen und Kryptographen für Commitment-, STARK- und Kompositionsreview;</li>
+          <li>Konsensforschende für DAG-Ordnung, Difficulty Adjustment, Finalität und Zustandskonvergenz;</li>
+          <li>Forschende für anonyme Kommunikation und Traffic-Analysis-Resistenz;</li>
+          <li>Implementierungsteams für unabhängige Referenz- und Node-Implementierungen;</li>
+          <li>Forschungsprogramme und Grants, die offene, reproduzierbare Grundlagenarbeit finanzieren.</li>
+        </ul>
+        <p>Endnutzer, Börsen, Zahlungsanbieter oder Token-Käufer sind erst nach bestandener Sicherheits-, Rechts- und Testnet-Phase sinnvolle Zielgruppen.</p>
+      </section>
+
+      <section class="doc-section" id="positionierung">
+        <h2>Positionierung</h2>
+        <p><strong>Kernformulierung:</strong> Quantum is an open research path for a protocol that must combine post-quantum security, privacy and network anonymity by default, and at least 1,000 accepted layer-1 transactions per second. These are release requirements, not achieved capabilities; implementation, external review, and reproducible benchmarks are still required.</p>
+        <p>Privacy wird als Schutz legitimer persönlicher und geschäftlicher Beziehungen positioniert. Quantum ist kein Versprechen regulatorischer Unsichtbarkeit und kein Werkzeug zur Umgehung rechtlicher Pflichten.</p>
+      </section>
+
+      <section class="doc-section" id="claims">
+        <h2>Claim-Register</h2>
+        <h3>Heute zulässig</h3>
+        <ul>
+          <li>„Quantum definiert Post-Quanten-Sicherheit, Anonymität by default und ≥1.000 L1-TPS als gemeinsame, harte Release-Anforderungen.“</li>
+          <li>„Der Forschungsentwurf evaluiert FIPS-203-ML-KEM, FIPS-205-SLH-DSA, transparente STARKs, ein geprüftes Lattice Commitment und GHOSTDAG.“</li>
+          <li>„Hash-Längen, Empfänger-Key-Privacy, Commitment, Proof-System, DAG-Zustand, Netzwerk-Anonymität und End-to-End-Leistung sind offene Forschungs- und Review-Gates.“</li>
+        </ul>
+
+        <h3>Erst nach passender Evidenz zulässig</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Claim</th><th>Mindestevidenz</th></tr></thead>
+            <tbody>
+              <tr><td>„Quantum ist post-quanten-sicher.“</td><td>Komponierte ≥128-Bit-PQ-Analyse, zwei Implementierungen und unabhängiges Audit</td></tr>
+              <tr><td>„Quantum bietet vollständige Protokollanonymität.“</td><td>Ledger- und Netzwerkmodell, definierte Grenzen, Angriffsversuche und externe Review</td></tr>
+              <tr><td>„Quantum erreicht 1.000+ TPS.“</td><td>Reproduzierbarer End-to-End-Test mit akzeptierten Zustandsübergängen und vollständiger Privacy</td></tr>
+              <tr><td>„Quantum ist produktionsreif.“</td><td>Bestandene Produktionsgates, Auditabschluss, Betrieb und Recovery-Nachweis</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Nicht zulässig</h3>
+        <ul>
+          <li>„Specification complete“, solange blockierende Entscheidungen offen sind;</li>
+          <li>absolute Garantien wie „unverfolgbar“, „unknackbar“ oder „für immer quantensicher“;</li>
+          <li>„patentfrei wegen CC0“ – CC0 gewährt keine Patent- oder Markenrechte;</li>
+          <li>Investment-, Rendite-, Tokenpreis- oder „High upside“-Versprechen;</li>
+          <li>Vergleichszahlen zu Dritten ohne Datum, Umfang und belastbare Primärquelle.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="meilensteine">
+        <h2>Evidenzbasierte Meilensteine</h2>
+        <ol>
+          <li><strong>Design Freeze:</strong> Threat Model, Commitment, STARK, Serialisierung, GHOSTDAG/DAA und Netzwerkprotokoll sind vollständig versioniert.</li>
+          <li><strong>Independent Prototype:</strong> Zwei Teams erzeugen dieselben Vektoren und Zustandswurzeln.</li>
+          <li><strong>Adversarial Review:</strong> Inflations-, Double-Spend-, Konsens-, Side-Channel- und Traffic-Analysis-Tests sind veröffentlicht.</li>
+          <li><strong>Scalability Gate:</strong> ≥1.000 akzeptierte L1-TPS mit vollständiger Privacy laufen mindestens 24 Stunden reproduzierbar.</li>
+          <li><strong>Reviewed Testnet:</strong> Externe Fachreviews sind abgeschlossen und verbleibende Risiken veröffentlicht.</li>
+          <li><strong>Production Decision:</strong> Technik, Betrieb, Governance und Rechtsrahmen bestehen eine getrennte Go/no-go-Entscheidung.</li>
+        </ol>
+      </section>
+
+      <section class="doc-section" id="partner">
+        <h2>Partner- und Finanzierungslogik</h2>
+        <p>Passende frühe Finanzierung trägt überprüfbare Forschung, nicht Token-Marketing. Geeignete Arbeitspakete sind:</p>
+        <ul>
+          <li>Commitment- und Proof-System-Analyse mit offenen Artefakten;</li>
+          <li>formale Modelle für DAG-Zustand und Ausgabegrenze;</li>
+          <li>unabhängige Referenzimplementierungen und Interoperabilitätsvektoren;</li>
+          <li>Netzwerk-Anonymitätsforschung und Traffic-Analysis-Testbed;</li>
+          <li>reproduzierbare Performance-, Storage- und Recovery-Infrastruktur.</li>
+        </ul>
+        <p>Kommerzielle Infrastruktur- oder Ökosystemmodelle werden erst bewertet, wenn die technischen und rechtlichen Grundlagen belastbar sind.</p>
+      </section>
+
+      <section class="doc-section" id="risiken">
+        <h2>Risiken und rechtliche Grenze</h2>
+        <div class="card-grid">
+          <div class="info-card"><strong>Machbarkeit</strong><span>Proof-Größe, In-Circuit-SLH-DSA, DAG-Zustand und global beobachtbares Netzwerk können das gemeinsame Ziel verhindern.</span></div>
+          <div class="info-card"><strong>Komposition</strong><span>Standardisierte Bausteine garantieren keine sichere oder anonyme Gesamtkonstruktion.</span></div>
+          <div class="info-card"><strong>Betrieb und Recht</strong><span>Privacy-Technik beseitigt keine Sanktions-, Geldwäsche-, Steuer-, Verbraucher- oder Datenschutzpflichten.</span></div>
+        </div>
+        <div class="callout risk"><strong>Keine Anlagewerbung:</strong> Dieses Dokument ist technische Markt- und Forschungsplanung. Es ist kein Angebot, keine Anlageempfehlung und keine Rechts-, Steuer- oder Finanzberatung. Vor Token-, Netzwerk- oder Finanzierungsaktivitäten ist spezialisierte Beratung erforderlich.</div>
+      </section>
+
+      <section class="doc-section" id="quellen">
+        <h2>Primärquellen</h2>
+        <ul>
+          <li><a href="https://csrc.nist.gov/pubs/fips/203/final">NIST FIPS 203 – ML-KEM</a></li>
+          <li><a href="https://csrc.nist.gov/pubs/fips/205/final">NIST FIPS 205 – SLH-DSA</a></li>
+          <li><a href="https://csrc.nist.gov/Projects/Post-Quantum-Cryptography/Post-Quantum-Cryptography-Standardization">NIST Post-Quantum Cryptography Project</a></li>
+          <li><a href="https://eprint.iacr.org/2018/046.pdf">STARK research paper</a></li>
+          <li><a href="https://eprint.iacr.org/2018/104.pdf">PHANTOM/GHOSTDAG research paper</a></li>
+          <li><a href="https://arxiv.org/abs/1805.11060">Dandelion++ research paper</a></li>
+        </ul>
+        <p class="source-note">Drittnamen und Marken gehören ihren jeweiligen Inhabern. Die Verweise bedeuten keine Verbindung oder Empfehlung.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

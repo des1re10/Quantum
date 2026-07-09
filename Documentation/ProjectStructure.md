@@ -1,12 +1,13 @@
 # Project Structure
 
-*Last Updated: June 2026*
+*Last Updated: July 2026*
 
 ```
 Quantum/
 ├── CLAUDE.md                         # Development guidelines for Claude Code
 ├── AGENTS.md                         # Agent instructions (local start commands)
 ├── README.md                         # Project overview and quick start
+├── LICENSE                           # CC0 dedication and rights boundary
 ├── index.html                        # Landing page (static HTML)
 ├── impressum.html                    # Legal notice (Impressum)
 ├── privacy.html                      # Privacy policy
@@ -16,17 +17,18 @@ Quantum/
 ├── Documentation/
 │   ├── ProjectStructure.md           # This file
 │   ├── SystemArchitecture.html       # System design and deployment
-│   ├── InvestorOnePager.html         # Investor one-pager
-│   ├── Quantum_Market_Thesis.md      # Market thesis
+│   ├── InvestorOnePager.html         # Evidence-based research brief
+│   ├── Quantum_Market_Thesis.html    # Market and claim thesis
+│   ├── assets/
+│   │   └── documentation.css         # Shared internal-document styles
 │   └── ReleaseNotes.md               # Version history
 │
 ├── papers/                           # Research papers and specifications
 │   └── zkprivacy/                    # Quantum: Privacy-Preserving DAG Blockchain
-│       ├── zkprivacy-quantum-spec-v1.md      # Full specification
+│       ├── zkprivacy-quantum-spec-v1.md      # Research design and requirements
 │       ├── zkprivacy-quantum-spec-v1.pdf     # PDF export
-│       ├── zkprivacy-verification-guide.md   # Implementation guide
-│       ├── zkprivacy-verification-guide.pdf  # PDF export
-│       └── figures/                          # Diagrams and images
+│       ├── zkprivacy-verification-guide.md   # Implementation and evidence plan
+│       └── zkprivacy-verification-guide.pdf  # PDF export
 │
 ├── assets/
 │   ├── css/

@@ -245,7 +245,7 @@ fi
 # Verify required files exist
 echo ""
 echo "Verifying source files..."
-REQUIRED_FILES=("index.html" "assets" "papers")
+REQUIRED_FILES=("index.html" "assets" "papers" "LICENSE")
 MISSING_FILES=0
 
 for file in "${REQUIRED_FILES[@]}"; do
@@ -354,7 +354,7 @@ rm -f "$QUANTUM_OUTPUT_FILE"
 QUANTUM_OUTPUT_FILE=""
 
 echo "  Verifying deployed site files..."
-for required_path in "index.html" "assets" "papers"; do
+    for required_path in "index.html" "assets" "papers" "LICENSE"; do
     if [ ! -e "$TARGET_DIR/$required_path" ]; then
         echo "ERROR: Required deployment output missing: $TARGET_DIR/$required_path"
         exit 1
@@ -369,16 +369,19 @@ if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
     # Copy to temp directory first (pCloud FUSE doesn't allow root access)
     TEMP_DIR=$(mktemp -d)
     cp "$TARGET_DIR/index.html" "$TEMP_DIR/"
+    cp "$TARGET_DIR/LICENSE" "$TEMP_DIR/"
     cp -r "$TARGET_DIR/assets" "$TEMP_DIR/"
     cp -r "$TARGET_DIR/papers" "$TEMP_DIR/"
 
     # Remove existing files/directories to allow clean replacement
     sudo rm -f "$WEB_ROOT/index.html"
+    sudo rm -f "$WEB_ROOT/LICENSE"
     sudo rm -rf "$WEB_ROOT/assets"
     sudo rm -rf "$WEB_ROOT/papers"
 
     # Move from temp to web root with sudo
     sudo mv "$TEMP_DIR/index.html" "$WEB_ROOT/"
+    sudo mv "$TEMP_DIR/LICENSE" "$WEB_ROOT/"
     sudo mv "$TEMP_DIR/assets" "$WEB_ROOT/"
     sudo mv "$TEMP_DIR/papers" "$WEB_ROOT/"
     rmdir "$TEMP_DIR"
@@ -393,6 +396,10 @@ if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
     fi
     if [ ! -d "$WEB_ROOT/papers" ]; then
         echo "ERROR: Web root deployment missing papers directory"
+        exit 1
+    fi
+    if [ ! -f "$WEB_ROOT/LICENSE" ]; then
+        echo "ERROR: Web root deployment missing LICENSE"
         exit 1
     fi
     echo "  ✓ Web root deployment complete"
@@ -430,6 +437,7 @@ if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
     sudo chown -R www-data:www-data "$WEB_ROOT"
     sudo chmod -R 755 "$WEB_ROOT"
     sudo chmod 644 "$WEB_ROOT/index.html"
+    sudo chmod 644 "$WEB_ROOT/LICENSE"
     echo "  Web root permissions set"
 else
     echo "  Permissions skipped (no sudo)"
@@ -437,6 +445,7 @@ fi
 
 # Set permissions on home directory files
 chmod 644 "$TARGET_DIR/index.html" 2>/dev/null || true
+chmod 644 "$TARGET_DIR/LICENSE" 2>/dev/null || true
 chmod -R 755 "$TARGET_DIR/assets" 2>/dev/null || true
 chmod -R 755 "$TARGET_DIR/papers" 2>/dev/null || true
 echo "  Home directory permissions set"

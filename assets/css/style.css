@@ -128,9 +128,13 @@ body {
     border-radius: 4px;
     font-size: 0.75rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    text-transform: none;
+    letter-spacing: 0;
     margin-bottom: 1rem;
+}
+
+.hero-actions {
+    margin: 0 0 1.5rem;
 }
 
 .hero-stats {
@@ -295,8 +299,8 @@ body {
     border-radius: 4px;
     font-size: 0.7rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
+    text-transform: none;
+    letter-spacing: 0;
 }
 
 .paper-date {
@@ -668,19 +672,43 @@ body {
     border-top: 1px solid #374151;
 }
 
+.footer-research-note a {
+    color: #d1d5db;
+}
+
+.footer-research-note a:hover,
+.footer-research-note a:focus-visible {
+    color: white;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .navbar {
+        position: static;
+        flex-wrap: wrap;
+        gap: 0.75rem;
         padding: 0.75rem 5%;
     }
 
     .nav-links {
-        gap: 1rem;
-        font-size: 0.9rem;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 0.25rem;
+        width: 100%;
+    }
+
+    .nav-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0.35rem;
+        text-align: center;
+        line-height: 1.2;
     }
 
     .hero {
-        padding: 7rem 5% 3rem;
+        padding: 3rem 5%;
     }
 
     .hero-stats {
@@ -735,6 +763,12 @@ body {
     .btn {
         width: 100%;
         justify-content: center;
+    }
+}
+
+@media (max-width: 520px) {
+    .nav-links {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 

@@ -69,6 +69,11 @@ xcopy /E /I /Y "%SOURCE_DIR%\papers" "%TARGET_DIR%\papers"
 echo [4/7] Copying documentation...
 copy /Y "%SOURCE_DIR%\README.md" "%TARGET_DIR%\" 2>nul
 copy /Y "%SOURCE_DIR%\CLAUDE.md" "%TARGET_DIR%\" 2>nul
+copy /Y "%SOURCE_DIR%\LICENSE" "%TARGET_DIR%\"
+if errorlevel 1 (
+    echo ERROR: Failed to copy required LICENSE file
+    exit /b 1
+)
 if not exist "%TARGET_DIR%\Documentation" mkdir "%TARGET_DIR%\Documentation"
 xcopy /E /I /Y "%SOURCE_DIR%\Documentation" "%TARGET_DIR%\Documentation"
 
