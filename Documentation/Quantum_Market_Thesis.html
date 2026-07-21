@@ -13,10 +13,12 @@
       <strong>Markt- und Claim-Thesis</strong>
       <a href="#zweck">Zweck</a>
       <a href="#kernthese">Kernthese</a>
+      <a href="#v1-grenze">V1-Produktgrenze</a>
       <a href="#anforderungen">Anforderungen</a>
       <a href="#evidenz">Evidenzstatus</a>
       <a href="#zielgruppen">Zielgruppen</a>
       <a href="#positionierung">Positionierung</a>
+      <a href="#anwendungen">Zielanwendungen</a>
       <a href="#claims">Claim-Register</a>
       <a href="#meilensteine">Meilensteine</a>
       <a href="#partner">Partner und Finanzierung</a>
@@ -31,7 +33,7 @@
         <p>Wie Quantum das gemeinsame Ziel aus Post-Quanten-Sicherheit, standardmäßiger Anonymität und Skalierbarkeit glaubwürdig untersucht, ohne Forschungsziele als erreichte Eigenschaften zu verkaufen.</p>
         <div class="badge-row">
           <span class="badge warning">Research Design</span>
-          <span class="badge">Stand 9. Juli 2026</span>
+          <span class="badge">Stand 21. Juli 2026</span>
           <span class="badge risk">Keine Anlagewerbung</span>
         </div>
       </header>
@@ -52,6 +54,18 @@
         <h2>Kernthese</h2>
         <p>Öffentliche Ledger machen wirtschaftliche Beziehungen häufig analysierbar. Klassische Public-Key-Verfahren sind langfristig durch ausreichend leistungsfähige Quantencomputer bedroht. Hoher Blockdurchsatz löst weder Transaktionsprivacy noch die Metadaten des P2P-Netzes automatisch.</p>
         <p>Quantum untersucht deshalb eine Architektur, in der private UTXO-Transaktionen, ausschließlich post-quanten-taugliche Sicherheitsbausteine, DAG-basierter Proof of Work und ein eigener Netzwerk-Anonymitätslayer gemeinsam geprüft werden. Der relevante Forschungswert liegt nicht in der Liste der Komponenten, sondern im Nachweis, dass ihre Zusammensetzung sicher und leistungsfähig ist.</p>
+        <p><strong>Strategische These:</strong> Quantum untersucht keine bessere allgemeine Smart-Contract-Chain, sondern eine private, post-quantenfeste Cash- und Settlement-Schicht für Menschen, Unternehmen und autonome Software-Agenten. Auch diese Formulierung beschreibt das angestrebte Profil, keine bereits vorhandene Fähigkeit.</p>
+      </section>
+
+      <section class="doc-section" id="v1-grenze">
+        <h2>V1-Produktgrenze und Reihenfolge</h2>
+        <p>Die glaubwürdigste erste Ausbaustufe ist native-QTM-Zahlung und Settlement mit privater Wallet, privatem Reward, selektiver nutzergesteuerter Offenlegung und wenigen beweisbar begrenzten Zahlungsbedingungen. Sie ist ausdrücklich keine EVM-, SVM- oder universelle DeFi-Plattform.</p>
+        <div class="card-grid">
+          <div class="info-card"><strong>Core zuerst</strong><span>Vollständige 2-Input/2-Output-Transaktion mit SLH-DSA im Proof, Commitment-Öffnungen, Membership, Nullifier, Encryption Binding und carry-sicherer Bilanz.</span></div>
+          <div class="info-card"><strong>Begrenzte Payment-Logik</strong><span>Versionierte Timelocks, Hashlocks, Multisig/Threshold, Escrow, wiederkehrende Autorisierung, Atomic-Swap-Bedingungen und Conditional Release – nur mit festen Kosten und eigener Evidenz.</span></div>
+          <div class="info-card"><strong>Später und getrennt</strong><span>Private Assets, Bridges, Cross-Chain-Nachrichten und allgemeine Programmierbarkeit erhalten eigene Threat Models und erben keine Quantum-Basisschicht-Claims.</span></div>
+        </div>
+        <p>Vor Wallet-, Node- oder GHOSTDAG-Integration muss der vollständige Transaktionsproof auf vorab festgelegter Desktop- und eingeschränkter Client-Hardware bestehen. Verfehlt er Latenz-, RAM-, Proofgrößen-, Verifier- oder Aggregationsbudgets, wird das Kryptoprofil geändert oder das Vorhaben gestoppt. Ein später Node darf dieses Risiko nicht verdecken.</p>
       </section>
 
       <section class="doc-section" id="anforderungen">
@@ -75,7 +89,8 @@
               <tr><td>Lattice Commitment</td><td class="status-open">Offenes Gate</td><td>Konstruktion, Parameter, Reduktion, Estimator und Review</td></tr>
               <tr><td>STARK-Profil</td><td class="status-open">Offenes Gate</td><td>AIR, FRI, ZK-Masking, QROM-Soundness und Benchmarks</td></tr>
               <tr><td>DAG und privater Zustand</td><td class="status-open">Offenes Gate</td><td>Deterministische GHOSTDAG-Integration, DAA und Konfliktbeweis</td></tr>
-              <tr><td>Netzwerk-Anonymität</td><td class="status-open">Offenes Gate</td><td>Protokoll, globaler Beobachter, Experimente und externe Review</td></tr>
+              <tr><td>Transaktionsproof</td><td class="status-open">Offenes Gate</td><td>Vollständiger 2-Input/2-Output-Prototyp, Client-Latenz, RAM, Proofgröße, Verifier und Aggregation</td></tr>
+              <tr><td>Netzwerk-Anonymität</td><td class="status-open">Offenes Gate</td><td>Exaktes Beobachtermodell, Protokoll, Experimente sowie externe Review; keine Universalbehauptung</td></tr>
               <tr><td>≥1.000 akzeptierte TPS</td><td class="status-target">Abnahmeziel</td><td>Vollständiger Prototyp und reproduzierbarer 24-Stunden-Test</td></tr>
             </tbody>
           </table>
@@ -96,8 +111,20 @@
 
       <section class="doc-section" id="positionierung">
         <h2>Positionierung</h2>
-        <p><strong>Kernformulierung:</strong> Quantum is an open research path for a protocol that must combine post-quantum security, privacy and network anonymity by default, and at least 1,000 accepted layer-1 transactions per second. These are release requirements, not achieved capabilities; implementation, external review, and reproducible benchmarks are still required.</p>
+        <p><strong>Kernformulierung:</strong> Quantum is an open research path toward a private, post-quantum-resistant cash and settlement layer for people, organisations, and autonomous software agents. A releasable protocol must also meet its published network-anonymity model and at least 1,000 accepted layer-1 transactions per second. These are release requirements, not achieved capabilities; implementation, external review, and reproducible benchmarks are still required.</p>
         <p>Privacy wird als Schutz legitimer persönlicher und geschäftlicher Beziehungen positioniert. Quantum ist kein Versprechen regulatorischer Unsichtbarkeit und kein Werkzeug zur Umgehung rechtlicher Pflichten.</p>
+        <p>Selektive Offenlegung wird als nutzergesteuerte Funktion erforscht: Incoming View, Full-Wallet View, transaktionsbezogene Offenlegung und kanonisch begrenzte Auditor-Capabilities. Es gibt keinen universellen View Key und keine Behauptung, dass eine Disclosure-Funktion allein Compliance herstellt.</p>
+      </section>
+
+      <section class="doc-section" id="anwendungen">
+        <h2>Glaubwürdige Zielanwendungen</h2>
+        <div class="card-grid">
+          <div class="info-card"><strong>Private Unternehmenszahlungen</strong><span>Vertrauliche Rechnungen, Lieferanten-, Gehalts- und Treasury-Zahlungen. Erfordern selektive Offenlegung, rechtliche Prüfung und gegebenenfalls ein späteres Asset-Profil.</span></div>
+          <div class="info-card"><strong>Autonome Agenten</strong><span>Private Pay-per-API-, Daten-, Rechen- und Subagenten-Zahlungen, ohne den vollständigen wirtschaftlichen Graph offenzulegen. Erfordern sichere Policy-Limits und Wallet-Betrieb.</span></div>
+          <div class="info-card"><strong>Langfristiges Settlement</strong><span>Post-quantenorientierte Verwahrung, notarielle Zeitbezüge und kritische Infrastruktur mit langem Schutzzeitraum. Erfordern bewiesene Recovery- und Upgradepfade.</span></div>
+          <div class="info-card"><strong>Micropayments und Atomic Swaps</strong><span>Pay-per-use und vertrauliche Cross-Chain-Abwicklung sind nur glaubwürdig, wenn Proof-Erzeugung günstig ist und jede externe Trust-Annahme separat offengelegt wird.</span></div>
+        </div>
+        <p>Diese Anwendungen sind Priorisierungshypothesen, keine vorhandenen Produkte oder Nachfragebelege. Sie bestimmen, welche Prototypen nach dem kryptografischen Feasibility Gate zuerst validiert werden.</p>
       </section>
 
       <section class="doc-section" id="claims">
@@ -105,6 +132,7 @@
         <h3>Heute zulässig</h3>
         <ul>
           <li>„Quantum definiert Post-Quanten-Sicherheit, Anonymität by default und ≥1.000 L1-TPS als gemeinsame, harte Release-Anforderungen.“</li>
+          <li>„Quantum untersucht eine private, post-quantenfeste Cash- und Settlement-Schicht mit begrenzter Payment-Logik; sie ist noch nicht implementiert.“</li>
           <li>„Der Forschungsentwurf evaluiert FIPS-203-ML-KEM, FIPS-205-SLH-DSA, transparente STARKs, ein geprüftes Lattice Commitment und GHOSTDAG.“</li>
           <li>„Hash-Längen, Empfänger-Key-Privacy, Commitment, Proof-System, DAG-Zustand, Netzwerk-Anonymität und End-to-End-Leistung sind offene Forschungs- und Review-Gates.“</li>
         </ul>
@@ -135,8 +163,9 @@
       <section class="doc-section" id="meilensteine">
         <h2>Evidenzbasierte Meilensteine</h2>
         <ol>
-          <li><strong>Design Freeze:</strong> Threat Model, Commitment, STARK, Serialisierung, GHOSTDAG/DAA und Netzwerkprotokoll sind vollständig versioniert.</li>
-          <li><strong>Independent Prototype:</strong> Zwei Teams erzeugen dieselben Vektoren und Zustandswurzeln.</li>
+          <li><strong>Design Freeze:</strong> Threat Model, Commitment, STARK und Serialisierung sind vollständig versioniert.</li>
+          <li><strong>Cryptographic Feasibility:</strong> Zwei Teams reproduzieren den vollständigen 2-Input/2-Output-Proof und erreichen vorab festgelegte Client-, Verifier-, Wire- und Aggregationsbudgets.</li>
+          <li><strong>Independent Protocol Prototype:</strong> Erst danach erzeugen zwei Wallet-/Node-Implementierungen dieselben Vektoren und Zustandswurzeln.</li>
           <li><strong>Adversarial Review:</strong> Inflations-, Double-Spend-, Konsens-, Side-Channel- und Traffic-Analysis-Tests sind veröffentlicht.</li>
           <li><strong>Scalability Gate:</strong> ≥1.000 akzeptierte L1-TPS mit vollständiger Privacy laufen mindestens 24 Stunden reproduzierbar.</li>
           <li><strong>Reviewed Testnet:</strong> Externe Fachreviews sind abgeschlossen und verbleibende Risiken veröffentlicht.</li>
@@ -154,13 +183,14 @@
           <li>Netzwerk-Anonymitätsforschung und Traffic-Analysis-Testbed;</li>
           <li>reproduzierbare Performance-, Storage- und Recovery-Infrastruktur.</li>
         </ul>
+        <p>Eine faire Finanzierung ohne Founder-Token kann öffentliche Forschungsförderung, institutionelle Grants, Community-Crowdfunding, eine rechtlich getrennte Foundation, klar bepreiste Phexora-Dienstleistungen und öffentliche Audit-Bounties kombinieren. Diese Optionen sind Finanzierungsmodelle, keine Consensus-Regeln oder Renditeversprechen.</p>
         <p>Kommerzielle Infrastruktur- oder Ökosystemmodelle werden erst bewertet, wenn die technischen und rechtlichen Grundlagen belastbar sind.</p>
       </section>
 
       <section class="doc-section" id="risiken">
         <h2>Risiken und rechtliche Grenze</h2>
         <div class="card-grid">
-          <div class="info-card"><strong>Machbarkeit</strong><span>Proof-Größe, In-Circuit-SLH-DSA, DAG-Zustand und global beobachtbares Netzwerk können das gemeinsame Ziel verhindern.</span></div>
+          <div class="info-card"><strong>Machbarkeit</strong><span>Proof-Größe, In-Circuit-SLH-DSA, DAG-Zustand sowie die Latenz und Bandbreite starker Netzwerk-Anonymität können das gemeinsame Ziel verhindern.</span></div>
           <div class="info-card"><strong>Komposition</strong><span>Standardisierte Bausteine garantieren keine sichere oder anonyme Gesamtkonstruktion.</span></div>
           <div class="info-card"><strong>Betrieb und Recht</strong><span>Privacy-Technik beseitigt keine Sanktions-, Geldwäsche-, Steuer-, Verbraucher- oder Datenschutzpflichten.</span></div>
         </div>

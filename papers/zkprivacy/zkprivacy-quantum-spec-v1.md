@@ -1,9 +1,9 @@
 ---
 title: "Quantum: Privacy-Preserving Post-Quantum DAG Protocol"
-subtitle: "Research Design Draft 0.2.0-research and Security Requirements"
-author: "Phexora AI"
-date: "2026-07-09"
-version: "0.2.0-research"
+subtitle: "Research Design Draft 0.3.0-research and Security Requirements"
+author: "Phexora AI · [phexora.ai](https://phexora.ai)"
+date: "2026-07-21"
+version: "0.3.0-research"
 status: "Research design draft — not implementation-ready, audited, or production-safe"
 license: "CC0-1.0; see repository LICENSE"
 lang: "en-GB"
@@ -23,7 +23,9 @@ abstract: |
   defines the non-negotiable requirements, threat and claim boundaries,
   candidate architecture, and blocking evidence gates. It does not report a
   conformant implementation, completed security proof, external audit, testnet,
-  or production-ready protocol.
+  or production-ready protocol. The initial product boundary is deliberately
+  narrow: private post-quantum digital cash and settlement with bounded payment
+  policies, not a general-purpose smart-contract platform.
 
   **Keywords:** post-quantum cryptography; privacy-preserving ledger; DAG
   consensus; zero-knowledge proofs; protocol research.
@@ -38,7 +40,7 @@ implementation, testnet, security proof, external audit, or production network
 at this revision.
 
 The legacy filename contains “v1” so that existing links remain valid. The
-normative document version is <code>0.2.0-research</code>.
+normative document version is <code>0.3.0-research</code>.
 
 The words **MUST**, **MUST NOT**, **REQUIRED**, **SHOULD**, and **MAY** describe
 research acceptance criteria. They do not imply that an implementation already
@@ -81,7 +83,39 @@ automatically produces a secure protocol. Composition, implementation, side
 channels, consensus integration, and network metadata require separate
 analysis.
 
-## 1.1 Status vocabulary
+## 1.1 Initial product boundary and sequencing
+
+Quantum's initial product target is **private post-quantum digital cash and
+settlement** for people, organisations, and autonomous software agents. The
+core profile consists of native-QTM transfers, private rewards, wallet
+recovery, selective user-controlled disclosure, and the smallest deterministic
+payment-policy surface that passes the same privacy, supply, and performance
+gates as an ordinary transfer.
+
+The initial profile is not a general-purpose application platform. Arbitrary
+smart contracts, an EVM/SVM-compatible runtime, general DeFi state,
+permissionless asset issuance, bridges, and cross-chain message execution are
+outside the core release scope. They MUST NOT be assumed by the security proof
+or used to defer a core release requirement. Any later capability requires a
+separately versioned threat model, validity relation, resource budget, and
+release decision.
+
+Research MUST proceed through explicit stop/go boundaries:
+
+1. freeze the threat model, encodings, commitment candidate, and proof profile;
+2. implement and benchmark the complete representative private transaction
+   described in Section 9.3;
+3. stop or revise the cryptographic profile if that feasibility gate fails;
+4. only then integrate wallets, private state, DAG consensus, transport, and
+   full-node operation;
+5. add bounded payment policies or interoperability adapters only after their
+   additional proof and trust assumptions pass separate gates.
+
+This sequencing does not weaken the three joint production requirements. It
+prevents node and ecosystem work from concealing a cryptographic design that
+cannot meet them.
+
+## 1.2 Status vocabulary
 
 | Status | Meaning |
 |---|---|
@@ -91,7 +125,7 @@ analysis.
 | Blocking research gate | No implementation or release may rely on this area until its deliverables pass |
 | Verified | Reserved for independently reproducible evidence; no subsystem has this status yet |
 
-## 1.2 Current subsystem status
+## 1.3 Current subsystem status
 
 | Subsystem | Current status | Required next evidence |
 |---|---|---|
@@ -100,6 +134,7 @@ analysis.
 | ML-KEM | Selected standard: FIPS 203, ML-KEM-1024 | FIPS KATs and an authenticated composition |
 | Note commitment | Blocking research gate | Exact construction, parameters, reduction, estimator report, review |
 | Zero-knowledge STARK | Blocking research gate | Exact field/transcript/FRI/masking profile and soundness analysis |
+| Representative transaction proof | Blocking research gate | Complete 2-input/2-output prototype and reproducible feasibility report |
 | DAG consensus/state | Blocking research gate | Exact GHOSTDAG profile, deterministic ordering, DAA, state proof |
 | Network anonymity | Blocking research gate | Exact protocol and analysis against the stated observer |
 | Performance | Blocking research gate | End-to-end prototype and reproducible target benchmark |
@@ -119,8 +154,13 @@ analysis.
 - R1.4 The proof system MUST establish authorization, note membership, output
   correctness, and exact integer balance without revealing private witness
   data.
-- R1.5 User-controlled view or audit keys MAY disclose selected wallet data.
-  They MUST NOT weaken privacy for users who do not disclose them.
+- R1.5 User-controlled disclosure capabilities MAY reveal selected wallet or
+  transaction data. The profile MUST distinguish incoming-view, full-wallet,
+  transaction-specific, and auditor-scoped disclosure as defined in Section
+  5.7.
+- R1.6 Disclosure MUST be explicit, least-privilege, and non-global. It MUST
+  NOT create a protocol backdoor, mandatory universal view key, or privacy loss
+  for notes and users outside the granted scope.
 
 ## R2 — Network anonymity
 
@@ -223,6 +263,9 @@ by the user; those boundaries MUST be stated with every claim.
 - R8.4 Production claims require at least two independent implementations,
   public interoperability vectors, and independent cryptographic and consensus
   review.
+- R8.5 Every capability claim MUST identify its versioned profile and evidence
+  gate. A base-layer proof MUST NOT be presented as evidence for an external
+  bridge, general-purpose application runtime, or regulatory compliance.
 
 # 3. Threat model
 
@@ -413,6 +456,15 @@ An aggregated block format MUST choose exactly one consensus representation:
 Keeping all individual proofs and adding an aggregate does not reduce network
 or storage load.
 
+Wallet and block proving are separate roles. A wallet MAY produce an individual
+transaction proof for admission and propagation. If an aggregate mode is
+selected, the block producer or dedicated aggregator MUST recursively or
+otherwise soundly combine admitted proofs, and the consensus block MUST carry
+the compact aggregate plus authenticated transaction references while omitting
+the individual proofs it replaces. The aggregate relation MUST bind the exact
+ordered transaction set, public inputs, pre-state, and post-state; aggregation
+MUST NOT turn proof generation into a trusted service.
+
 ## 4.6 Entropy, mnemonics, and key derivation
 
 Randomness MUST come from an operating-system CSPRNG and MUST fail closed if
@@ -559,6 +611,62 @@ Leaves and internal nodes MUST use different tags. Insertion order MUST come
 from the canonical DAG state order. An anchor-acceptance window MUST be derived
 from measured proof-generation latency, propagation, finality, and reorg risk;
 a fixed “last 100 headers” rule is not acceptable without that derivation.
+
+## 5.7 Selective disclosure capabilities
+
+Selective disclosure is a wallet capability, not a consensus bypass. The
+initial profile MUST specify non-overlapping key or capability types for:
+
+- **incoming view**: discover and decrypt received notes without spend
+  authority;
+- **full-wallet view**: reconstruct the explicitly authorised incoming and
+  outgoing wallet history without spend authority;
+- **transaction disclosure**: reveal one transaction's selected plaintext and
+  cryptographic binding without exposing unrelated wallet history; and
+- **auditor-scoped disclosure**: derive a capability restricted by a canonical
+  scope such as account branch, counterparty set, transaction class, or time
+  interval.
+
+Each exported capability MUST state exactly what it reveals, what it cannot
+prove, its scope encoding, and its forward/backward visibility. Wallets MUST
+warn that data already disclosed cannot be cryptographically retracted.
+Revocation MAY stop future access only where the underlying construction
+supports it; it MUST NOT be described as erasing copied history. No consensus
+participant, operator, foundation, or regulator receives a universal recovery
+or viewing key by design.
+
+Disclosure receipts or proofs MAY support an external audit workflow, but they
+do not themselves establish legal compliance, identity, source of funds, or an
+absence of undisclosed transactions.
+
+## 5.8 Bounded payment policies and interoperability boundary
+
+The candidate application surface is a versioned, finite set of private
+payment policies rather than arbitrary bytecode. Candidate policies include
+absolute/relative timelocks, hashlocks, threshold or multisignature
+authorisation, escrow, recurring-payment authorisations, atomic-swap
+conditions, and conditional release. Every enabled policy MUST have:
+
+- one canonical encoding and explicit state-transition semantics;
+- bounded execution, witness, proof, verification, and storage costs;
+- a validity relation that preserves note privacy and exact supply;
+- domain-separated authorisation and replay protection;
+- positive, negative, timeout, reorg, and recovery vectors; and
+- independent review under the same release gates as ordinary transfers.
+
+Unknown policy identifiers and unsupported versions MUST fail closed. There is
+no fallback interpreter and no implicit general-purpose virtual machine.
+Private asset issuance is deferred until an asset-specific conservation,
+authorisation, disclosure, and lifecycle profile passes a separate release
+decision; <code>asset_id</code> in the note schema reserves domain separation
+but does not claim that such issuance exists.
+
+Cross-chain atomic swaps or adapters MAY be researched after the core
+transaction feasibility gate. External consensus, custody, multisignature/MPC,
+oracle, light-client, and bridge assumptions remain outside Quantum's base
+security claim. An adapter MUST NOT be described as post-quantum secure,
+trustless, private, or production-ready merely because the Quantum side meets
+its own gates.
 
 # 6. Serialization and identifiers
 
@@ -751,7 +859,33 @@ The final profile MUST publish budgets for:
 - wallet scan bandwidth and time;
 - snapshot size, creation time, verification time, and recovery trust.
 
-## 9.3 Performance gates
+## 9.3 Pre-node cryptographic feasibility gate
+
+Before full-node or GHOSTDAG integration begins, two independent implementations
+MUST execute a representative private transaction with exactly two inputs and
+two outputs. The measured relation MUST include:
+
+- both input commitment openings and Merkle membership paths;
+- nullifier derivation and uniqueness constraints;
+- both output openings and encrypted-note binding;
+- complete SLH-DSA authorisation verification inside the proof;
+- 64-bit ranges, carry-safe integer conservation, and the public fee; and
+- the selected STARK transcript, zero-knowledge masking, verifier, and, if
+  proposed, aggregation path.
+
+T004 MUST freeze reference desktop and constrained-client hardware, workload,
+parallelism, proof-latency, memory, verifier, proof-size, and aggregate
+amortisation thresholds before results are interpreted. The report MUST publish
+single-wallet latency separately from aggregate throughput; multiplying ideal
+parallel jobs is not a wallet-latency result.
+
+Failure to meet the frozen feasibility budget is a design failure, not a node
+optimisation backlog. The signature profile, commitment, validity relation, or
+proof system MUST be revised, or the project MUST stop before consensus
+integration. No fabricated “hundreds” or “thousands” of proofs per second
+threshold substitutes for the published hardware and end-to-end budget.
+
+## 9.4 End-to-end performance gates
 
 Before a public scalability claim:
 
@@ -805,6 +939,7 @@ its own cryptographic design, proof, audit, benchmark, or release.
 | G1 Requirements | R1–R8 traceable to tasks and tests | Drafted, not independently reviewed |
 | G2 Commitment | Exact scheme and ≥128-bit composed PQ analysis | Blocked |
 | G3 Proof | Complete AIR/transcript/ZK/soundness profile | Blocked |
+| G3A Transaction feasibility | Complete 2-input/2-output proof meets frozen client, verifier, size, and aggregation budgets | Not run |
 | G4 Private transaction | No-inflation and authorization relation reviewed | Draft relation only |
 | G5 DAG state | Deterministic consensus and conflict handling proved/tested | Blocked |
 | G6 Network anonymity | Threat model, design, experiments, review pass | Blocked |
@@ -873,6 +1008,24 @@ Each item has an owner task in the verification guide. A value becomes
 normative only with rationale, vectors, tests, and review.
 
 # Appendix B — Revision record
+
+## 0.3.0-research — 2026-07-21
+
+- narrowed the initial product boundary to private post-quantum cash and
+  settlement rather than a general-purpose smart-contract platform;
+- added a mandatory complete 2-input/2-output proving feasibility gate before
+  wallet, node, or DAG integration;
+- separated wallet transaction proofs from block aggregation and required an
+  aggregate to replace, not duplicate, individual proofs on the consensus
+  wire;
+- defined incoming, full-wallet, transaction-specific, and auditor-scoped
+  disclosure capabilities without a universal viewing backdoor;
+- introduced a finite, proof-bounded payment-policy direction and made unknown
+  policy versions fail closed;
+- made private assets and cross-chain adapters separate post-core profiles
+  whose external trust assumptions do not inherit Quantum's base claims;
+- recorded the product position as a private post-quantum settlement research
+  path for people, organisations, and autonomous software agents.
 
 ## 0.2.0-research — 2026-07-09
 

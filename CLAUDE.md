@@ -12,7 +12,7 @@ not duplicated here.
 
 ## Research status
 
-The current protocol document is revision <code>0.2.0-research</code>, even
+The current protocol document is revision <code>0.3.0-research</code>, even
 though its legacy filename contains “v1”.
 
 The three non-negotiable release requirements are:
@@ -25,6 +25,11 @@ The three non-negotiable release requirements are:
 
 These are targets. Never describe them as achieved until the matching evidence
 gates in the specification and verification plan pass.
+
+The initial product boundary is private post-quantum cash and settlement with
+selective disclosure and a finite set of bounded payment policies. General
+smart contracts, private assets, bridges, and cross-chain execution are
+separate later profiles and do not inherit base-protocol claims.
 
 ## Canonical files
 

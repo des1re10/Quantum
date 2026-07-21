@@ -1,9 +1,9 @@
 ---
 title: "Quantum Research Implementation and Verification Plan"
-subtitle: "Evidence plan for the 0.2.0 research design"
-author: "Phexora AI"
-date: "2026-07-09"
-version: "0.2.0-research"
+subtitle: "Evidence plan for the 0.3.0 research design"
+author: "Phexora AI · [phexora.ai](https://phexora.ai)"
+date: "2026-07-21"
+version: "0.3.0-research"
 status: "Planning document — no conformant implementation or completed verification"
 license: "CC0-1.0; see repository LICENSE"
 lang: "en-GB"
@@ -47,6 +47,8 @@ The goal is a protocol that simultaneously satisfies:
 3. at least 1,000 accepted layer-1 transactions per second.
 
 These are hard release requirements. They are not current capability claims.
+The initial product boundary is private post-quantum cash and settlement with
+bounded payment policies, not a general-purpose smart-contract platform.
 
 # 2. Governance and reviewer roles
 
@@ -103,12 +105,12 @@ bytes do not prove privacy.
 
 | Requirement | Primary tasks | Required release evidence |
 |---|---|---|
-| R1 Private ledger | T103–T104, T301–T304, T401–T404 | security argument, vectors, two implementations, audit |
+| R1 Private ledger | T103–T104, T301–T305, T401–T405 | security argument, vectors, two implementations, audit |
 | R2 Network anonymity | T601–T602, T604 | threat model, simulation, adversarial experiments, review |
-| R3 Post-quantum security | T001, T103–T104, T201–T204, T303–T304, T601, T701 | composed ≥128-bit PQ analysis and KATs |
-| R4 Authorization/supply | T202, T301, T402–T404, T504 | no-inflation proof/tests and issuance-cap proof |
+| R3 Post-quantum security | T001, T103–T104, T201–T204, T303–T305, T601, T701 | composed ≥128-bit PQ analysis and KATs |
+| R4 Authorization/supply | T202, T301, T305, T402–T405, T504 | no-inflation proof/tests and issuance-cap proof |
 | R5 Consensus safety | T403, T501–T504, T603 | deterministic models, vectors, reorg/recovery tests |
-| R6 Scalability | T004, T304, T603–T604 | ≥1,000 accepted tx/s end-to-end artifacts |
+| R6 Scalability | T004, T304–T305, T603–T604 | pre-node feasibility and ≥1,000 accepted tx/s end-to-end artifacts |
 | R7 Setup/upgrade safety | T002, T303–T304, T501, T701 | setup analysis, version/replay/upgrade review |
 | R8 Verifiability | T003–T004, all implementation tasks, T701 | trace report, independent implementations, external review |
 
@@ -147,9 +149,11 @@ T304 Prover, verifier and aggregation                   <- T301, T302, T303
 
 Layer 4 — Transactions and state
 T401 Note creation and recipient encryption              <- T104, T203, T204
-T402 Transaction codec, builder and authorization hash   <- T202, T301, T401
+T305 Cryptographic transaction feasibility gate          <- T004, T202, T204, T304, T401
+T402 Transaction codec, builder and authorization hash   <- T202, T301, T305, T401
 T403 Commitment/nullifier state and atomic application   <- T302, T402
 T404 Wallet scanning and spending                        <- T204, T401, T402, T403
+T405 Selective disclosure and bounded payment policies   <- T204, T304, T404
 
 Layer 5 — Consensus and issuance
 T501 Versioned GHOSTDAG consensus profile                <- T001, T002
@@ -160,11 +164,11 @@ T504 Rewards, supply cap and genesis                     <- T503
 Layer 6 — Network and integration
 T601 Post-quantum authenticated P2P transport             <- T202, T203, T501
 T602 Network anonymity protocol                          <- T004, T601
-T603 Full node, pruning and recovery                     <- T304, T503, T504, T601
-T604 End-to-end wallet/network/system validation         <- T404, T602, T603
+T603 Full node, pruning and recovery                     <- T305, T503, T504, T601
+T604 End-to-end wallet/network/system validation         <- T405, T602, T603
 
 Layer 7 — Independent assurance
-T701 Composition review and release decision             <- T104, T304, T504, T604
+T701 Composition review and release decision             <- T104, T305, T504, T604
 ~~~
 
 This ordering removes the former cycle in which polynomial multiplication
@@ -353,12 +357,16 @@ message specification, or the ciphertext identifies its recipient key.
 and storage protection.
 
 **Deliverables:** exact BIP-39 behavior; domain-separated post-quantum child
-derivation; spend/nullifier/view/encryption key separation; canonical lower
-Base32 address vectors; memory-hard wallet-storage KDF; recovery tests.
+derivation; spend/nullifier/encryption key separation; incoming-view,
+full-wallet-view, transaction-disclosure, and auditor-scoped capability
+derivation; canonical scope encodings; canonical lower Base32 address vectors;
+memory-hard wallet-storage KDF; recovery tests.
 
-**Pass:** BIP-39 official vectors and Quantum derivation/address vectors match
-both implementations. **Reject:** PBKDF2 parameters are called BIP-39 while
-using a different salt/normalization, or one key crosses protocol roles.
+**Pass:** BIP-39 official vectors and Quantum derivation/address/disclosure
+vectors match both implementations, and each disclosure capability reveals no
+more than its stated scope. **Reject:** PBKDF2 parameters are called BIP-39
+while using a different salt/normalization, one key crosses protocol roles, or
+a universal viewing backdoor is required.
 
 ## T301 — Integer transaction relation and AIR
 
@@ -427,14 +435,39 @@ proofs.
 
 **Deliverables:** independent prover/verifier interfaces; streaming/resource
 limits; transcript vectors; malformed-proof corpus; deterministic failure
-codes; individual and, if selected, aggregate wire mode; differential/fuzz
-tests; measured proof generation and verification.
+codes; individual and, if selected, aggregate wire mode; exact binding of an
+aggregate to the ordered transactions, public inputs, and pre/post-state;
+differential/fuzz tests; measured proof generation and verification.
 
 **Pass:** invalid witnesses and mutated proofs fail; both implementations
 interoperate; aggregate mode omits replaced individual proofs; performance is
-fed into T604. **Reject:** verifier panics, work is allocated before size
+fed into T305. **Reject:** verifier panics, work is allocated before size
 checks, both proof modes are redundantly transmitted, or tests are claimed as
 soundness proof.
+
+## T305 — Cryptographic transaction feasibility gate
+
+**Objective:** Decide whether the complete private transaction is practical
+before wallet, node, or GHOSTDAG integration consumes implementation effort.
+
+**Required prototype:** exactly two inputs and two outputs with input openings,
+Merkle membership, nullifier derivation, output openings, encrypted-note
+binding, complete in-proof SLH-DSA authorisation, 64-bit range constraints,
+carry-safe conservation, public fee, zero-knowledge masking, and the selected
+individual and aggregate proof path.
+
+**Deliverables:** two interoperable implementations; pinned desktop and
+constrained-client hardware; single-wallet p50/p95/p99 proving latency; peak
+and steady memory; verifier time and memory; proof and transaction bytes;
+parallel-prover scaling; aggregate latency, size, and amortised verification;
+raw artifacts and a signed stop/go decision.
+
+**Pass:** every T004 threshold frozen before the run is met without mock
+signatures, omitted relations, disabled zero knowledge, retained individual
+proofs in aggregate mode, or unreported preprocessing. **Reject:** the design
+misses any frozen client, verifier, wire, or aggregate budget. A reject returns
+the signature, commitment, relation, or proof profile to research; it MUST NOT
+be deferred to node optimisation.
 
 ## T401 — Note creation and recipient encryption
 
@@ -492,13 +525,40 @@ races, partial state commits, or hidden empty-state fallback.
 **Objective:** Build deterministic private wallet behavior over T401–T403.
 
 **Deliverables:** scan/decrypt pipeline; note and nullifier tracking; spend
-selection; proof/sign/build flow; reorg rollback; view-key export; secure
-deletion; user-facing finality and fee semantics.
+selection; proof/sign/build flow; reorg rollback; scoped disclosure export and
+receipt verification; disclosure limitations; secure deletion; user-facing
+finality and fee semantics.
 
 **Pass:** restore-from-seed and rescan reproduce the same wallet state through
 reorgs; spent notes cannot be selected; no network identity is derived from
 wallet keys. **Reject:** missing data is zero-filled, failed decryption is
 treated as an empty note, or sensitive logs are emitted.
+
+## T405 — Selective disclosure and bounded payment policies
+
+**Objective:** Add useful settlement controls without introducing a general
+virtual machine, a universal viewing key, or an unbounded proof relation.
+
+**Deliverables:** incoming-view, full-wallet-view, transaction-specific, and
+auditor-scoped disclosure flows; canonical scope and receipt encodings;
+least-privilege and unlinkability tests; documented non-revocation of copied
+history; a finite registry of accepted payment policies; exact semantics and
+costs for each enabled timelock, hashlock, threshold/multisignature, escrow,
+recurring-authorisation, atomic-swap, or conditional-release policy; updated
+AIR/proof profile, vectors, and resource report for every enabled policy.
+
+Private asset issuance and cross-chain adapters are separate post-core
+profiles. Any proposed adapter MUST publish its external consensus, custody,
+MPC/multisignature, oracle, light-client, finality, privacy, and upgrade trust
+assumptions; it does not inherit Quantum's base-layer assurance.
+
+**Pass:** disclosure never exceeds its canonical scope, policy execution is
+deterministic and bounded across reorgs/timeouts, and every enabled policy
+preserves transaction privacy, authorisation, supply, and T305 performance
+budgets. **Reject:** a global backdoor key exists, copied disclosure is called
+revocable, unknown policy bytecode falls back to execution, a policy can mint
+or bypass authorisation, or an adapter is described with stronger properties
+than its own evidence supports.
 
 ## T501 — Versioned GHOSTDAG consensus profile
 
@@ -623,6 +683,8 @@ or snapshot trust is undocumented.
 - geographically distributed topology;
 - private note creation, scanning, spending, proofs, propagation and state
   application enabled;
+- selective-disclosure flows and every payment policy enabled in the tested
+  release profile;
 - at least 1,000 accepted layer-1 tx/s for 24 hours;
 - conflict, delay, peer loss, malformed traffic, reorg, restart and recovery
   phases;
@@ -641,7 +703,8 @@ three non-negotiable requirements.
 
 **Deliverables:** requirements-to-evidence manifest; independent cryptographic,
 proof, consensus, network, implementation and performance reports; finding
-register; residual-risk statement; legal review; signed go/no-go record.
+register; per-capability claim register; residual-risk statement; legal review;
+signed go/no-go record.
 
 **Pass for testnet:** all blocking design gates pass, two implementations
 interoperate, and no unresolved critical/high issue permits inflation,
@@ -677,6 +740,8 @@ Every relevant implementation must preserve a permanent regression test for:
 | A013 | Snapshot interrupted or maliciously altered | Recovery rejects or reaches canonical root |
 | A014 | Reward rounding/reorg approaches the supply cap or replays fees | Cap never exceeded; fee portion never counted as issuance or claimed twice |
 | A015 | Observer compares note ciphertexts or scanning tags against candidate recipient keys | Recipient inference remains below the T001 threshold |
+| A016 | Disclosure capability is replayed outside its account, counterparty, transaction, or time scope | No additional note or wallet history is revealed |
+| A017 | Unknown payment-policy identifier, unbounded policy input, timeout/reorg edge, or adapter downgrade | Fail closed; deterministic bounded state; no inherited bridge claim |
 
 These are minimum cases, not a complete security test suite.
 
@@ -696,6 +761,10 @@ Every benchmark report MUST contain:
 10. anonymity metrics and added bandwidth/latency;
 11. all failures, restarts, divergences and discarded samples;
 12. commands and immutable artifact locations.
+
+T305 reports MUST additionally separate single-wallet latency from parallel
+prover throughput and aggregate amortisation. A server aggregate rate MUST NOT
+be reported as client-side transaction latency.
 
 The 1,000 tx/s acceptance target is fixed. Reference hardware and proof-latency
 thresholds are intentionally not fabricated in advance; T004 must freeze them
@@ -733,8 +802,22 @@ quietly substituted for a different specification limit.
 - [ ] Note ciphertext and commitment cannot be swapped or replayed.
 - [ ] Wallet, transport, and transaction identities are separated.
 - [ ] T602 covers global passive and required active attacks.
-- [ ] View-key disclosure is explicit, scoped, and revocation limitations are
-      documented.
+- [ ] Incoming, full-wallet, transaction-specific, and auditor-scoped
+      disclosure are distinct and least-privilege.
+- [ ] Copied disclosure is not described as revocable or as proof of legal
+      compliance.
+
+## Product boundary and performance
+
+- [ ] T305 passes before full-node or GHOSTDAG integration starts.
+- [ ] The 2-input/2-output prototype includes every required relation and
+      in-proof SLH-DSA verification.
+- [ ] Wallet latency, parallel proving, verifier cost, wire size, and aggregate
+      amortisation are reported separately.
+- [ ] Every enabled payment policy has bounded deterministic semantics and an
+      updated proof/resource report.
+- [ ] No general-purpose VM, private asset, bridge, or adapter inherits a base
+      security, privacy, or compliance claim.
 
 ## Consensus and supply
 
@@ -791,7 +874,7 @@ reviewer signs the exact revision.
 
 | Area | Status | Evidence |
 |---|---|---|
-| Requirements draft | IN_PROGRESS | Specification 0.2.0-research |
+| Requirements draft | IN_PROGRESS | Specification 0.3.0-research |
 | Commitment | NOT_STARTED | No selected construction |
 | Proof profile | NOT_STARTED | No frozen parameters or AIR |
 | Private transaction | NOT_STARTED | Relation drafted; no implementation |
@@ -842,6 +925,19 @@ Only these labels may be used:
 At the current revision the project is a **research design**.
 
 # 13. Revision record
+
+## 0.3.0-research — 2026-07-21
+
+- expanded the acyclic plan to 31 tasks with T305 as the mandatory complete
+  transaction feasibility gate before node/consensus integration;
+- separated single-wallet proof latency, parallel prover throughput, aggregate
+  amortisation, and verifier/wire budgets;
+- added T405 for least-privilege disclosure and a finite, proof-bounded payment
+  policy registry;
+- made private assets and interoperability adapters separate post-core profiles
+  with explicit external trust and claim boundaries;
+- added adversarial cases for disclosure-scope escalation and unknown or
+  unbounded payment-policy behavior.
 
 ## 0.2.0-research — 2026-07-09
 

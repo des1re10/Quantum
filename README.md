@@ -20,9 +20,16 @@ releasable design must satisfy three requirements together:
 
 These are release requirements, not achieved capabilities.
 
+The initial product boundary is a private post-quantum cash and settlement
+layer for people, organisations, and autonomous software agents. It targets
+native-QTM transfers, user-controlled selective disclosure, and a finite set of
+proof-bounded payment policies—not a general-purpose smart-contract platform.
+Private assets, bridges, and cross-chain execution require later, separately
+reviewed profiles and do not inherit the base protocol's claims.
+
 ## Current status
 
-**Research design 0.2.0-research — not implementation-ready or production-safe.**
+**Research design 0.3.0-research — not implementation-ready or production-safe.**
 
 This repository currently contains a static documentation website, a research
 design, and a verification plan. It does not contain a node, wallet,
@@ -34,6 +41,7 @@ performance benchmark.
 | SHAKE256, ML-KEM-1024, SLH-DSA-SHAKE-256f | Standards selected; integration not verified |
 | Lattice commitment | Blocking research gate |
 | STARK validity proof | Blocking research gate |
+| Complete 2-input/2-output transaction proof | Blocking pre-node feasibility gate |
 | GHOSTDAG and private state ordering | Blocking research gate |
 | Network anonymity | Blocking research gate |
 | ≥1,000 accepted L1 TPS | Acceptance target; not yet benchmarked |
@@ -62,6 +70,8 @@ revision is declared inside the document.
 | Note commitment | Reviewed lattice construction | Construction and parameters open |
 | Consensus | Versioned GHOSTDAG-based PoW profile | State ordering, DAA and finality open |
 | Origin privacy | Dedicated anonymous transport layer | Protocol and analysis open |
+| Selective disclosure | Incoming, full-wallet, transaction, and auditor-scoped capabilities | Construction and scope proofs open |
+| Payment logic | Finite registry of bounded private payment policies | Post-core profile; no general VM |
 
 Selecting a standardized primitive does not prove the security, anonymity, or
 performance of the composed protocol.
@@ -102,6 +112,7 @@ Useful contributions include:
 
 - corrections to the threat model or validity relation;
 - concrete, cited commitment or STARK analyses;
+- reproducible complete-transaction proving and aggregation benchmarks;
 - deterministic GHOSTDAG/state-ordering models;
 - anonymous-network threat analysis;
 - independent implementations and interoperability vectors;

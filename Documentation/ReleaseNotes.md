@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+- Advanced both papers to research design <code>0.3.0-research</code> and
+  narrowed the initial product boundary to private post-quantum cash and
+  settlement rather than a general-purpose smart-contract platform.
+- Added the Phexora AI author URL to both paper title pages and PDF metadata
+  sources.
+- Added a mandatory, complete 2-input/2-output proof feasibility gate before
+  wallet, node, or GHOSTDAG integration, with separate client-latency,
+  verifier, wire-size, memory, parallel-prover, and aggregation budgets.
+- Defined least-privilege incoming, full-wallet, transaction-specific, and
+  auditor-scoped disclosure capabilities without a universal viewing key.
+- Added a finite, proof-bounded payment-policy direction and separated private
+  assets and cross-chain adapters into later profiles with their own trust and
+  claim boundaries.
+- Expanded the verification plan from 29 to 31 tasks with T305 and T405, added
+  adversarial disclosure/policy cases, and synchronized the landing page,
+  README, market thesis, and research brief.
 - Switched both research papers to DocWizard's scientific-manuscript style.
 - Added publication metadata, abstracts, keywords, and a proper document
   heading hierarchy while removing the duplicated title/status block from the

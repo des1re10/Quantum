@@ -25,7 +25,7 @@
       <header class="hero">
         <p class="kicker">Research Brief</p>
         <h1>Quantum</h1>
-        <p>Ein offener Forschungsentwurf für ein Protokoll, das Post-Quanten-Sicherheit, Anonymität by default und mindestens 1.000 akzeptierte Layer-1-Transaktionen pro Sekunde gemeinsam erfüllen muss.</p>
+        <p>Ein offener Forschungsentwurf für eine private, post-quantenfeste Cash- und Settlement-Schicht, die Anonymität by default und mindestens 1.000 akzeptierte Layer-1-Transaktionen pro Sekunde gemeinsam erfüllen muss.</p>
         <div class="badge-row">
           <span class="badge warning">Research Design</span>
           <span class="badge">Open Review</span>
@@ -36,12 +36,12 @@
       <section class="doc-section" id="kurzprofil">
         <h2>Kurzprofil</h2>
         <div class="meta-grid">
-          <div class="info-card"><strong>Status</strong><span>Forschungsentwurf 0.2.0-research; keine Implementierung</span></div>
+          <div class="info-card"><strong>Status</strong><span>Forschungsentwurf 0.3.0-research; keine Implementierung</span></div>
           <div class="info-card"><strong>Aktuelles Produkt</strong><span>Offene Spezifikation und Verifikationsplan</span></div>
           <div class="info-card"><strong>Primäre Partner</strong><span>Kryptographie, Konsens, Netzwerkprivacy, Implementierung</span></div>
-          <div class="info-card"><strong>Nächstes Gate</strong><span>Vollständiges Threat Model und geprüfte Konstruktionen</span></div>
+          <div class="info-card"><strong>Nächstes Gate</strong><span>Vollständiger 2-Input/2-Output-Proof auf vorab festgelegter Hardware</span></div>
         </div>
-        <p class="source-note">Stand: 9. Juli 2026. Kein Mainnet, Testnet, Token-Sale oder operatives Zahlungsnetzwerk.</p>
+        <p class="source-note">Stand: 21. Juli 2026. Kein Mainnet, Testnet, Token-Sale oder operatives Zahlungsnetzwerk.</p>
       </section>
 
       <section class="doc-section" id="problem">
@@ -70,6 +70,7 @@
           <li>ein versioniertes GHOSTDAG-Profil mit deterministischer Zustandsordnung;</li>
           <li>ein eigener Netzwerk-Anonymitätslayer, der über Link-Verschlüsselung hinausgeht.</li>
         </ul>
+        <p>Die V1-Grenze ist bewusst eng: native-QTM-Zahlung, selektive nutzergesteuerte Offenlegung und eine endliche, beweisbar begrenzte Payment-Policy-Schicht. Allgemeine Smart Contracts, private Assets und Bridges sind getrennte spätere Profile.</p>
         <div class="callout warning"><strong>Kompositionsrisiko:</strong> NIST-Standards und veröffentlichte Forschungsansätze sind wichtige Ausgangspunkte. Ihre Kombination ist noch kein Beweis für ein sicheres, anonymes oder skalierbares Netzwerk.</div>
       </section>
 
@@ -92,9 +93,9 @@
       <section class="doc-section" id="meilensteine">
         <h2>Nächste überprüfbare Meilensteine</h2>
         <ol>
-          <li>Threat Model und konkrete Sicherheitsbudgets extern prüfen.</li>
-          <li>Commitment- und STARK-Profil mit Parametern, Vektoren und Analyse einfrieren.</li>
-          <li>Zwei unabhängige Implementierungen interoperabel machen.</li>
+          <li>Threat Model sowie Commitment- und STARK-Profil mit konkreten Sicherheitsbudgets einfrieren.</li>
+          <li>Den vollständigen 2-Input/2-Output-Proof einschließlich In-Circuit-SLH-DSA auf vorab festgelegter Client-Hardware reproduzieren.</li>
+          <li>Erst nach bestandenem Feasibility Gate zwei unabhängige Wallet-/Node-Implementierungen interoperabel machen.</li>
           <li>DAG-Zustandsordnung, Difficulty Adjustment, Ausgabegrenze und Recovery adversarial testen.</li>
           <li>Netzwerk-Anonymität gegen passive und aktive Beobachter messen.</li>
           <li>≥1.000 akzeptierte L1-TPS mit vollständiger Privacy reproduzierbar nachweisen.</li>
