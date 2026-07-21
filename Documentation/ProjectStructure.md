@@ -50,3 +50,13 @@ Quantum/
 ├── deploy_testing.bat.lnk            # Shortcut to deploy script
 └── converter.log                     # PDF converter log (generated)
 ```
+
+## PDF build contract
+
+- The two Markdown papers are the authoritative publication sources; the PDFs
+  are generated artifacts.
+- Both sources select DocWizard's `scientific` style in YAML front matter and
+  retain their explicit normative section numbers.
+- `build-pdfs.sh` and `build-pdfs.bat` require the adjacent DocWizard-Pro
+  repository's prepared `.venv` runtime and invoke its canonical
+  `Src/universal_converter.py` entry point.

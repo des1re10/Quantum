@@ -1,23 +1,35 @@
 ---
 title: "Quantum: Privacy-Preserving Post-Quantum DAG Protocol"
-subtitle: "Research Design Draft and Security Requirements"
+subtitle: "Research Design Draft 0.2.0-research and Security Requirements"
 author: "Phexora AI"
 date: "2026-07-09"
 version: "0.2.0-research"
 status: "Research design draft — not implementation-ready, audited, or production-safe"
 license: "CC0-1.0; see repository LICENSE"
+lang: "en-GB"
+papersize: "a4"
+documentclass: "article"
+docwizard-style: "scientific"
+keywords:
+  - post-quantum cryptography
+  - privacy-preserving ledger
+  - directed acyclic graph
+  - zero-knowledge proofs
+  - protocol research
+abstract: |
+  Quantum is a research design for a private note-based DAG protocol intended
+  to combine post-quantum security, privacy and network anonymity by default,
+  and at least 1,000 accepted layer-1 transactions per second. This manuscript
+  defines the non-negotiable requirements, threat and claim boundaries,
+  candidate architecture, and blocking evidence gates. It does not report a
+  conformant implementation, completed security proof, external audit, testnet,
+  or production-ready protocol.
+
+  **Keywords:** post-quantum cryptography; privacy-preserving ledger; DAG
+  consensus; zero-knowledge proofs; protocol research.
 ---
 
-# Quantum: Privacy-Preserving Post-Quantum DAG Protocol
-
-**Revision:** 0.2.0-research
-
-**Published:** 2026-07-09
-
-**Status:** Research design draft — not implementation-ready, audited, or
-production-safe
-
-## Document status
+# Document status
 
 This document defines the non-negotiable security and scalability requirements
 for Quantum and a candidate architecture for meeting them. It is a **research
@@ -26,13 +38,13 @@ implementation, testnet, security proof, external audit, or production network
 at this revision.
 
 The legacy filename contains “v1” so that existing links remain valid. The
-normative document version is the version in the metadata above.
+normative document version is <code>0.2.0-research</code>.
 
 The words **MUST**, **MUST NOT**, **REQUIRED**, **SHOULD**, and **MAY** describe
 research acceptance criteria. They do not imply that an implementation already
 satisfies them.
 
-### Non-negotiable product requirements
+## Non-negotiable product requirements
 
 Quantum is releasable only if all three properties hold together:
 
@@ -52,7 +64,7 @@ If any requirement cannot be met, the design MUST be changed or the project
 MUST stop before a production launch. Classical cryptographic fallbacks,
 optional transparent transactions, and benchmark shortcuts are not permitted.
 
-## 1. Scope and claim boundary
+# 1. Scope and claim boundary
 
 This document covers:
 
@@ -69,7 +81,7 @@ automatically produces a secure protocol. Composition, implementation, side
 channels, consensus integration, and network metadata require separate
 analysis.
 
-### 1.1 Status vocabulary
+## 1.1 Status vocabulary
 
 | Status | Meaning |
 |---|---|
@@ -79,7 +91,7 @@ analysis.
 | Blocking research gate | No implementation or release may rely on this area until its deliverables pass |
 | Verified | Reserved for independently reproducible evidence; no subsystem has this status yet |
 
-### 1.2 Current subsystem status
+## 1.2 Current subsystem status
 
 | Subsystem | Current status | Required next evidence |
 |---|---|---|
@@ -93,9 +105,9 @@ analysis.
 | Performance | Blocking research gate | End-to-end prototype and reproducible target benchmark |
 | Economics/genesis | Provisional | DAA-score reward rules, cap proof, canonical genesis bytes |
 
-## 2. Normative requirements
+# 2. Normative requirements
 
-### R1 — Private ledger
+## R1 — Private ledger
 
 - R1.1 Every ordinary transfer MUST be private. There MUST be no transparent
   amount, transparent recipient, or optional transparent transaction type.
@@ -110,7 +122,7 @@ analysis.
 - R1.5 User-controlled view or audit keys MAY disclose selected wallet data.
   They MUST NOT weaken privacy for users who do not disclose them.
 
-### R2 — Network anonymity
+## R2 — Network anonymity
 
 - R2.1 Transaction transport MUST be unlinkable to a sender network endpoint
   within the approved network threat model.
@@ -127,7 +139,7 @@ published adversary model. No protocol can hide activity from a compromised
 endpoint, a voluntarily disclosed view key, or off-chain information supplied
 by the user; those boundaries MUST be stated with every claim.
 
-### R3 — End-to-end post-quantum security
+## R3 — End-to-end post-quantum security
 
 - R3.1 The minimum composed security target is 128 post-quantum bits after
   multi-user, multi-target, and protocol-lifetime losses.
@@ -142,7 +154,7 @@ by the user; those boundaries MUST be stated with every claim.
 - R3.5 A “generic STARK”, “lattice-based commitment”, or “hybrid” label is not
   evidence of post-quantum security.
 
-### R4 — Authorization and supply integrity
+## R4 — Authorization and supply integrity
 
 - R4.1 Every input value used by the balance equation MUST be bound to the
   opening of an existing note commitment.
@@ -160,7 +172,7 @@ by the user; those boundaries MUST be stated with every claim.
   subsidy and fees collected by the exact canonical state transition. Unclaimed
   value is burned and MUST NOT become reclaimable through another path.
 
-### R5 — Deterministic consensus safety
+## R5 — Deterministic consensus safety
 
 - R5.1 All honest nodes receiving the same valid DAG and state MUST derive the
   same ordering, accepted transaction set, difficulty, rewards, and state root.
@@ -173,7 +185,7 @@ by the user; those boundaries MUST be stated with every claim.
 - R5.4 Concurrent nullifier conflicts MUST resolve through one canonical
   ordering and atomic state transition.
 
-### R6 — Scalability
+## R6 — Scalability
 
 - R6.1 The release target is at least 1,000 accepted layer-1 transactions per
   second, sustained for at least 24 hours on a geographically distributed
@@ -191,7 +203,7 @@ by the user; those boundaries MUST be stated with every claim.
 - R6.5 Pruning and snapshots MAY reduce operational storage, but archival
   requirements and trustless recovery MUST remain explicit.
 
-### R7 — Transparent setup and upgrade safety
+## R7 — Transparent setup and upgrade safety
 
 - R7.1 Transaction validity MUST NOT depend on a secret trusted-setup artifact.
 - R7.2 Proof aggregation or recursion is allowed only if the outer proof
@@ -199,7 +211,7 @@ by the user; those boundaries MUST be stated with every claim.
 - R7.3 Protocol upgrades MUST be versioned, domain-separated, replay-safe, and
   authenticated by a post-quantum governance mechanism defined before launch.
 
-### R8 — Verifiability
+## R8 — Verifiability
 
 - R8.1 Consensus-critical behavior MUST have canonical byte encodings and
   cross-implementation vectors.
@@ -212,7 +224,7 @@ by the user; those boundaries MUST be stated with every claim.
   public interoperability vectors, and independent cryptographic and consensus
   review.
 
-## 3. Threat model
+# 3. Threat model
 
 The final security profile MUST define exact advantage games and corruption
 thresholds. The minimum research model includes:
@@ -239,9 +251,9 @@ malicious operating systems, coerced key disclosure, voluntarily published
 view keys, and identifying off-chain behavior. Implementations still SHOULD
 minimize the damage of these events.
 
-## 4. Cryptographic profile
+# 4. Cryptographic profile
 
-### 4.1 Hash and domain separation
+## 4.1 Hash and domain separation
 
 The candidate hash primitive is SHAKE256 from
 [NIST FIPS 202](https://csrc.nist.gov/pubs/fips/202/final).
@@ -278,7 +290,7 @@ derive its output length from the R3 quantum, multi-target, and protocol-lifetim
 analysis before that use is frozen, including the time/memory models in generic
 [quantum collision research](https://eprint.iacr.org/2020/213.pdf).
 
-### 4.2 Transaction authorization
+## 4.2 Transaction authorization
 
 The selected candidate is
 <code>SLH-DSA-SHAKE-256f</code> from
@@ -309,7 +321,7 @@ transformation. The transaction-authorization analysis MUST decide whether that
 property is required, include quantum and multi-target losses, and either show
 that the composed R3 target remains satisfied or select a reviewed mitigation.
 
-### 4.3 Recipient key encapsulation
+## 4.3 Recipient key encapsulation
 
 The selected KEM candidate is <code>ML-KEM-1024</code> from
 [NIST FIPS 203](https://csrc.nist.gov/pubs/fips/203/final), including applicable
@@ -335,7 +347,7 @@ MUST cite and instantiate a reviewed definition such as the
 [anonymous-KEM property](https://eprint.iacr.org/2023/470.pdf) or a stronger
 application-appropriate game.
 
-### 4.4 Commitment construction — blocking gate
+## 4.4 Commitment construction — blocking gate
 
 No commitment scheme is selected at this revision. The previous square-matrix
 formula and four-limb encoding were removed because they did not establish a
@@ -371,7 +383,7 @@ Homomorphism is not required: exact conservation is proved inside the
 transaction validity relation. If homomorphism is later added, carry semantics
 and all algebraic assumptions require a separate proof.
 
-### 4.5 Zero-knowledge proof system — blocking gate
+## 4.5 Zero-knowledge proof system — blocking gate
 
 The candidate family is a transparent hash-based STARK, informed by the
 original [STARK work](https://eprint.iacr.org/2018/046.pdf) and
@@ -401,7 +413,7 @@ An aggregated block format MUST choose exactly one consensus representation:
 Keeping all individual proofs and adding an aggregate does not reduce network
 or storage load.
 
-### 4.6 Entropy, mnemonics, and key derivation
+## 4.6 Entropy, mnemonics, and key derivation
 
 Randomness MUST come from an operating-system CSPRNG and MUST fail closed if
 entropy acquisition fails. Test seeds MUST never be accepted by production
@@ -421,9 +433,9 @@ separately reviewed, domain-separated post-quantum derivation profile. Wallet
 storage encryption MUST have its own memory-hard password-KDF profile and MUST
 not describe the BIP-39 PBKDF as storage protection.
 
-## 5. Private note and transaction model
+# 5. Private note and transaction model
 
-### 5.1 Note model
+## 5.1 Note model
 
 A note is private witness data:
 
@@ -444,7 +456,7 @@ the note through an authenticated encrypted payload. The encrypted payload
 MUST bind to the commitment, transaction identifier, output index, chain
 identifier, and protocol version.
 
-### 5.2 Public transaction fields
+## 5.2 Public transaction fields
 
 The public transaction contains only:
 
@@ -462,7 +474,7 @@ implementation. Parsers MUST reject overlong, truncated, duplicate,
 non-canonical, unknown-version, and trailing-byte encodings before expensive
 cryptographic work.
 
-### 5.3 Private witness
+## 5.3 Private witness
 
 For every input, the witness contains the full note plaintext, commitment
 randomness, membership path, nullifier secret, authorization public key, and
@@ -473,7 +485,7 @@ public encrypted payload.
 Input commitments and their openings are mandatory witness relations. They
 MUST NOT be omitted merely because only the anchor root is public.
 
-### 5.4 Transaction validity relation
+## 5.4 Transaction validity relation
 
 A verifier accepts only if the proof establishes all of the following:
 
@@ -508,7 +520,7 @@ The verifier then performs state checks outside the proof: the anchor is
 currently admissible, each nullifier is globally unused, the transaction is
 not expired, resource limits hold, and the proof version is active.
 
-### 5.5 Carry-safe balance constraints
+## 5.5 Carry-safe balance constraints
 
 Field equality is insufficient because field arithmetic can wrap. Each
 <code>u64</code> value MUST be decomposed into four 16-bit limbs, with a
@@ -526,7 +538,7 @@ over integers represented in the proof field; no unchecked field reduction is
 allowed. The 16-bit limb representation is an arithmetic encoding, not a claim
 that a commitment is homomorphic across carries.
 
-### 5.6 Commitment tree
+## 5.6 Commitment tree
 
 The candidate note tree depth is 64, subject to benchmark and state-layout
 review. <code>MERKLE_HASH_BYTES</code> is deliberately unresolved: T001, T201,
@@ -548,7 +560,7 @@ from the canonical DAG state order. An anchor-acceptance window MUST be derived
 from measured proof-generation latency, propagation, finality, and reorg risk;
 a fixed “last 100 headers” rule is not acceptable without that derivation.
 
-## 6. Serialization and identifiers
+# 6. Serialization and identifiers
 
 Consensus serialization MUST be specified field by field before implementation:
 
@@ -574,9 +586,9 @@ The checksum is the first eight bytes of
 The final profile MUST first fix the payload and maximum length; until then,
 addresses are research-only and MUST NOT be used to receive value.
 
-## 7. DAG consensus and state
+# 7. DAG consensus and state
 
-### 7.1 Consensus profile — blocking gate
+## 7.1 Consensus profile — blocking gate
 
 Quantum evaluates proof-of-work GHOSTDAG, whose research basis includes
 [Sompolinsky, Wyborski and Zohar](https://eprint.iacr.org/2018/104.pdf).
@@ -595,7 +607,7 @@ implementation, a versioned consensus profile MUST pin:
 “Highest blue score wins” and sorting blocks by score are not sufficient
 definitions.
 
-### 7.2 Header and proof of work
+## 7.2 Header and proof of work
 
 The final header layout MUST have one canonical byte encoding and one block-hash
 function. At minimum it binds version, network/chain ID, parent set, transaction
@@ -614,7 +626,7 @@ Block validation MUST:
 
 An unverified miner-supplied target would make mining trivial and is forbidden.
 
-### 7.3 Canonical state transition
+## 7.3 Canonical state transition
 
 The selected-parent chain and ordered merge set MUST produce one deterministic
 transaction sequence. Starting from the canonical pre-state, validators apply
@@ -632,7 +644,7 @@ For concurrent spends, the first transaction in canonical order may succeed;
 later uses of the same nullifier MUST fail. The design requires a proof that all
 honest nodes derive the same result across reorgs, pruning, and recovery.
 
-### 7.4 Difficulty adjustment
+## 7.4 Difficulty adjustment
 
 The previous wall-clock/float pseudocode is withdrawn. The final DAA MUST be
 specified in exact integer equations over canonical DAG history, with clamping,
@@ -640,7 +652,7 @@ overflow behavior, timestamp manipulation analysis, test vectors, and
 cross-implementation tests. A node's current time MUST NOT alter the expected
 target for an already received DAG.
 
-### 7.5 Rewards, supply, and genesis
+## 7.5 Rewards, supply, and genesis
 
 The monetary target is a hard cap of 21,000,000 QTM with no premine, ICO
 allocation, or founder reward. The exact emission curve remains provisional.
@@ -681,7 +693,7 @@ hash algorithm MUST be published with vectors. Seconds and milliseconds MUST
 not be mixed, and genesis MUST use the same block hashing rules as later
 blocks.
 
-## 8. Network anonymity and transport
+# 8. Network anonymity and transport
 
 The P2P design has two separate obligations:
 
@@ -704,9 +716,9 @@ Release evidence MUST include network simulation, adversarial experiments,
 privacy metrics with confidence intervals, and independent review. Simple byte
 uniformity or Pearson-correlation tests are diagnostics, not anonymity proofs.
 
-## 9. Scalability and resource budget
+# 9. Scalability and resource budget
 
-### 9.1 End-to-end target
+## 9.1 End-to-end target
 
 The 1,000 transactions-per-second figure is an acceptance target, not a current
 capability claim. A benchmark passes only when accepted state transitions—not
@@ -716,7 +728,7 @@ The reference workload MUST include a published mix of input/output counts,
 note scans, conflicts, reorgs, proof modes, peer delays, and malformed traffic.
 Results MUST report at least p50/p95/p99 latency and resource use.
 
-### 9.2 Feasibility budget
+## 9.2 Feasibility budget
 
 At 1 Gbit/s, a link has a theoretical 125 MB/s before protocol overhead. With
 20% headroom and four outgoing gossip copies, only about 25 MB/s remains for
@@ -739,7 +751,7 @@ The final profile MUST publish budgets for:
 - wallet scan bandwidth and time;
 - snapshot size, creation time, verification time, and recovery trust.
 
-### 9.3 Performance gates
+## 9.3 Performance gates
 
 Before a public scalability claim:
 
@@ -752,9 +764,9 @@ Before a public scalability claim:
   disproportionate work;
 - raw artifacts and reproduction commands are published.
 
-## 10. Assurance and release gates
+# 10. Assurance and release gates
 
-### 10.1 Required analytical artifacts
+## 10.1 Required analytical artifacts
 
 1. complete protocol and threat model;
 2. commitment construction with concrete post-quantum security analysis;
@@ -765,7 +777,7 @@ Before a public scalability claim:
 7. network anonymity analysis;
 8. end-to-end multi-target security budget.
 
-### 10.2 Required implementation evidence
+## 10.2 Required implementation evidence
 
 1. pinned toolchains and reproducible builds;
 2. official KATs for FIPS 202, FIPS 203, and FIPS 205;
@@ -776,7 +788,7 @@ Before a public scalability claim:
 7. state/reorg/recovery model checking or formal verification where feasible;
 8. reproducible performance and anonymity experiments.
 
-### 10.3 Independent review
+## 10.3 Independent review
 
 Testnet promotion requires named human owners and independent specialist review
 for cryptography, proof systems, consensus, networking, implementation
@@ -786,7 +798,7 @@ every high-severity finding and a public statement of residual risk.
 An AI system may assist with implementation or analysis, but MUST NOT approve
 its own cryptographic design, proof, audit, benchmark, or release.
 
-### 10.4 Go/no-go matrix
+## 10.4 Go/no-go matrix
 
 | Gate | Pass condition | Current state |
 |---|---|---|
@@ -803,7 +815,7 @@ its own cryptographic design, proof, audit, benchmark, or release.
 No “specification complete,” “quantum-secure,” “fully anonymous,” or “1,000 TPS
 achieved” claim is permitted while the corresponding gate is open.
 
-## 11. Legal and licensing boundary
+# 11. Legal and licensing boundary
 
 Repository-authored research text is dedicated under CC0-1.0 as described in
 the repository <code>LICENSE</code> file. CC0 does not grant patent or trademark
@@ -815,7 +827,7 @@ advice. It is not an offer to sell a token, security, or network service.
 Privacy features do not remove obligations under applicable law. Obtain
 specialist legal advice before any launch or token distribution.
 
-## 12. References
+# 12. References
 
 Primary references:
 
@@ -841,7 +853,7 @@ Primary references:
 13. Béguinet et al.,
     [GeT a CAKE: Generic Transformation from KEM to PAKE](https://eprint.iacr.org/2023/470.pdf).
 
-## Appendix A — Decisions deliberately not frozen
+# Appendix A — Decisions deliberately not frozen
 
 The following are intentionally unresolved because choosing numbers without
 analysis would create false precision:
@@ -860,9 +872,9 @@ analysis would create false precision:
 Each item has an owner task in the verification guide. A value becomes
 normative only with rationale, vectors, tests, and review.
 
-## Appendix B — Revision record
+# Appendix B — Revision record
 
-### 0.2.0-research — 2026-07-09
+## 0.2.0-research — 2026-07-09
 
 - converted the document from a claimed complete formal specification to an
   evidence-gated research design;

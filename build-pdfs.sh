@@ -7,7 +7,9 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOCWIZARD_DIR="$(dirname "$SCRIPT_DIR")/DocWizard-Pro/Src"
+DOCWIZARD_ROOT="$(dirname "$SCRIPT_DIR")/DocWizard-Pro"
+DOCWIZARD_SCRIPT="$DOCWIZARD_ROOT/Src/universal_converter.py"
+DOCWIZARD_PYTHON="$DOCWIZARD_ROOT/.venv/bin/python"
 PAPERS_DIR="$SCRIPT_DIR/papers/zkprivacy"
 
 echo "================================================"
@@ -16,9 +18,15 @@ echo "================================================"
 echo ""
 
 # Check if DocWizard-Pro exists
-if [ ! -f "$DOCWIZARD_DIR/universal_converter.py" ]; then
-    echo "ERROR: DocWizard-Pro not found at: $DOCWIZARD_DIR"
+if [ ! -f "$DOCWIZARD_SCRIPT" ]; then
+    echo "ERROR: DocWizard-Pro not found at: $DOCWIZARD_SCRIPT"
     echo "       Make sure DocWizard-Pro is in the same parent directory as Quantum"
+    exit 1
+fi
+
+if [ ! -x "$DOCWIZARD_PYTHON" ]; then
+    echo "ERROR: DocWizard-Pro Python runtime not found at: $DOCWIZARD_PYTHON"
+    echo "       Prepare the DocWizard-Pro .venv before building Quantum PDFs"
     exit 1
 fi
 
@@ -34,7 +42,7 @@ echo ""
 
 # Convert specification
 echo "[1/2] Converting zkprivacy-quantum-spec-v1.md..."
-python3 "$DOCWIZARD_DIR/universal_converter.py" \
+"$DOCWIZARD_PYTHON" "$DOCWIZARD_SCRIPT" \
     "$PAPERS_DIR/zkprivacy-quantum-spec-v1.md" \
     "$PAPERS_DIR/zkprivacy-quantum-spec-v1.pdf"
 
@@ -47,7 +55,7 @@ fi
 
 # Convert verification guide
 echo "[2/2] Converting zkprivacy-verification-guide.md..."
-python3 "$DOCWIZARD_DIR/universal_converter.py" \
+"$DOCWIZARD_PYTHON" "$DOCWIZARD_SCRIPT" \
     "$PAPERS_DIR/zkprivacy-verification-guide.md" \
     "$PAPERS_DIR/zkprivacy-verification-guide.pdf"
 

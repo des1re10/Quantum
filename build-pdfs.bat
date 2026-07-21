@@ -5,7 +5,9 @@ REM Converts Markdown papers to PDF using DocWizard-Pro
 setlocal enabledelayedexpansion
 
 set "SCRIPT_DIR=%~dp0"
-set "DOCWIZARD_DIR=%SCRIPT_DIR%..\DocWizard-Pro\Src"
+set "DOCWIZARD_ROOT=%SCRIPT_DIR%..\DocWizard-Pro"
+set "DOCWIZARD_SCRIPT=%DOCWIZARD_ROOT%\Src\universal_converter.py"
+set "DOCWIZARD_PYTHON=%DOCWIZARD_ROOT%\.venv\Scripts\python.exe"
 set "PAPERS_DIR=%SCRIPT_DIR%papers\zkprivacy"
 
 echo ================================================
@@ -14,9 +16,15 @@ echo ================================================
 echo.
 
 REM Check if DocWizard-Pro exists
-if not exist "%DOCWIZARD_DIR%\universal_converter.py" (
-    echo ERROR: DocWizard-Pro not found at: %DOCWIZARD_DIR%
+if not exist "%DOCWIZARD_SCRIPT%" (
+    echo ERROR: DocWizard-Pro not found at: %DOCWIZARD_SCRIPT%
     echo        Make sure DocWizard-Pro is in the same parent directory as Quantum
+    exit /b 1
+)
+
+if not exist "%DOCWIZARD_PYTHON%" (
+    echo ERROR: DocWizard-Pro Python runtime not found at: %DOCWIZARD_PYTHON%
+    echo        Prepare the DocWizard-Pro .venv before building Quantum PDFs
     exit /b 1
 )
 
@@ -33,7 +41,7 @@ echo.
 
 REM Convert specification
 echo [1/2] Converting zkprivacy-quantum-spec-v1.md...
-python "%DOCWIZARD_DIR%\universal_converter.py" "%PAPERS_DIR%\zkprivacy-quantum-spec-v1.md" "%PAPERS_DIR%\zkprivacy-quantum-spec-v1.pdf"
+"%DOCWIZARD_PYTHON%" "%DOCWIZARD_SCRIPT%" "%PAPERS_DIR%\zkprivacy-quantum-spec-v1.md" "%PAPERS_DIR%\zkprivacy-quantum-spec-v1.pdf"
 
 if %errorlevel% equ 0 (
     echo       Done: zkprivacy-quantum-spec-v1.pdf
@@ -44,7 +52,7 @@ if %errorlevel% equ 0 (
 
 REM Convert verification guide
 echo [2/2] Converting zkprivacy-verification-guide.md...
-python "%DOCWIZARD_DIR%\universal_converter.py" "%PAPERS_DIR%\zkprivacy-verification-guide.md" "%PAPERS_DIR%\zkprivacy-verification-guide.pdf"
+"%DOCWIZARD_PYTHON%" "%DOCWIZARD_SCRIPT%" "%PAPERS_DIR%\zkprivacy-verification-guide.md" "%PAPERS_DIR%\zkprivacy-verification-guide.pdf"
 
 if %errorlevel% equ 0 (
     echo       Done: zkprivacy-verification-guide.pdf

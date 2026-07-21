@@ -6,18 +6,29 @@ date: "2026-07-09"
 version: "0.2.0-research"
 status: "Planning document — no conformant implementation or completed verification"
 license: "CC0-1.0; see repository LICENSE"
+lang: "en-GB"
+papersize: "a4"
+documentclass: "article"
+docwizard-style: "scientific"
+keywords:
+  - post-quantum cryptography
+  - protocol verification
+  - evidence gates
+  - reproducible benchmarking
+  - independent review
+abstract: |
+  This document turns the Quantum research requirements into a human-owned,
+  dependency-ordered implementation and verification plan. It defines reviewer
+  roles, evidence classes, task gates, adversarial scenarios, performance
+  reporting, and release criteria for a candidate private post-quantum DAG
+  protocol. It is a planning and assurance document; it does not report a
+  conformant implementation or completed verification.
+
+  **Keywords:** post-quantum cryptography; protocol verification; evidence
+  gates; reproducible benchmarking; independent review.
 ---
 
-# Quantum Research Implementation and Verification Plan
-
-**Revision:** 0.2.0-research
-
-**Published:** 2026-07-09
-
-**Status:** Planning document — no conformant implementation or completed
-verification
-
-## 1. Purpose and status
+# 1. Purpose and status
 
 This guide turns the Quantum research requirements into an ordered body of
 work. It does **not** certify the design, prove security, or report completed
@@ -37,7 +48,7 @@ The goal is a protocol that simultaneously satisfies:
 
 These are hard release requirements. They are not current capability claims.
 
-## 2. Governance and reviewer roles
+# 2. Governance and reviewer roles
 
 AI systems may help draft code, tests, vectors, and analyses. They MUST NOT
 approve their own cryptographic design, formal argument, benchmark, audit
@@ -66,7 +77,7 @@ The minimum specialist review roles are:
 
 No single reviewer may sign all technical boundaries.
 
-## 3. Evidence taxonomy
+# 3. Evidence taxonomy
 
 Reports MUST label evidence accurately:
 
@@ -88,7 +99,7 @@ do not prove commitment binding. A prover test with no observed false
 acceptance does not establish 2^-128 soundness. Uniform-looking ciphertext
 bytes do not prove privacy.
 
-## 4. Requirements traceability
+# 4. Requirements traceability
 
 | Requirement | Primary tasks | Required release evidence |
 |---|---|---|
@@ -104,7 +115,7 @@ bytes do not prove privacy.
 A task is not complete if its output is not linked from this matrix through a
 machine-readable evidence manifest.
 
-## 5. Acyclic task graph
+# 5. Acyclic task graph
 
 Tasks MUST be completed in dependency order. A later experiment may send an
 earlier task back to design, but dependencies MUST NOT be bypassed.
@@ -159,9 +170,9 @@ T701 Composition review and release decision             <- T104, T304, T504, T6
 This ordering removes the former cycle in which polynomial multiplication
 depended on an NTT task that itself depended on polynomial multiplication.
 
-## 6. Task specifications
+# 6. Task specifications
 
-### T001 — Security profile and threat model
+## T001 — Security profile and threat model
 
 **Objective:** Freeze the security games, adversaries, corruption thresholds,
 privacy boundaries, lifetime, multi-user counts, and minimum composed
@@ -182,7 +193,7 @@ post-quantum security target.
 R1–R8. **Reject:** “quantum-safe” or “anonymous” appears without a defined game,
 adversary, or boundary.
 
-### T002 — Canonical serialization and domain registry
+## T002 — Canonical serialization and domain registry
 
 **Objective:** Specify every consensus byte and hash domain before code.
 
@@ -200,7 +211,7 @@ adversary, or boundary.
 implementation. **Reject:** implicit serialization, trailing bytes, unbounded
 vectors, unknown-version fallback, or one hash reused across purposes.
 
-### T003 — Test-vector and interoperability harness
+## T003 — Test-vector and interoperability harness
 
 **Objective:** Build the reproducible owner for official KATs and Quantum
 cross-language vectors.
@@ -217,7 +228,7 @@ cross-language vectors.
 negative vector. Generated expected values MUST NOT be produced by the same
 code path being tested without independent confirmation.
 
-### T004 — Benchmark and artifact harness
+## T004 — Benchmark and artifact harness
 
 **Objective:** Make all performance, storage, and network evidence
 reproducible.
@@ -235,7 +246,7 @@ reproducible.
 tolerance. **Reject:** “latest stable,” unpublished cloud shape, submitted TPS,
 warm-cache-only measurement, or missing raw artifacts.
 
-### T101 — Field and extension-field arithmetic
+## T101 — Field and extension-field arithmetic
 
 **Objective:** Select and implement candidate base and extension fields whose
 use and security are then approved by T303.
@@ -249,7 +260,7 @@ vectors pass; proof-system reviewer confirms the field supports the soundness
 analysis. **Reject:** a 64-bit base field is presented as 128-bit soundness by
 itself.
 
-### T102 — Polynomial and NTT layer
+## T102 — Polynomial and NTT layer
 
 **Objective:** Implement polynomial and NTT operations only after the selected
 commitment or proof profile requires them.
@@ -262,7 +273,7 @@ aliasing/memory rules.
 vectors and randomized boundary cases. **Reject:** circular dependency,
 floating-point roots, undocumented padding, or silent reduction.
 
-### T103 — Samplers and commitment candidate
+## T103 — Samplers and commitment candidate
 
 **Objective:** Implement one precisely cited commitment candidate without
 inventing a new formula.
@@ -277,7 +288,7 @@ analysis. **Reject:** byte modulo sampling, reused randomness, invertible-linear
 “binding” intuition, mismatched randomness length, or carry-dependent value
 encoding.
 
-### T104 — Commitment security gate
+## T104 — Commitment security gate
 
 **Objective:** Decide whether the commitment candidate meets R1, R3, and R4.
 
@@ -290,7 +301,7 @@ findings are resolved. **Reject:** collision-search testing is used as proof,
 the construction is only named “BDLOP-like,” or a guessed value can be tested
 from public data.
 
-### T201 — SHAKE256 and domain hashing
+## T201 — SHAKE256 and domain hashing
 
 **Objective:** Implement FIPS 202 SHAKE256 and the Quantum QH wrapper exactly.
 
@@ -304,7 +315,7 @@ SHA3-256 is silently substituted, tags are concatenated ambiguously, or XOF
 length is unbound or a 32-byte research vector is treated as proof that every
 collision-dependent consensus digest meets R3.
 
-### T202 — SLH-DSA authorization
+## T202 — SLH-DSA authorization
 
 **Objective:** Integrate FIPS 205 <code>SLH-DSA-SHAKE-256f</code>.
 
@@ -319,7 +330,7 @@ inputs, and the T301/T304 design can afford in-proof verification without
 weakening R6. **Reject:** protocol IDs say SPHINCS+, a classical signature
 fallback exists, or signatures authorize a partial transaction.
 
-### T203 — ML-KEM, KDF and authenticated encryption
+## T203 — ML-KEM, KDF and authenticated encryption
 
 **Objective:** Define recipient encryption building blocks with
 <code>ML-KEM-1024</code>.
@@ -336,7 +347,7 @@ exact note-encryption composition.
 nonce reuse is possible, or an invented Noise pattern name substitutes for a
 message specification, or the ciphertext identifies its recipient key.
 
-### T204 — Wallet key hierarchy and address profile
+## T204 — Wallet key hierarchy and address profile
 
 **Objective:** Freeze mnemonic import, child-key derivation, address payload,
 and storage protection.
@@ -349,7 +360,7 @@ Base32 address vectors; memory-hard wallet-storage KDF; recovery tests.
 both implementations. **Reject:** PBKDF2 parameters are called BIP-39 while
 using a different salt/normalization, or one key crosses protocol roles.
 
-### T301 — Integer transaction relation and AIR
+## T301 — Integer transaction relation and AIR
 
 **Objective:** Encode authorization, input/output openings, encryption binding,
 ranges, and exact conservation.
@@ -377,7 +388,7 @@ ranges, and exact conservation.
 clause to constraints. **Reject:** balance is only a field equality or an input
 opening is absent.
 
-### T302 — Membership, nullifier and state AIR
+## T302 — Membership, nullifier and state AIR
 
 **Objective:** Prove note membership and correct unlinkable nullifier
 derivation against the exact state hashes.
@@ -395,7 +406,7 @@ unconstrained, empty roots differ across implementations, a 32-byte wrapper
 vector silently becomes the Merkle security parameter, or tree depth exhaustion
 is ignored.
 
-### T303 — Fiat–Shamir, FRI and zero-knowledge profile
+## T303 — Fiat–Shamir, FRI and zero-knowledge profile
 
 **Objective:** Select the complete transparent proof profile.
 
@@ -409,7 +420,7 @@ after composition and no witness leakage under the stated model. **Reject:**
 the arithmetic “queries × bits” is used as soundness, target is 2^-100, masking
 is absent, or a generic STARK is assumed zero knowledge.
 
-### T304 — Prover, verifier and aggregation
+## T304 — Prover, verifier and aggregation
 
 **Objective:** Implement the T301–T303 profile without accepting ambiguous
 proofs.
@@ -425,7 +436,7 @@ fed into T604. **Reject:** verifier panics, work is allocated before size
 checks, both proof modes are redundantly transmitted, or tests are claimed as
 soundness proof.
 
-### T401 — Note creation and recipient encryption
+## T401 — Note creation and recipient encryption
 
 **Objective:** Create a note that the recipient can discover and later spend
 without publishing recipient or amount.
@@ -445,7 +456,7 @@ disclosure budget, and replay/swapping fails. **Reject:** encryption and
 commitment can describe different notes, or a ciphertext/scanning tag identifies
 the recipient.
 
-### T402 — Transaction codec, builder and authorization hash
+## T402 — Transaction codec, builder and authorization hash
 
 **Objective:** Construct and parse the exact public transaction while keeping
 private witnesses off-ledger.
@@ -459,7 +470,7 @@ mutable semantic field changes the authorization digest. **Reject:** parser
 fallbacks, unbounded allocation, signature malleability, or unknown fields
 silently ignored.
 
-### T403 — Commitment/nullifier state and atomic application
+## T403 — Commitment/nullifier state and atomic application
 
 **Objective:** Implement the single owner for note-tree, nullifier-set, and
 state-root transitions.
@@ -476,7 +487,7 @@ nullifier and anchor checks.
 commit, and no non-owner bypasses state validation. **Reject:** check-then-write
 races, partial state commits, or hidden empty-state fallback.
 
-### T404 — Wallet scanning and spending
+## T404 — Wallet scanning and spending
 
 **Objective:** Build deterministic private wallet behavior over T401–T403.
 
@@ -489,7 +500,7 @@ reorgs; spent notes cannot be selected; no network identity is derived from
 wallet keys. **Reject:** missing data is zero-filled, failed decryption is
 treated as an empty note, or sensitive logs are emitted.
 
-### T501 — Versioned GHOSTDAG consensus profile
+## T501 — Versioned GHOSTDAG consensus profile
 
 **Objective:** Turn the cited GHOSTDAG research into one deterministic,
 versioned protocol profile.
@@ -503,7 +514,7 @@ ordering, score/work, and finality across all vectors. **Reject:** “highest bl
 score wins,” a simple topological sort, or upstream behavior without a pinned
 version is treated as the specification.
 
-### T502 — Header, proof of work and deterministic DAA
+## T502 — Header, proof of work and deterministic DAA
 
 **Objective:** Specify and implement canonical headers, PoW, and expected
 difficulty.
@@ -524,7 +535,7 @@ genesis-independent vectors; time-warp simulations.
 floating point or local-time dependence. **Reject:** the header target is only
 used to check its own PoW.
 
-### T503 — Canonical DAG-to-state ordering
+## T503 — Canonical DAG-to-state ordering
 
 **Objective:** Prove and implement one deterministic state transition order for
 parallel blocks.
@@ -538,7 +549,7 @@ under permutations, delays, conflicts, and reorgs. **Reject:** parallel blocks
 mutate shared state concurrently or conflict resolution depends on arrival
 order.
 
-### T504 — Rewards, supply cap and genesis
+## T504 — Rewards, supply cap and genesis
 
 **Objective:** Define value creation and the immutable network start.
 
@@ -555,7 +566,7 @@ is used without a DAG definition, a fee can be claimed twice or counted as
 subsidy, no coinbase/reward transaction exists, timestamp units differ, or
 genesis hashes with another function.
 
-### T601 — Post-quantum authenticated P2P transport
+## T601 — Post-quantum authenticated P2P transport
 
 **Objective:** Define link confidentiality/authentication without classical
 fallback or wallet identity leakage.
@@ -569,7 +580,7 @@ implementations interoperate. **Reject:** “post-quantum Noise” is used witho
 an actual reviewed pattern, ML-KEM is mistaken for authentication, or failed
 PQ negotiation falls back to X25519.
 
-### T602 — Network anonymity protocol
+## T602 — Network anonymity protocol
 
 **Objective:** Meet R2 against the T001 observer rather than merely encrypt
 links.
@@ -588,7 +599,7 @@ an independent network-privacy review passes. **Reject:** only ciphertext byte
 uniformity, payload correlation, or Dandelion++ deployment is offered as proof
 of full anonymity.
 
-### T603 — Full node, pruning and recovery
+## T603 — Full node, pruning and recovery
 
 **Objective:** Integrate consensus, proof verification, atomic state, transport,
 storage, and resource admission.
@@ -603,7 +614,7 @@ and recovery; no malformed input causes unbounded work. **Reject:** hidden
 fallback state, partial validation, archive size presented as pruned-node size,
 or snapshot trust is undocumented.
 
-### T604 — End-to-end wallet/network/system validation
+## T604 — End-to-end wallet/network/system validation
 
 **Objective:** Demonstrate R1–R8 together, not in isolated microbenchmarks.
 
@@ -623,7 +634,7 @@ sustained, the anonymity thresholds pass, and another team reproduces the
 report. **Reject:** benchmark uses mock proofs, prevalidated transactions,
 disabled privacy, submitted TPS, a single process, or unpublished hardware.
 
-### T701 — Composition review and release decision
+## T701 — Composition review and release decision
 
 **Objective:** Decide whether the combined system—not only its parts—meets the
 three non-negotiable requirements.
@@ -645,7 +656,7 @@ match evidence.
 presented as composition review, or any hard requirement is deferred until
 after launch.
 
-## 7. Mandatory adversarial scenarios
+# 7. Mandatory adversarial scenarios
 
 Every relevant implementation must preserve a permanent regression test for:
 
@@ -669,7 +680,7 @@ Every relevant implementation must preserve a permanent regression test for:
 
 These are minimum cases, not a complete security test suite.
 
-## 8. Performance and capacity report
+# 8. Performance and capacity report
 
 Every benchmark report MUST contain:
 
@@ -691,9 +702,9 @@ thresholds are intentionally not fabricated in advance; T004 must freeze them
 before a result can be interpreted. A 60-second benchmark limit MUST NOT be
 quietly substituted for a different specification limit.
 
-## 9. Security review checklist
+# 9. Security review checklist
 
-### Cryptographic correctness
+## Cryptographic correctness
 
 - [ ] FIPS 202, 203, and 205 algorithm names and parameter sets are exact.
 - [ ] Official KAT provenance is recorded.
@@ -704,7 +715,7 @@ quietly substituted for a different specification limit.
 - [ ] No secret-dependent branch, memory lookup, log, or error oracle remains.
 - [ ] Multi-user and protocol-lifetime composition remains ≥128 PQ bits.
 
-### Transaction soundness
+## Transaction soundness
 
 - [ ] Each input value is bound to an opened member commitment.
 - [ ] Each output value is bound to its public output commitment.
@@ -714,7 +725,7 @@ quietly substituted for a different specification limit.
 - [ ] Reward minting is type-separated from ordinary conservation.
 - [ ] Global anchor/nullifier checks use explicit state context.
 
-### Privacy and anonymity
+## Privacy and anonymity
 
 - [ ] No transparent transfer mode exists.
 - [ ] Public ledger fields meet the R1 disclosure budget.
@@ -725,7 +736,7 @@ quietly substituted for a different specification limit.
 - [ ] View-key disclosure is explicit, scoped, and revocation limitations are
       documented.
 
-### Consensus and supply
+## Consensus and supply
 
 - [ ] GHOSTDAG profile is executable and versioned.
 - [ ] DAA is deterministic integer arithmetic.
@@ -736,7 +747,7 @@ quietly substituted for a different specification limit.
 - [ ] Cap proof includes fee replay, rounding and reorganization.
 - [ ] Genesis bytes and timestamp units are canonical.
 
-### Parsing and operations
+## Parsing and operations
 
 - [ ] All lengths and counts are bounded.
 - [ ] Unknown versions and non-canonical encodings fail closed.
@@ -748,7 +759,7 @@ quietly substituted for a different specification limit.
 Unchecked boxes are normal at this research stage. They MUST NOT be prechecked
 in reports.
 
-## 10. Evidence manifest and report format
+# 10. Evidence manifest and report format
 
 Each task produces a record with:
 
@@ -776,7 +787,7 @@ Null fields mean **not supplied**, never “not needed” or “passed.” PASS 
 allowed only when every mandatory artifact for that task exists and the named
 reviewer signs the exact revision.
 
-### Current aggregate report
+## Current aggregate report
 
 | Area | Status | Evidence |
 |---|---|---|
@@ -790,7 +801,7 @@ reviewer signs the exact revision.
 | Independent implementations | NOT_STARTED | None |
 | External audit | NOT_STARTED | None |
 
-## 11. Proposed implementation workspace
+# 11. Proposed implementation workspace
 
 The following layout is a proposal for a future implementation repository; it
 does not exist here and is not a command contract:
@@ -815,7 +826,7 @@ Build, test, fuzz, benchmark, and vector commands MUST be defined by that
 repository and pinned in T003/T004. This documentation repository intentionally
 does not publish fictitious commands that appear runnable.
 
-## 12. Release labels
+# 12. Release labels
 
 Only these labels may be used:
 
@@ -830,9 +841,9 @@ Only these labels may be used:
 
 At the current revision the project is a **research design**.
 
-## 13. Revision record
+# 13. Revision record
 
-### 0.2.0-research — 2026-07-09
+## 0.2.0-research — 2026-07-09
 
 - changed the guide from autonomous AI implementation instructions to a
   human-owned research and verification plan;

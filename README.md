@@ -89,6 +89,13 @@ through the adjacent DocWizard-Pro repository:
 
 Both PDFs must be regenerated after material paper changes.
 
+The papers select DocWizard's `scientific` style in their front matter. Their
+section titles already contain normative numbers, so the build deliberately
+does not add DocWizard's automatic section numbering.
+
+The build scripts use the adjacent DocWizard-Pro repository's prepared
+`.venv` runtime and fail if that exact runtime, Pandoc, or XeLaTeX is missing.
+
 ## Contributing
 
 Useful contributions include:

@@ -1,5 +1,14 @@
 # Quantum - Release Notes
 
+## Unreleased
+
+- Switched both research papers to DocWizard's scientific-manuscript style.
+- Added publication metadata, abstracts, keywords, and a proper document
+  heading hierarchy while removing the duplicated title/status block from the
+  rendered first page.
+- Regenerated both PDF artifacts through the canonical DocWizard/Pandoc/XeLaTeX
+  pipeline.
+
 ## Version History
 
 ### v1.0.0 (2026-01-14)
