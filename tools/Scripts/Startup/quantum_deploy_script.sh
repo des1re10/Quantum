@@ -38,33 +38,6 @@ fi
 QUANTUM_OUTPUT_FILE=""
 LIBRARIES_OUTPUT_FILE=""
 
-# Error handler function - shows detailed error info
-function error_handler() {
-    local exit_code=$?
-    local line_number=${BASH_LINENO[0]}
-    local command="${BASH_COMMAND}"
-
-    echo ""
-    echo "=================================================================="
-    echo "[ERROR] Script failed at line $line_number"
-    echo "[ERROR] Exit code: $exit_code"
-    echo "[ERROR] Failed command: $command"
-    echo "=================================================================="
-    echo ""
-
-    rm -f "${QUANTUM_OUTPUT_FILE:-}" "${LIBRARIES_OUTPUT_FILE:-}" 2>/dev/null || true
-
-    # Skip waiting for input in AUTO_DEPLOY mode
-    if [ "$AUTO_DEPLOY" == "1" ]; then
-        echo "[AUTO_DEPLOY] Error occurred - continuing without waiting for input"
-        return
-    fi
-    echo "Press Enter to close the terminal..."
-    read
-}
-
-# Ensure the function is called on error
-trap error_handler ERR
 
 # Determine the system type
 SYSTEM=$(uname -s)
@@ -128,7 +101,6 @@ if [ -z "$LIBRARIES_DEPLOY_SCRIPT" ] || [ ! -f "$LIBRARIES_DEPLOY_SCRIPT" ]; the
     echo "  2. Script directory: $SCRIPT_DIR/deploy_common.sh"
     echo "  3. pCloud Libraries: $(dirname "$SOURCE_BASE")/Libraries/Scripts/deploy_common.sh"
     echo "Please ensure deploy_common.sh is in one of these locations"
-    keep_terminal_open
     exit 1
 fi
 
@@ -139,7 +111,6 @@ chmod +x "$LIBRARIES_DEPLOY_SCRIPT"
 if [ ! -f "$LIBRARIES_FUNCTIONS_SCRIPT" ]; then
     echo "ERROR: Shared functions script not found!"
     echo "Expected location: $LIBRARIES_FUNCTIONS_SCRIPT"
-    keep_terminal_open
     exit 1
 fi
 chmod +x "$LIBRARIES_FUNCTIONS_SCRIPT"
@@ -348,9 +319,11 @@ fi
 echo ""
 echo "=== Deploying Quantum ==="
 QUANTUM_OUTPUT_FILE="$(mktemp)"
+register_deploy_temp_file "$QUANTUM_OUTPUT_FILE"
 bash "$LIBRARIES_DEPLOY_SCRIPT" "Quantum" "$SOURCE_BASE" "$TARGET_DIR" "$DEPLOY_TARGET" "n" 2>&1 | tee "$QUANTUM_OUTPUT_FILE"
 QUANTUM_OUTPUT=$(<"$QUANTUM_OUTPUT_FILE")
 rm -f "$QUANTUM_OUTPUT_FILE"
+unregister_deploy_temp_file "$QUANTUM_OUTPUT_FILE"
 QUANTUM_OUTPUT_FILE=""
 
 echo "  Verifying deployed site files..."
@@ -412,9 +385,11 @@ echo ""
 echo "[3/6] Deploying Libraries..."
 echo "=== Deploying Libraries (using shared script) ==="
 LIBRARIES_OUTPUT_FILE="$(mktemp)"
+register_deploy_temp_file "$LIBRARIES_OUTPUT_FILE"
 bash "$LIBRARIES_DEPLOY_SCRIPT" "Libraries" "$SOURCE_LIBRARIES" "$TARGET_LIBRARIES" "$DEPLOY_TARGET" "n" 2>&1 | tee "$LIBRARIES_OUTPUT_FILE"
 LIBRARIES_OUTPUT=$(<"$LIBRARIES_OUTPUT_FILE")
 rm -f "$LIBRARIES_OUTPUT_FILE"
+unregister_deploy_temp_file "$LIBRARIES_OUTPUT_FILE"
 LIBRARIES_OUTPUT_FILE=""
 
 # Validate sync manifest
