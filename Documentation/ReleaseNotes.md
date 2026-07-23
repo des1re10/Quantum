@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+**Prior-Art Decision and Comparative Authorization Gate**
+
+- Added a versioned T305 prior-art and reuse decision. It identifies TzEL as
+  the closest public engineering baseline, rejects a generic post-quantum
+  private payment novelty claim, and records an ADAPT + REPLICATE path. Named
+  owner and reviewer signatures remain required before implementation.
+- Documented Lattice RingCT, MatRiCT/MatRiCT+, Gao et al., LACT+, TzEL, NIST
+  SP 800-208, and the non-final SP 800-230 draft as explicit comparison
+  boundaries.
+- Reframed Paper 1 as a same-relation comparison between the FIPS 205
+  <code>SLH-DSA-SHAKE-256f</code> stateless incumbent, an independently
+  specified TzEL-shaped one-time baseline, and an applicable NIST stateful
+  profile.
+- Added state-management failure cases, a pre-registered material-benefit
+  rule, source-licence restrictions, and GO/ADAPT/REPLICATE/STOP outcomes.
+- Advanced the specification and verification guide to
+  <code>0.4.0-research</code> and synchronized public and internal status
+  surfaces. The architecture decision is evidence for Paper 1, not a fifth
+  paper.
+
 **Research Publication Programme**
 
 - Added a pre-registered T305 research protocol for the complete

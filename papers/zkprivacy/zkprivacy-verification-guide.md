@@ -1,9 +1,9 @@
 ---
 title: "Quantum Research Implementation and Verification Plan"
-subtitle: "Evidence plan for the 0.3.0 research design"
+subtitle: "Evidence plan for the 0.4.0 research design"
 author: "Phexora AI · [phexora.ai](https://phexora.ai)"
-date: "2026-07-21"
-version: "0.3.0-research"
+date: "2026-07-23"
+version: "0.4.0-research"
 status: "Planning document — no conformant implementation or completed verification"
 license: "CC0-1.0; see repository LICENSE"
 lang: "en-GB"
@@ -137,7 +137,7 @@ T104 Commitment security gate                           <- T003, T004, T103
 
 Layer 2 — Standardized cryptography and keys
 T201 SHAKE256 and domain hashing                        <- T002, T003
-T202 SLH-DSA authorization                             <- T201
+T202 Hash-based authorization comparison               <- T201
 T203 ML-KEM, KDF and authenticated encryption           <- T201
 T204 Wallet key hierarchy and address profile           <- T202, T203
 
@@ -191,6 +191,8 @@ post-quantum security target.
 - per-component and composed security budget;
 - quantum collision, preimage, and second-preimage cost models, including
   time/memory assumptions, multi-target loss, and required digest lengths;
+- signed prior-art, reproducibility, reuse-rights, and adopt/adapt/replicate
+  decision for every construction selected for implementation;
 - exclusions such as compromised endpoints, with user-facing claim wording.
 
 **Pass:** independent reviewers agree the model is complete enough to analyze
@@ -319,20 +321,31 @@ SHA3-256 is silently substituted, tags are concatenated ambiguously, or XOF
 length is unbound or a 32-byte research vector is treated as proof that every
 collision-dependent consensus digest meets R3.
 
-## T202 — SLH-DSA authorization
+## T202 — Hash-based authorization comparison
 
-**Objective:** Integrate FIPS 205 <code>SLH-DSA-SHAKE-256f</code>.
+**Objective:** Compare exact FIPS 205
+<code>SLH-DSA-SHAKE-256f</code> with an independently specified TzEL-shaped
+one-time baseline and, if applicable to the wallet model, one exact NIST
+SP 800-208 stateful profile.
 
-**Deliverables:** exact FIPS API/context/randomization choices; official KATs;
-canonical key/signature encodings; authorization digest; key-erasure and
-side-channel rules; malformed-signature corpus; proof-circuit cost report;
-decision and concrete-security analysis for the FIPS 205 message-bound
-signature caveat, including any reviewed transformation.
+**Deliverables:** the signed
+[T305 prior-art and reuse decision](decisions/t305-prior-art-decision.md);
+exact construction, parameters, source/standard revisions, APIs, contexts,
+randomization and state-transition choices for every arm; official KATs where
+available; canonical key/signature encodings; authorization digest; key-erasure
+and side-channel rules; state-index allocation, crash, backup/restore,
+concurrency, exhaustion, recovery, and desynchronisation cases; malformed
+signature/state corpus; per-arm proof-circuit cost report; FIPS 205
+message-bound-signature analysis and any reviewed transformation; signed
+applicability decision for the NIST stateful arm before benchmark results are
+viewed.
 
-**Pass:** both implementations match KATs, reject malformed/non-canonical
-inputs, and the T301/T304 design can afford in-proof verification without
-weakening R6. **Reject:** protocol IDs say SPHINCS+, a classical signature
-fallback exists, or signatures authorize a partial transaction.
+**Pass:** both implementations match applicable KATs and shared vectors,
+reject malformed/non-canonical inputs and state misuse, and expose all
+retained arms to T305 under the same transaction relation. **Reject:** protocol
+IDs say SPHINCS+, TzEL code is copied without compatible permission and legal
+review, a classical fallback exists, signatures authorize a partial
+transaction, or stateful failure modes are omitted.
 
 ## T203 — ML-KEM, KDF and authenticated encryption
 
@@ -379,7 +392,8 @@ ranges, and exact conservation.
 - public-input and witness schemas;
 - constraints for every input commitment opening and membership leaf;
 - constraints for every output commitment opening;
-- SLH-DSA authorization over the complete digest;
+- complete verification of each retained T202 authorisation profile over the
+  same complete digest;
 - 16-bit limb range checks and wide carry-constrained sums;
 - fee and reward-type separation;
 - AIR degree and trace-size report.
@@ -458,22 +472,28 @@ cannot weaken this task or the protocol specification.
 
 **Required prototype:** exactly two inputs and two outputs with input openings,
 Merkle membership, nullifier derivation, output openings, encrypted-note
-binding, complete in-proof SLH-DSA authorisation, 64-bit range constraints,
-carry-safe conservation, public fee, zero-knowledge masking, and the selected
-individual and aggregate proof path.
+binding, complete in-proof authorisation for each retained T202 arm, 64-bit
+range constraints, carry-safe conservation, public fee, zero-knowledge
+masking, and the selected individual and aggregate proof path. Only
+authorisation and its required state may differ between arms.
 
 **Deliverables:** two interoperable implementations; pinned desktop and
 constrained-client hardware; single-wallet p50/p95/p99 proving latency; peak
 and steady memory; verifier time and memory; proof and transaction bytes;
 parallel-prover scaling; aggregate latency, size, and amortised verification;
-raw artifacts and a signed stop/go decision.
+isolated authorisation contribution; state-management failure results;
+pre-registered material-benefit criteria; clearly labelled reproduced versus
+author-reported prior-work measurements; raw artifacts; and a signed
+GO/ADAPT/REPLICATE/STOP decision.
 
 **Pass:** every T004 threshold frozen before the run is met without mock
 signatures, omitted relations, disabled zero knowledge, retained individual
-proofs in aggregate mode, or unreported preprocessing. **Reject:** the design
-misses any frozen client, verifier, wire, or aggregate budget. A reject returns
-the signature, commitment, relation, or proof profile to research; it MUST NOT
-be deferred to node optimisation.
+proofs in aggregate mode, unreported preprocessing, or post-result benefit
+criteria. Retaining the stateless profile additionally requires a material
+pre-registered benefit over every qualifying stateful arm. **Reject:** no arm
+meets the frozen client, verifier, wire, and aggregate budgets. A reject returns
+the signature, commitment, relation, proof profile, or explicit system
+requirements to research; it MUST NOT be deferred to node optimisation.
 
 ## T401 — Note creation and recipient encryption
 
@@ -501,8 +521,8 @@ the recipient.
 private witnesses off-ledger.
 
 **Deliverables:** canonical codec; maximum counts/sizes; dedicated sighash;
-builder state machine; duplicate handling; expiry/anchor/proof-mode binding;
-negative parser corpus.
+builder state machine; duplicate handling;
+expiry/anchor/authorisation-profile/proof-mode binding; negative parser corpus.
 
 **Pass:** round trips are byte-stable, alternate encodings fail, and every
 mutable semantic field changes the authorization digest. **Reject:** parser
@@ -735,7 +755,7 @@ Every relevant implementation must preserve a permanent regression test for:
 | A002 | Input/output balance equal only modulo the proof field | Proof unsatisfiable |
 | A003 | 65,535 + 1 crosses an unconstrained limb carry | Correct integer result only |
 | A004 | Output commitment and encrypted output describe different notes | Rejected |
-| A005 | Authorization omits fee, output, chain, anchor, or proof mode | Rejected |
+| A005 | Authorization omits fee, output, chain, anchor, authorisation profile, or proof mode | Rejected |
 | A006 | Same nullifier in one transaction, block, parallel block, or reorg | At most canonical first spend accepted |
 | A007 | Header declares an easier target than the DAA computes | Block rejected |
 | A008 | Honest nodes use different local clocks on the same DAG | Identical consensus result |
@@ -769,8 +789,9 @@ Every benchmark report MUST contain:
 12. commands and immutable artifact locations.
 
 T305 reports MUST additionally separate single-wallet latency from parallel
-prover throughput and aggregate amortisation. A server aggregate rate MUST NOT
-be reported as client-side transaction latency.
+prover throughput and aggregate amortisation, report authorisation cost per arm,
+and label prior-work numbers as reproduced or author-reported. A server
+aggregate rate MUST NOT be reported as client-side transaction latency.
 
 The 1,000 tx/s acceptance target is fixed. Reference hardware and proof-latency
 thresholds are intentionally not fabricated in advance; T004 must freeze them
@@ -817,7 +838,11 @@ quietly substituted for a different specification limit.
 
 - [ ] T305 passes before full-node or GHOSTDAG integration starts.
 - [ ] The 2-input/2-output prototype includes every required relation and
-      in-proof SLH-DSA verification.
+      each retained in-proof authorisation arm.
+- [ ] Stateless SLH-DSA is retained only if its frozen material-benefit rule
+      passes against every qualifying stateful comparator.
+- [ ] Stateful key reuse, exhaustion, crash, restore, rollback, concurrency,
+      recovery, and desynchronisation cases are tested.
 - [ ] Wallet latency, parallel proving, verifier cost, wire size, and aggregate
       amortisation are reported separately.
 - [ ] Every enabled payment policy has bounded deterministic semantics and an
@@ -880,7 +905,7 @@ reviewer signs the exact revision.
 
 | Area | Status | Evidence |
 |---|---|---|
-| Requirements draft | IN_PROGRESS | Specification 0.3.0-research |
+| Requirements draft | IN_PROGRESS | Specification 0.4.0-research |
 | Commitment | NOT_STARTED | No selected construction |
 | Proof profile | NOT_STARTED | No frozen parameters or AIR |
 | Private transaction | NOT_STARTED | Relation drafted; no implementation |
@@ -931,6 +956,18 @@ Only these labels may be used:
 At the current revision the project is a **research design**.
 
 # 13. Revision record
+
+## 0.4.0-research — 2026-07-23
+
+- required a signed revision of the T305 prior-art and reuse decision as a
+  T001/T202 deliverable;
+- reframed T202 and T305 as a same-relation comparison between the FIPS 205
+  stateless incumbent, an independently specified TzEL-shaped baseline, and an
+  applicable NIST SP 800-208 stateful profile;
+- required state-management failure vectors, isolated authorisation costs, and
+  reproduced-versus-author-reported evidence labels;
+- introduced a pre-registered material-benefit rule and explicit
+  GO/ADAPT/REPLICATE/STOP outcome classes.
 
 ## 0.3.0-research — 2026-07-21
 

@@ -62,7 +62,7 @@
         <h2>V1-Produktgrenze und Reihenfolge</h2>
         <p>Die glaubwürdigste erste Ausbaustufe ist native-QTM-Zahlung und Settlement mit privater Wallet, privatem Reward, selektiver nutzergesteuerter Offenlegung und wenigen beweisbar begrenzten Zahlungsbedingungen. Sie ist ausdrücklich keine EVM-, SVM- oder universelle DeFi-Plattform.</p>
         <div class="card-grid">
-          <div class="info-card"><strong>Core zuerst</strong><span>Vollständige 2-Input/2-Output-Transaktion mit SLH-DSA im Proof, Commitment-Öffnungen, Membership, Nullifier, Encryption Binding und carry-sicherer Bilanz.</span></div>
+          <div class="info-card"><strong>Core zuerst</strong><span>Vollständige 2-Input/2-Output-Transaktion mit identischer Relation: einmalige und zustandsbehaftete Hash-Autorisierung im Vergleich mit stateless SLH-DSA im Proof.</span></div>
           <div class="info-card"><strong>Begrenzte Payment-Logik</strong><span>Versionierte Timelocks, Hashlocks, Multisig/Threshold, Escrow, wiederkehrende Autorisierung, Atomic-Swap-Bedingungen und Conditional Release – nur mit festen Kosten und eigener Evidenz.</span></div>
           <div class="info-card"><strong>Später und getrennt</strong><span>Private Assets, Bridges, Cross-Chain-Nachrichten und allgemeine Programmierbarkeit erhalten eigene Threat Models und erben keine Quantum-Basisschicht-Claims.</span></div>
         </div>
@@ -86,7 +86,8 @@
             <thead><tr><th>Bereich</th><th>Status</th><th>Was noch fehlt</th></tr></thead>
             <tbody>
               <tr><td>SHAKE256</td><td class="status-selected">Standard ausgewählt</td><td>Domain-Vektoren sowie begründete Output-Längen für jede Sicherheitsanforderung</td></tr>
-              <tr><td>SLH-DSA / ML-KEM</td><td class="status-selected">NIST-Standards ausgewählt</td><td>Exakte Integration, KATs, Empfänger-Key-Privacy, Side-Channel- und Kompositionsreview</td></tr>
+              <tr><td>ML-KEM</td><td class="status-selected">NIST-Standard und ML-KEM-1024-Kandidat ausgewählt</td><td>Exakte Integration, KATs, Empfänger-Key-Privacy, Side-Channel- und Kompositionsreview</td></tr>
+              <tr><td>Spend-Autorisierung</td><td class="status-open">FIPS-205-SLH-DSA-SHAKE-256f ist der stateless Vergleichskandidat</td><td>Gleiche Relation gegen eine an TzEL orientierte und eine geeignete NIST-SP-800-208-Stateful-Baseline messen; Zustandsfehler und materiellen Nutzen bewerten</td></tr>
               <tr><td>Lattice Commitment</td><td class="status-open">Offenes Gate</td><td>Konstruktion, Parameter, Reduktion, Estimator und Review</td></tr>
               <tr><td>STARK-Profil</td><td class="status-open">Offenes Gate</td><td>AIR, FRI, ZK-Masking, QROM-Soundness und Benchmarks</td></tr>
               <tr><td>DAG und privater Zustand</td><td class="status-open">Offenes Gate</td><td>Deterministische GHOSTDAG-Integration, DAA und Konfliktbeweis</td></tr>
@@ -105,14 +106,14 @@
           <table>
             <thead><tr><th>Reihenfolge</th><th>Entscheidungsfrage</th><th>Status</th></tr></thead>
             <tbody>
-              <tr><td>1</td><td>Vollständige Quantum-Transaktion mit SLH-DSA-SHAKE-256f im transparenten STARK</td><td>Aktives, vorregistriertes Forschungsprotokoll; keine Messung</td></tr>
+              <tr><td>1</td><td>FIPS-205-SLH-DSA-SHAKE-256f gegen einmalige und zustandsbehaftete Hash-Signatur-Baselines in derselben vollständigen Quantum-Transaktion</td><td>Aktives, vergleichendes Forschungsprotokoll; keine Messung</td></tr>
               <tr><td>2</td><td>Private Post-Quantum-Note-Erkennung bei gemessenem Output-Durchsatz</td><td>Vorlage; wartet auf das Transaktionsformat und T305-Messwerte</td></tr>
               <tr><td>3</td><td>Netzwerk-Ursprungsanonymität bei BlockDAG-Durchsatz</td><td>Vorlage; wartet auf Workload und Beobachtermodell</td></tr>
               <tr><td>4</td><td>Deterministische private Zustandssemantik für GHOSTDAG</td><td>Vorlage; wartet auf Transaktionszustand und Konsensprofil</td></tr>
             </tbody>
           </table>
         </div>
-        <p>Die breiten Themen sind nicht neu: Lattice RingCT, MatRiCT/MatRiCT+, STARK-basierte Hash-Signatur-Aggregation, private Zahlungserkennung und -abfrage, P2P-Ursprungsanonymität sowie GHOSTDAG sind bereits Gegenstand veröffentlichter Forschung. Der mögliche Quantum-Beitrag liegt deshalb nur in einer exakt abgegrenzten Konstruktion, Komposition oder reproduzierbaren positiven beziehungsweise negativen Machbarkeitsmessung. Vor einer Einreichung wird die Literatursuche aktualisiert und der Neuheitsclaim unabhängig geprüft.</p>
+        <p>Die breiten Themen sind nicht neu: TzEL veröffentlicht bereits einen experimentellen Note/Nullifier/ML-KEM/One-Time-Signature/STARK-Zahlungspfad. Lattice RingCT, MatRiCT/MatRiCT+, LACT+, private Zahlungserkennung und -abfrage, P2P-Ursprungsanonymität sowie GHOSTDAG decken weitere wesentliche Teilprobleme ab. Paper 1 ist deshalb eine vergleichende Machbarkeits- und Standardisierungsstudie, kein Claim auf ein neues PQ-Privacy-Protokoll. Die <a href="../papers/zkprivacy/decisions/t305-prior-art-decision.md">T305-Prior-Art-Entscheidung</a> dokumentiert Adopt/Adapt/Replicate und die Quellcode-Lizenzgrenze. Vor einer Einreichung wird die Suche aktualisiert und jeder verbleibende Neuheitsclaim unabhängig geprüft.</p>
       </section>
 
       <section class="doc-section" id="zielgruppen">
@@ -208,7 +209,7 @@
       <section class="doc-section" id="risiken">
         <h2>Risiken und rechtliche Grenze</h2>
         <div class="card-grid">
-          <div class="info-card"><strong>Machbarkeit</strong><span>Proof-Größe, In-Circuit-SLH-DSA, DAG-Zustand sowie die Latenz und Bandbreite starker Netzwerk-Anonymität können das gemeinsame Ziel verhindern.</span></div>
+          <div class="info-card"><strong>Machbarkeit</strong><span>Proof-Größe, In-Circuit-Autorisierung, sichere Stateful-Key-Verwaltung, DAG-Zustand sowie Latenz und Bandbreite starker Netzwerk-Anonymität können das gemeinsame Ziel verhindern.</span></div>
           <div class="info-card"><strong>Komposition</strong><span>Standardisierte Bausteine garantieren keine sichere oder anonyme Gesamtkonstruktion.</span></div>
           <div class="info-card"><strong>Betrieb und Recht</strong><span>Privacy-Technik beseitigt keine Sanktions-, Geldwäsche-, Steuer-, Verbraucher- oder Datenschutzpflichten.</span></div>
         </div>
@@ -220,6 +221,9 @@
         <ul>
           <li><a href="https://csrc.nist.gov/pubs/fips/203/final">NIST FIPS 203 – ML-KEM</a></li>
           <li><a href="https://csrc.nist.gov/pubs/fips/205/final">NIST FIPS 205 – SLH-DSA</a></li>
+          <li><a href="https://csrc.nist.gov/pubs/sp/800/208/final">NIST SP 800-208 – stateful hash-based signatures</a></li>
+          <li><a href="https://tzel.tezos.com/whitepaper.pdf">TzEL – experimental post-quantum encrypted ledger</a></li>
+          <li><a href="https://doi.org/10.3390/cryptography7020024">LACT+ – aggregatable lattice confidential transactions</a></li>
           <li><a href="https://csrc.nist.gov/Projects/Post-Quantum-Cryptography/Post-Quantum-Cryptography-Standardization">NIST Post-Quantum Cryptography Project</a></li>
           <li><a href="https://eprint.iacr.org/2019/1287.pdf">MatRiCT – post-quantum confidential transactions</a></li>
           <li><a href="https://eprint.iacr.org/2021/545.pdf">MatRiCT+ – post-quantum private blockchain payments</a></li>

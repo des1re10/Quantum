@@ -29,7 +29,7 @@ reviewed profiles and do not inherit the base protocol's claims.
 
 ## Current status
 
-**Research design 0.3.0-research — not implementation-ready or production-safe.**
+**Research design 0.4.0-research — not implementation-ready or production-safe.**
 
 This repository currently contains a static documentation website, a research
 design, a verification plan, and a pre-registered transaction-feasibility
@@ -39,7 +39,8 @@ benchmark.
 
 | Area | Status |
 |---|---|
-| SHAKE256, ML-KEM-1024, SLH-DSA-SHAKE-256f | Standards selected; integration not verified |
+| SHAKE256 and ML-KEM-1024 | Standards selected; integration not verified |
+| Spend authorization | FIPS 205 SLH-DSA-SHAKE-256f is the stateless incumbent; comparative gate open |
 | Lattice commitment | Blocking research gate |
 | STARK validity proof | Blocking research gate |
 | Complete 2-input/2-output transaction proof | Experiment specified; implementation and result absent |
@@ -55,6 +56,7 @@ cannot be demonstrated.
 - [Research design specification](papers/zkprivacy/zkprivacy-quantum-spec-v1.md)
 - [Implementation and verification plan](papers/zkprivacy/zkprivacy-verification-guide.md)
 - [Private-transaction STARK feasibility protocol](papers/zkprivacy/quantum-private-transaction-feasibility.md)
+- [T305 prior-art and reuse decision](papers/zkprivacy/decisions/t305-prior-art-decision.md)
 - [Market and claim thesis](Documentation/Quantum_Market_Thesis.html)
 - [Static-site system architecture](Documentation/SystemArchitecture.html)
 
@@ -68,17 +70,21 @@ adversaries, evidence, and stop/go decisions:
 
 | Order | Research question | Status |
 |---:|---|---|
-| 1 | Can the complete 2-input/2-output Quantum relation, including full in-proof SLH-DSA-SHAKE-256f verification, meet frozen security and client budgets in a transparent STARK? | Active research protocol; no result |
+| 1 | Does full in-proof FIPS 205 SLH-DSA-SHAKE-256f provide a material benefit over one-time/stateful hash-based baselines while the same complete 2-input/2-output relation meets frozen security and client budgets? | Active comparative research protocol; no result |
 | 2 | Can wallets discover post-quantum encrypted notes privately at the measured output rate? | [Template](papers/zkprivacy/templates/private-note-discovery-template.md) |
 | 3 | Can transaction origins remain hidden under a named observer model at BlockDAG throughput? | [Template](papers/zkprivacy/templates/network-origin-anonymity-template.md) |
 | 4 | Can GHOSTDAG apply private commitments, nullifiers, anchors, rewards, and reorganisations deterministically? | [Template](papers/zkprivacy/templates/ghostdag-private-state-template.md) |
 
-The programme does not claim that these broad areas are new. Published work
-already covers post-quantum Lattice RingCT and MatRiCT, STARK-based hash
-signature aggregation, private payment detection and retrieval, cryptocurrency
-network-origin anonymity, and GHOSTDAG ordering. Each Quantum manuscript must
-therefore state and independently review its narrower integration or
-measurement contribution before using an originality claim. The
+The programme does not claim that these broad areas are new. TzEL already
+publishes an experimental note/nullifier/ML-KEM/one-time-authorisation/STARK
+payment path, while Lattice RingCT, MatRiCT/MatRiCT+, LACT+, private payment
+detection and retrieval, cryptocurrency network-origin anonymity, and
+GHOSTDAG cover further major subproblems. Paper 1 is therefore a comparative
+feasibility and standardisation study, not a new private-payment-protocol
+claim. The
+[versioned prior-art decision](papers/zkprivacy/decisions/t305-prior-art-decision.md)
+records the adopt/adapt/replicate boundary. Each later manuscript must likewise
+state and independently review its narrower contribution. The
 [template index](papers/zkprivacy/templates/README.md) defines when a template
 may become an active paper.
 
@@ -87,7 +93,7 @@ may become an active paper.
 | Responsibility | Candidate direction | Evidence boundary |
 |---|---|---|
 | Hash/XOF | SHAKE256, NIST FIPS 202 | Standard selected |
-| Authorization | SLH-DSA-SHAKE-256f, NIST FIPS 205 | In-proof cost and integration open |
+| Authorization | Stateless incumbent: SLH-DSA-SHAKE-256f; stateful comparators: independently specified one-time tree and applicable NIST SP 800-208 profile | Same-relation cost, state-failure model, and material-benefit decision open |
 | Key encapsulation | ML-KEM-1024, NIST FIPS 203 | Authenticated composition open |
 | Validity proof | Transparent STARK | Exact AIR/FRI/ZK profile open |
 | Note commitment | Reviewed lattice construction | Construction and parameters open |
@@ -122,7 +128,8 @@ the adjacent DocWizard-Pro repository:
 ~~~
 
 All active-paper PDFs must be regenerated after material paper changes.
-Planning files under <code>papers/zkprivacy/templates/</code> are deliberately
+Planning files under <code>papers/zkprivacy/templates/</code> and decision
+records under <code>papers/zkprivacy/decisions/</code> are deliberately
 excluded from the PDF build and are not presented as completed papers.
 
 The papers select DocWizard's `scientific` style in their front matter. Their

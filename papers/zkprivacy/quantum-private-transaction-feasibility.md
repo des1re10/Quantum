@@ -1,9 +1,9 @@
 ---
-title: "Standardised Hash-Based Authorisation Inside a Private-Transaction STARK"
-subtitle: "Reproducible feasibility protocol for the Quantum 2-input/2-output gate"
+title: "Stateless Versus Stateful Hash-Based Authorisation Inside a Private-Transaction STARK"
+subtitle: "Comparative reproducibility protocol for the Quantum 2-input/2-output gate"
 author: "Phexora AI · [phexora.ai](https://phexora.ai)"
 date: "2026-07-23"
-version: "0.1.0-research-protocol"
+version: "0.2.0-research-protocol"
 status: "Research protocol — no implementation, benchmark result, security proof, or feasibility claim"
 license: "CC0-1.0; see repository LICENSE"
 lang: "en-GB"
@@ -22,23 +22,28 @@ abstract: |
   inputs and two outputs, including commitment openings, membership,
   nullifiers, encrypted-note binding, 64-bit integer conservation, and full
   SLH-DSA-SHAKE-256f verification inside a transparent zero-knowledge STARK.
-  It defines the novelty boundary against published post-quantum RingCT,
-  hash-signature aggregation, note-discovery, and anonymous-payment work;
-  fixes the statement and witness boundary; and specifies reproducibility,
+  It treats TzEL's public note/nullifier/ML-KEM/one-time-signature/STARK
+  prototype as the closest engineering baseline and rejects a generic
+  post-quantum private-payment novelty claim. The remaining question is a
+  comparative one: whether exact standardised stateless authorisation provides
+  a material security, interoperability, or state-management benefit while
+  meeting direct-layer-1 and constrained-client budgets. The protocol fixes the
+  statement and witness boundary and specifies reproducibility,
   security-analysis, measurement, and stop/go requirements. It reports no
-  implementation or result. A later revision may claim feasibility only after
-  two independent implementations meet thresholds frozen before measurement.
+  implementation or result.
 
-  **Keywords:** post-quantum private payments; SLH-DSA; STARK; transaction
-  feasibility; reproducible benchmarking.
+  **Keywords:** post-quantum private payments; SLH-DSA; stateful hash-based
+  signatures; STARK; comparative feasibility; reproducible benchmarking.
 ---
 
 # 1. Status and claim boundary
 
 This is a **research protocol**, not a result paper. At version
-<code>0.1.0-research-protocol</code>:
+<code>0.2.0-research-protocol</code>:
 
 - no complete Quantum transaction prover or verifier exists in this repository;
+- no TzEL-shaped or NIST stateful authorisation baseline has been independently
+  implemented for comparison;
 - no proof-system, commitment, or note-encryption profile has been frozen;
 - no benchmark threshold has been approved under task T004;
 - no benchmark described here has been run;
@@ -61,15 +66,18 @@ implementation must not choose the more convenient interpretation.
 
 The paper owns one decision:
 
-> Can two independent implementations prove and verify the complete,
-> representative Quantum 2-input/2-output private transaction on frozen
-> desktop and constrained-client profiles while meeting every pre-registered
-> security, latency, memory, proof-size, wire-size, and aggregation threshold?
+> Does exact FIPS 205 <code>SLH-DSA-SHAKE-256f</code> authorisation inside the
+> complete Quantum 2-input/2-output relation meet every pre-registered
+> security, latency, memory, proof-size, wire-size, and aggregation threshold,
+> and does it provide a material benefit over a TzEL-shaped one-time baseline
+> and an applicable NIST stateful baseline?
 
-A positive answer permits research to proceed to wallet, node, and consensus
-integration. A negative answer returns the signature, commitment, transaction
-relation, or proof profile to research, or stops the project. It is not
-relabelled as a future node optimisation.
+A positive answer may retain the stateless profile and permits research to
+proceed to wallet, node, and consensus integration. A result favouring a
+reviewed stateful profile changes the normative design before that work begins.
+If no arm meets the frozen requirements, the signature, commitment,
+transaction relation, proof profile, or system requirements return to research,
+or the project stops. Failure is not relabelled as a future node optimisation.
 
 ## 1.2 Decisions not owned by this paper
 
@@ -87,6 +95,11 @@ This experiment does not establish:
 Those questions have different adversaries, measurements, and failure modes.
 They are therefore separate manuscripts or later system evidence, not extra
 sections appended to a successful proving benchmark.
+
+It also does not establish that note commitments, nullifiers, ML-KEM note
+delivery, in-proof hash-based authorisation, delegated proving, or recursive
+STARK private payments are new. TzEL already combines those architectural
+elements in an experimental public testnet system [TZEL].
 
 # 2. Why a separate paper is necessary
 
@@ -117,12 +130,14 @@ T305.
 ## 3.1 Search scope
 
 The novelty screen was refreshed on 23 July 2026. It reviewed primary material
-from NIST, the IACR Cryptology ePrint Archive and linked proceedings, author
-manuscripts, the Zcash Improvement Proposal repository, and the original
+from NIST, the IACR Cryptology ePrint Archive and linked proceedings,
+peer-reviewed publications, protocol whitepapers, public implementation
+repositories, the Zcash Improvement Proposal repository, and the original
 PHANTOM/GHOSTDAG work. Search themes included:
 
 - post-quantum confidential transactions and private payments;
 - lattice RingCT with multiple inputs and outputs;
+- post-quantum note/nullifier ledgers and public testnet implementations;
 - transparent proofs and hash-signature verification or aggregation;
 - anonymous KEMs and encrypted-note delivery;
 - oblivious payment detection and light-client note discovery;
@@ -137,9 +152,11 @@ screening decisions in the evidence manifest.
 
 | Prior work | What it establishes or investigates | Why this paper must not repeat its claim |
 |---|---|---|
+| TzEL [TZEL] [TZELCODE] | An experimental Tezos rollup and public testnet combining note commitments, position-bound nullifiers, ML-KEM-768 note delivery, WOTS-like one-time spend authorisation under an XMSS-style tree, and recursive STARKs | The complete architectural combination closest to Quantum already exists as a public prototype; neither “post-quantum shielded payments” nor “hash-signature authorisation inside a private-payment STARK” remains available as a generic novelty claim |
 | Lattice RingCT v1.0 [LRCT1] and v2.0 [LRCT2] | Post-quantum linkable-ring-signature transactions; v2.0 adds multiple inputs, multiple outputs, and a balance model | A generic claim to be the first post-quantum private or multi-input/multi-output payment protocol is unavailable |
 | MatRiCT [MATRIX] and MatRiCT+ [MATRIXPLUS] | Concrete lattice-based RingCT designs and implementation measurements | Quantum must compare against their model, proof sizes, latency, anonymity scope, and assumptions rather than presenting post-quantum RingCT as an open invention |
 | Gao et al. [GAO] | More efficient lattice-based zero-knowledge balance proofs and ring signatures, applied to RingCT | A new balance proof or ring-signature efficiency claim requires direct comparison and an actual construction |
+| LACT+ [LACTPLUS] | Aggregable lattice confidential transactions, many-input/many-output scaling, and a public implementation referenced by the paper | A lattice confidential-value or aggregation claim requires comparison; LACT+ does not itself supply Quantum's complete sender, recipient, network, or note-delivery privacy model |
 | ZK-STARK [STARK], DEEP-FRI [DEEPFRI], and later zero-knowledge analysis [STARKZK] | Transparent proof foundations, proximity testing, and explicit zero-knowledge treatment | Selecting the STARK family does not itself constitute novelty or prove that the Quantum profile is sound or zero knowledge |
 | Khaburzaniya et al. [HASHAGG] | STARK-based aggregation and thresholdisation of hash-based signatures with concrete experiments | “Hash signatures can be put behind a STARK” is already established in another relation and parameter regime |
 | Sphinx-in-the-Head [SPHINXHEAD] | Modifies a SPHINCS+-style credential to make its verification practical in a different zero-knowledge group-signature setting | Its redesign reinforces that exact standard SLH-DSA verification is a real measurement gate; results for a custom credential cannot be reused as Quantum evidence |
@@ -149,34 +166,65 @@ screening decisions in the evidence manifest.
 | Dandelion++ [DANDELION] and later P2P-anonymity analysis [P2PANON] | Transaction-origin routing and attacks/limits in cryptocurrency P2P networks | A generic transaction-origin anonymity paper would duplicate a mature line of work |
 | PHANTOM/GHOSTDAG [GHOSTDAG] | A blockDAG ordering protocol and security analysis | GHOSTDAG selection alone does not solve Quantum's nullifier, anchor, reward, and private-state semantics |
 
-## 3.3 Candidate contribution
+## 3.3 Closest-work delta: TzEL
 
-The candidate contribution is deliberately narrower than the works above:
+TzEL changes the decision boundary more than the earlier RingCT work because it
+uses the same high-level shielded-note architecture as Quantum. Its public
+whitepaper describes note commitments, historical Merkle roots, nullifiers,
+ML-KEM recipient delivery, in-proof hash-based authorisation, and recursive
+STARK validity proofs. Its repository reports a live experimental testnet path,
+while explicitly warning that the scheme and implementation are not audited or
+safe for real value [TZELCODE].
 
-1. a fully specified note/nullifier relation rather than a generic
-   confidential-transaction label;
-2. standardised <code>SLH-DSA-SHAKE-256f</code> verification as private witness
-   work inside that complete relation;
-3. binding of an authenticated, recipient-private post-quantum note-delivery
-   payload to the same output proved by the transaction;
-4. a transparent STARK profile with explicit zero-knowledge and quantum-random-
-   oracle soundness accounting;
-5. pre-registered client, verifier, proof, transaction, and aggregation budgets;
-   and
+| Surface | TzEL public baseline at the search cut-off | Quantum incumbent | Consequence for this paper |
+|---|---|---|---|
+| Spend model | One to seven input notes; recipient, change, and producer-fee outputs | Fixed two-input/two-output representative relation | Note membership, nullifiers, and balance are prior art; Quantum must justify only its exact relation and system constraints |
+| Authorisation | WOTS-like one-time signatures, base 4 with 133 chains, under a depth-16 XMSS-style tree; verified inside the STARK | Stateless FIPS 205 <code>SLH-DSA-SHAKE-256f</code> verified inside the STARK | The publishable question is the standardisation/state-management/performance trade-off, not the idea of in-proof hash-signature authorisation |
+| Recipient path | ML-KEM-768 plus authenticated encryption, separate detection and viewing material | ML-KEM-1024 candidate plus an unfrozen authenticated composition and receiver-key-privacy game | Generic post-quantum note delivery is prior art; parameter rationale and a stronger measured privacy definition may still differ |
+| Proof and carriage | Cairo AIR, Stwo recursion, and Tezos DAL | Unfrozen transparent STARK carried by a native layer 1 | Quantum must demonstrate a direct-layer-1 size and aggregation result rather than relying on a separate high-bandwidth availability layer |
+| Reported 2-input transfer | About 289.5 KiB proof, 5.235 s proving, 16.66 GiB peak RSS, and 32 ms verification on AWS <code>c8g.16xlarge</code> | No implementation or measurement | TzEL is the minimum engineering comparator; its self-reported result is not a Quantum benchmark or a constrained-client pass |
+| Proving trust boundary | Proving may be delegated; the prover receives sensitive witness material and can infer address-associated spent state | Current experiment requires a constrained-client local-proving measurement | Local proving without witness disclosure is a material systems question if its budget is frozen and met |
+| Evidence | Public whitepaper, source, testnet path, and self-reported benchmarks; no production-security claim | Two independent implementations and pre-registered acceptance thresholds required | Quantum may contribute independent comparative evidence, not a generic construction claim |
+| Reuse terms | Repository states “All rights reserved” at snapshot <code>0288c1c…</code> | Future implementation licence unresolved | No TzEL source code may be copied without compatible permission and documented legal review |
+
+These figures are context, not a head-to-head result: the hardware, proof
+system, transaction shape, security parameters, and deployment model differ.
+The TzEL metrics must be reproduced or clearly labelled author-reported in any
+comparison.
+
+## 3.4 Candidate contribution
+
+The candidate contribution is now a comparative decision rather than a new
+private-payment architecture:
+
+1. exact FIPS 205 <code>SLH-DSA-SHAKE-256f</code> as a standardised stateless
+   challenger to TzEL-shaped one-time authorisation;
+2. an applicable NIST SP 800-208 XMSS/XMSSMT or LMS/HSS profile as a separate
+   stateful standards comparator, if its hardware and state requirements can be
+   met [SP800208];
+3. one complete, identical note/nullifier/encryption/balance relation around
+   each retained authorisation arm so that only measured differences are
+   attributed to authorisation;
+4. pre-registered direct-layer-1, constrained-client, verifier, proof,
+   transaction, and aggregation budgets;
+5. explicit comparison with TzEL's delegated-proving and DAL trade-offs; and
 6. two independently implemented, interoperable evidence pipelines.
 
-Whether this combination contains a publishable technical contribution beyond
-systems integration and negative or positive feasibility evidence is itself an
-open review question. The paper must not use “first” or “novel” until a refreshed
-literature review and independent specialist review support the exact wording.
+The resulting manuscript is a comparative feasibility, standardisation, or
+negative-result paper unless it supplies and proves a genuinely new technique.
+It must not use “first,” “novel protocol,” or equivalent wording merely because
+Quantum changes parameter sets, consensus, or deployment.
 
-## 3.4 Non-duplication gate before implementation
+## 3.5 Non-duplication gate before implementation
 
-The project must not begin from a blank private-payment construction merely
-because Quantum currently names different components. Before the T301–T305
-profile is frozen, a signed architecture record must compare at least Lattice
-RingCT v2.0, MatRiCT, MatRiCT+, Gao et al., and the proposed Quantum relation
-across:
+The versioned
+[T305 prior-art and reuse decision](decisions/t305-prior-art-decision.md)
+records the initial comparison and chooses **ADAPT + REPLICATE**, not a blank
+construction or direct code adoption. Named owner and reviewer signatures
+remain mandatory before implementation. Before the T301–T305 profile is
+frozen, the record must remain current and compare at least TzEL, Lattice
+RingCT v2.0, MatRiCT, MatRiCT+, Gao et al., LACT+, and the proposed Quantum
+relation across:
 
 - sender, recipient, amount, and transaction-graph privacy definitions;
 - input/output multiplicity, balance, range, and double-spend models;
@@ -187,7 +235,7 @@ across:
 - note delivery, recipient discovery, and light-client implications; and
 - available implementations, vectors, audits, licences, and reproducibility.
 
-That record must choose one of three honest paths:
+Every later revision must preserve one of three honest paths:
 
 1. adopt or adapt a published construction where it meets the Quantum
    requirements;
@@ -204,13 +252,18 @@ paper.
 
 ## 4.1 Research questions
 
+**RQ0 — Prior-art delta.** Under one complete and otherwise identical
+transaction relation, does standardised stateless authorisation provide a
+pre-registered material security, interoperability, or state-management
+benefit over the closest one-time/stateful baselines?
+
 **RQ1 — Completeness.** Can the exact public statement and private witness in
 Section 6 express every required Quantum relation without an unchecked value,
 key, index, payload, or context?
 
 **RQ2 — Authorisation cost.** What trace length, proving time, peak memory,
 proof-size contribution, and verifier cost result from two complete
-<code>SLH-DSA-SHAKE-256f</code> verifications inside the selected STARK?
+authorisations for each retained arm in Section 7.2 inside the selected STARK?
 
 **RQ3 — Composition.** Can commitment openings, membership, nullifiers,
 authorisation, encrypted-note binding, and carry-safe balance be composed
@@ -237,6 +290,7 @@ first measured feasibility run.
 
 | ID | Hypothesis | Required threshold owner |
 |---|---|---|
+| H0 | At least one authorisation arm meets all frozen requirements; Arm C is retained only if its pre-registered material benefit justifies its measured overhead over the qualifying stateful arms | T001/T004/T202/T305 |
 | H1 | Both implementations accept every valid canonical vector and reject every invalid vector identically | T003/T004 |
 | H2 | Complete desktop proving p95 and p99 do not exceed <code>L_desktop_p95</code> and <code>L_desktop_p99</code> | T004 |
 | H3 | Complete constrained-client proving p95 and p99 do not exceed <code>L_client_p95</code> and <code>L_client_p99</code> | T004 |
@@ -274,7 +328,16 @@ These values make three shortcuts invalid:
 - measuring a mock or smaller signature profile;
 - reporting only prover throughput while hiding single-wallet latency; or
 - treating note delivery and wallet scanning as negligible because the proof
-  itself is compact.
+itself is compact.
+
+TzEL's repository reports about 289.5 KiB for its recursive proof and, for its
+two-input transfer workload on AWS <code>c8g.16xlarge</code>, 5.235 seconds
+proving, 16.66 GiB peak resident memory, and 32 milliseconds verification
+[TZELCODE]. Those author-reported figures are not directly comparable with
+Quantum's unfrozen proof system or constrained-client profile. They do show
+that the closest public implementation is already well above the illustrative
+25 KB direct-layer-1 transaction budget in the Quantum design unless a
+different aggregation, carriage, or system requirement is approved.
 
 # 6. Frozen experiment statement
 
@@ -293,14 +356,16 @@ PublicTransaction {
     encrypted_note_payloads_or_digests[2]
     fee_u64
     expiry_context
+    authorisation_profile
     proof_mode
 }
 ~~~
 
 Every integer and byte string must have one canonical encoding and one maximum
 length. Vector counts are fixed to two for this experiment. The statement must
-reject unknown versions, trailing data, duplicate nullifiers, duplicate output
-commitments, and non-canonical encodings before expensive verification work.
+reject unknown versions or authorisation profiles, trailing data, duplicate
+nullifiers, duplicate output commitments, and non-canonical encodings before
+expensive verification work.
 
 ## 6.2 Private witness
 
@@ -314,7 +379,7 @@ InputWitness {
     membership_index
     nullifier_secret
     authorisation_public_key
-    slh_dsa_signature
+    authorisation_witness
 }
 ~~~
 
@@ -342,8 +407,9 @@ The AIR or equivalent relation must establish:
 4. both nullifiers derived from the corresponding opened notes and bound keys;
 5. local nullifier uniqueness;
 6. both authorisation keys bound by their opened input notes;
-7. two complete <code>SLH-DSA-SHAKE-256f</code> verifications over the same
-   canonical transaction-authorisation digest;
+7. two complete verifications for the declared authorisation profile over the
+   same canonical transaction-authorisation digest, with no mixed-profile
+   transaction;
 8. both output commitment openings;
 9. both encrypted-note bindings to the same output plaintext, output index,
    transaction context, chain, and version;
@@ -351,8 +417,9 @@ The AIR or equivalent relation must establish:
 11. carry-constrained integer equality
     <code>input_0 + input_1 = output_0 + output_1 + fee</code>;
 12. output-commitment uniqueness; and
-13. agreement of counts, ordering, flags, expiry, and proof mode across the
-    statement, signed digest, encryption binding, and proof.
+13. agreement of counts, ordering, flags, expiry, authorisation profile, and
+    proof mode across the statement, signed digest, encryption binding, and
+    proof.
 
 Global nullifier freshness, current-anchor admissibility, expiry, and
 version-activation checks remain external state checks. Their absence from the
@@ -374,19 +441,43 @@ completeness condition.
 
 ## 7.2 Authorisation
 
-The report must pin:
+Every retained arm must use the same note, membership, nullifier, encryption,
+balance, statement, proof, hardware, and measurement profile. The only intended
+experimental variable is spend authorisation. The report must pin for every
+arm:
 
-- the exact FIPS 205 parameter set and errata state;
-- interface, context string, randomised or deterministic signing choice;
+- exact construction, parameter set, standard or source revision, and errata
+  state;
+- interface, context string, state-transition rules, and signing randomness;
 - key and signature encodings;
 - transaction-authorisation digest;
-- handling of the FIPS 205 message-bound signature caveat;
-- in-circuit SHAKE256 and address/domain encodings; and
+- in-circuit hash and address/domain encodings;
 - malformed-key and malformed-signature behaviour.
 
-Replacing SLH-DSA with a proof-friendly research signature answers a different
-question and requires a revised specification and threat model before it can
-be benchmarked.
+The experiment starts with three arms:
+
+1. **Arm A — TzEL-shaped one-time baseline:** an independently specified
+   WOTS/XMSS-style relation that reproduces the public one-time and tree-state
+   design questions without copying TzEL code;
+2. **Arm B — NIST stateful comparator:** one exact XMSS/XMSSMT or LMS/HSS
+   profile from NIST SP 800-208, retained only if its controlled key-generation
+   and state requirements are applicable to the intended wallet model; and
+3. **Arm C — Quantum incumbent:** exact FIPS 205
+   <code>SLH-DSA-SHAKE-256f</code>, including the FIPS API, message-bound
+   signature caveat, official KATs, and randomised or deterministic signing
+   choice.
+
+For Arms A and B, the security and operational analysis must cover key-index
+allocation, crash consistency, backup/restore rollback, concurrent signing,
+key exhaustion, device loss, recovery, and state desynchronisation. For Arm C,
+it must quantify the statelessness benefit and the full additional proving
+cost. NIST SP 800-230 is an initial public draft at the evidence cut-off, not a
+final source of protocol parameter sets [SP800230].
+
+A proof-friendly research signature may be measured only as a separately
+labelled exploratory arm. It cannot silently replace any arm or become
+normative without a revised specification, threat model, prior-art decision,
+and human review.
 
 ## 7.3 Recipient encryption and binding
 
@@ -434,6 +525,12 @@ They must not share the same prover/verifier core, parser implementation, AIR
 generator, or expected-value code path. Wrapping the same library in two
 languages does not create independent implementations.
 
+The teams must not copy TzEL source at the recorded all-rights-reserved
+snapshot. They may implement an independently written baseline from published
+descriptions only after the experiment owner records provenance and legal
+review of the intended use. Until then, TzEL measurements remain
+author-reported context rather than reproduced results.
+
 ## 8.2 Required vectors
 
 The corpus must include:
@@ -443,6 +540,9 @@ The corpus must include:
 - carry boundaries including 65,535 + 1;
 - distinct valid membership positions;
 - deterministic output-encryption test fixtures;
+- every retained authorisation profile and its state transitions;
+- key-index allocation, exhaustion, crash, restore, rollback, and concurrent
+  signing cases for stateful profiles;
 - both proof modes, if aggregate mode remains;
 - every malformed canonical encoding class; and
 - every negative relation in Section 8.3.
@@ -461,7 +561,7 @@ At minimum, each implementation must reject a proof attempt or proof for:
 5. duplicate input nullifiers;
 6. an authorisation key not bound by the input note;
 7. a valid signature over a partial or differently ordered transaction;
-8. a malformed SLH-DSA key or signature;
+8. a malformed key, signature, state index, or profile identifier;
 9. an altered output plaintext with the original commitment;
 10. an encrypted payload bound to another output index or transaction;
 11. values equal only after proof-field wraparound;
@@ -469,7 +569,11 @@ At minimum, each implementation must reject a proof attempt or proof for:
 13. an omitted or altered fee, chain identifier, version, or expiry;
 14. duplicate output commitments;
 15. transcript domain or proof-mode confusion; and
-16. an aggregate proof bound to a different ordered transaction set.
+16. an aggregate proof bound to a different ordered transaction set;
+17. reuse of a one-time key or state index;
+18. state rollback after backup restore or interrupted signing;
+19. a signature from an exhausted or different authorisation tree; and
+20. a transaction that mixes authorisation profiles across its inputs.
 
 # 9. Benchmark protocol
 
@@ -484,6 +588,10 @@ Before acceptance measurements, T004 must publish and sign:
 - workload seeds and number of samples;
 - allowed parallelism and thread affinity;
 - p50, p95, p99, memory, verifier, proof, wire, and aggregate thresholds;
+- the material-benefit criteria and minimum acceptable delta for retaining
+  stateless Arm C;
+- the rule for excluding an inapplicable NIST SP 800-208 arm before results are
+  viewed, including signed reviewer rationale;
 - reproduction tolerance; and
 - rules for exclusions, crashes, retries, and failed proofs.
 
@@ -494,8 +602,10 @@ and requires a new pre-registration.
 
 The raw record for every run must include:
 
+- authorisation arm and exact parameter revision;
 - end-to-end proof-generation latency;
-- per-component trace rows or cycles;
+- per-component trace rows or cycles, including the isolated authorisation
+  contribution;
 - peak and steady resident memory;
 - proof bytes and full canonical transaction bytes;
 - verifier wall time, CPU time, and peak memory;
@@ -577,7 +687,8 @@ already exist.
 
 # 12. Stop/go rules
 
-The decision is **GO** only if all of the following are true:
+The experiment first applies the common evidence gate. An arm qualifies only
+if all of the following are true:
 
 - the frozen relation contains every required constraint;
 - two genuinely independent implementations interoperate;
@@ -589,8 +700,21 @@ The decision is **GO** only if all of the following are true:
 - all raw artifacts and reproduction commands are public; and
 - accountable human reviewers sign their respective boundaries.
 
-The decision is **STOP/REVISE** if any condition fails. The report must identify
-which of these design surfaces returns to research:
+The signed result then uses exactly one classification:
+
+- **GO — retain stateless:** Arm C qualifies and satisfies the frozen
+  material-benefit rule relative to every qualifying stateful arm.
+- **ADAPT — select stateful:** a reviewed Arm A or B qualifies while Arm C
+  fails or provides no sufficient benefit. The normative specification changes
+  before integration.
+- **REPLICATE — publish comparison or negative result:** the evidence is
+  reproducible and useful but supports no new construction or qualifying
+  deployment profile.
+- **STOP — redesign:** no arm satisfies the common direct-layer-1,
+  constrained-client, security, and privacy requirements.
+
+Any non-GO outcome must identify which of these design surfaces returns to
+research:
 
 - authorisation profile;
 - commitment construction;
@@ -635,6 +759,13 @@ terminologised, or newly released work. Before external submission, authors
 must refresh the search, obtain specialist review, and narrow all originality
 claims to demonstrated differences.
 
+TzEL's whitepaper, repository, and benchmark tables are public engineering
+evidence, not a peer-reviewed proof of production security or an independent
+Quantum measurement. The implementation explicitly warns that it is
+experimental and unaudited. Its source terms also prevent treating public
+availability as permission to reuse code. These limitations must remain visible
+in any comparison.
+
 # References
 
 - **[FIPS203]** NIST, [FIPS 203: Module-Lattice-Based Key-Encapsulation
@@ -642,6 +773,18 @@ claims to demonstrated differences.
   2024.
 - **[FIPS205]** NIST, [FIPS 205: Stateless Hash-Based Digital Signature
   Standard](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.205.pdf), 2024.
+- **[SP800208]** NIST,
+  [SP 800-208: Recommendation for Stateful Hash-Based Signature
+  Schemes](https://csrc.nist.gov/pubs/sp/800/208/final), 2020.
+- **[SP800230]** NIST,
+  [SP 800-230 initial public draft: Recommendations for Parameter Sets of
+  HSS, XMSS, and SLH-DSA](https://csrc.nist.gov/pubs/sp/800/230/ipd), 2026;
+  non-final at the evidence cut-off.
+- **[TZEL]** TzEL contributors,
+  [TzEL whitepaper](https://tzel.tezos.com/whitepaper.pdf), 2026.
+- **[TZELCODE]** Trilitech,
+  [TzEL source snapshot](https://github.com/trilitech/tzel/tree/0288c1cd3ff48b88b8ca99dac212235511af19bf),
+  accessed 2026-07-23.
 - **[LRCT1]** Torres et al.,
   [Post-Quantum One-Time Linkable Ring Signature and Application to Ring
   Confidential Transactions](https://eprint.iacr.org/2018/379), 2018.
@@ -657,6 +800,9 @@ claims to demonstrated differences.
 - **[GAO]** Gao et al.,
   [Lattice-based Zero-knowledge Proofs for Blockchain Confidential
   Transactions](https://eprint.iacr.org/2021/1674), revised 2025.
+- **[LACTPLUS]** Alupotha, Boyen and McKague,
+  [LACT+: Efficient Lattice-Based Aggregatable Confidential Transactions with
+  Hidden Amounts](https://doi.org/10.3390/cryptography7020024), 2023.
 - **[STARK]** Ben-Sasson et al.,
   [Scalable, Transparent, and Post-Quantum Secure Computational
   Integrity](https://eprint.iacr.org/2018/046.pdf), 2018.
@@ -701,3 +847,21 @@ claims to demonstrated differences.
   Cryptocurrencies](https://arxiv.org/abs/2201.11860), 2022.
 - **[GHOSTDAG]** Sompolinsky, Wyborski and Zohar,
   [PHANTOM and GHOSTDAG](https://eprint.iacr.org/2018/104.pdf), 2018.
+
+# Appendix A — Revision record
+
+## 0.2.0-research-protocol — 2026-07-23
+
+- identified TzEL as the closest public engineering baseline and rejected a
+  generic post-quantum private-payment novelty claim;
+- reframed the experiment as a same-relation comparison of a TzEL-shaped
+  one-time baseline, an applicable NIST SP 800-208 stateful profile, and exact
+  FIPS 205 <code>SLH-DSA-SHAKE-256f</code>;
+- added state-management failure cases, a pre-registered material-benefit rule,
+  source-reuse restrictions, and GO/ADAPT/REPLICATE/STOP outcomes.
+
+## 0.1.0-research-protocol — 2026-07-23
+
+- defined the complete two-input/two-output T305 relation, independent
+  implementations, benchmark fields, security deliverables, and stop/go gate;
+- separated the three downstream questions into future-paper templates.

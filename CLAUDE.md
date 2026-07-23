@@ -12,7 +12,7 @@ not duplicated here.
 
 ## Research status
 
-The current protocol document is revision <code>0.3.0-research</code>, even
+The current protocol document is revision <code>0.4.0-research</code>, even
 though its legacy filename contains “v1”.
 
 The three non-negotiable release requirements are:
@@ -38,6 +38,7 @@ separate later profiles and do not inherit base-protocol claims.
 | Protocol requirements and candidate design | <code>papers/zkprivacy/zkprivacy-quantum-spec-v1.md</code> |
 | Task graph and evidence gates | <code>papers/zkprivacy/zkprivacy-verification-guide.md</code> |
 | T305 research protocol and prior-work boundary | <code>papers/zkprivacy/quantum-private-transaction-feasibility.md</code> |
+| T305 adopt/adapt/replicate and source-reuse decision | <code>papers/zkprivacy/decisions/t305-prior-art-decision.md</code> |
 | Future-paper scope and promotion gates | <code>papers/zkprivacy/templates/</code> |
 | Public research positioning | <code>index.html</code> and <code>README.md</code> |
 | Market/claim wording | <code>Documentation/Quantum_Market_Thesis.html</code> |
@@ -50,6 +51,9 @@ documents. Their same-name PDFs are generated artifacts and must be rebuilt
 after material changes. Markdown files under
 <code>papers/zkprivacy/templates/</code> are planning artifacts, are excluded
 from the PDF build, and must not be presented as completed papers or results.
+Markdown files under <code>papers/zkprivacy/decisions/</code> are versioned
+research gates rather than active manuscripts and are also excluded from the
+PDF build.
 
 ## Technology and structure
 
@@ -85,8 +89,10 @@ Quantum/
   patterns, test vectors, benchmarks, or audit results.
 - Do not claim that post-quantum private payments, RingCT, STARK-based
   hash-signature aggregation, private note retrieval, transaction-origin
-  anonymity, or GHOSTDAG ordering are new; the active feasibility paper owns
-  the current prior-work boundary.
+  anonymity, or GHOSTDAG ordering are new. In particular, TzEL is the closest
+  public note/nullifier/ML-KEM/one-time-authorisation/STARK baseline and LACT+
+  is an aggregation/confidential-value comparator. The active feasibility
+  paper and versioned T305 decision own the current prior-work boundary.
 - Distinguish requirements, selected standards, candidates, open gates, and
   verified results.
 - A generic STARK, lattice commitment, or PQ primitive does not establish

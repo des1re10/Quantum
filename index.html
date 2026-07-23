@@ -102,7 +102,7 @@
 
             <article class="paper-card">
                 <div class="paper-header">
-                    <span class="paper-status">Research Design 0.3.0-research</span>
+                    <span class="paper-status">Research Design 0.4.0-research</span>
                     <span class="paper-date">July 2026</span>
                 </div>
                 <h3>Quantum: Privacy-Preserving Post-Quantum DAG Protocol</h3>
@@ -141,23 +141,25 @@
 
             <article class="paper-card">
                 <div class="paper-header">
-                    <span class="paper-status">Research Protocol 0.1.0</span>
+                    <span class="paper-status">Comparative Research Protocol 0.2.0</span>
                     <span class="paper-date">July 2026</span>
                 </div>
-                <h3>Standardised Hash-Based Authorisation Inside a Private-Transaction STARK</h3>
+                <h3>Stateless Versus Stateful Hash-Based Authorisation Inside a Private-Transaction STARK</h3>
                 <p class="paper-abstract">
-                    A pre-registered feasibility protocol for the complete Quantum 2-input/2-output
-                    relation: commitment openings, membership, nullifiers, encrypted-note binding,
-                    carry-safe balance, and full SLH-DSA-SHAKE-256f verification inside a transparent STARK.
+                    A pre-registered comparison of full FIPS 205 SLH-DSA-SHAKE-256f against
+                    one-time/stateful hash-based baselines inside the same complete Quantum
+                    2-input/2-output relation and transparent STARK.
                 </p>
                 <p class="paper-status-note">
-                    <strong>Status:</strong> Method and stop/go criteria only. No implementation,
-                    benchmark result, composed security proof, or feasibility claim is reported.
+                    <strong>Status:</strong> At the 23 July 2026 search cut-off, TzEL was the closest
+                    reviewed public engineering baseline, so no generic private-payment-protocol
+                    novelty is claimed. Method and outcome criteria only; no implementation,
+                    benchmark result, security proof, or feasibility claim.
                 </p>
                 <div class="paper-tech">
                     <span class="tech-tag">T305 Protocol</span>
                     <span class="tech-tag">2 Inputs / 2 Outputs</span>
-                    <span class="tech-tag">SLH-DSA in Proof</span>
+                    <span class="tech-tag">Stateless vs Stateful</span>
                     <span class="tech-tag">Reproducibility</span>
                     <span class="tech-tag">No Results Yet</span>
                 </div>
@@ -168,6 +170,9 @@
                     <a href="papers/zkprivacy/quantum-private-transaction-feasibility.md" class="btn btn-secondary">
                         View Source
                     </a>
+                </div>
+                <div class="paper-source">
+                    <a href="papers/zkprivacy/decisions/t305-prior-art-decision.md">View Prior-Art Decision</a>
                 </div>
             </article>
 
@@ -192,10 +197,13 @@
                         private state transitions, network anonymity, post-quantum security, and DAG throughput—remains open.
                     </p>
                     <p>
-                        <strong>What is selected:</strong> NIST has standardized ML-KEM and SLH-DSA.
-                        Prior work already covers post-quantum RingCT, transparent STARKs, hash-signature
-                        aggregation, private payment retrieval, network-origin anonymity, and GHOSTDAG.
-                        Their exact Quantum composition and measured feasibility are not verified.
+                        <strong>What is selected:</strong> NIST has standardized ML-KEM and SLH-DSA;
+                        SLH-DSA-SHAKE-256f remains the stateless authorization incumbent under test.
+                        The 23 July 2026 review identified TzEL as the closest reviewed
+                        note/nullifier/ML-KEM/one-time-signature/STARK baseline, and further prior
+                        work covers RingCT, confidential-value aggregation, note retrieval,
+                        network-origin anonymity, and GHOSTDAG. Quantum's comparative result and
+                        exact composition remain unverified.
                     </p>
                     <p>
                         <strong>What remains to prove:</strong> commitment and proof security, integer supply integrity,

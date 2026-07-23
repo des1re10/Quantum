@@ -31,6 +31,8 @@ Quantum/
 │       ├── zkprivacy-quantum-spec-v1.pdf     # PDF export
 │       ├── zkprivacy-verification-guide.md   # Implementation and evidence plan
 │       ├── zkprivacy-verification-guide.pdf  # PDF export
+│       ├── decisions/                         # Versioned research gates; not papers
+│       │   └── t305-prior-art-decision.md     # Adopt/adapt/replicate and reuse boundary
 │       └── templates/                         # Future-paper plans; not active papers
 │           ├── README.md                      # Four-paper programme and promotion gate
 │           ├── private-note-discovery-template.md
@@ -67,6 +69,9 @@ Quantum/
   section numbers.
 - Markdown outlines under `papers/zkprivacy/templates/` are planning artifacts.
   They are excluded from the PDF build and public completed-paper list.
+- Markdown records under `papers/zkprivacy/decisions/` are research and reuse
+  gates. They are linked evidence, not active papers, and are excluded from the
+  PDF build.
 - `build-pdfs.sh` and `build-pdfs.bat` require the adjacent DocWizard-Pro
   repository's prepared `.venv` runtime and invoke its canonical
   `Src/universal_converter.py` entry point. Both scripts discover active

@@ -1,9 +1,9 @@
 ---
 title: "Quantum: Privacy-Preserving Post-Quantum DAG Protocol"
-subtitle: "Research Design Draft 0.3.0-research and Security Requirements"
+subtitle: "Research Design Draft 0.4.0-research and Security Requirements"
 author: "Phexora AI · [phexora.ai](https://phexora.ai)"
-date: "2026-07-21"
-version: "0.3.0-research"
+date: "2026-07-23"
+version: "0.4.0-research"
 status: "Research design draft — not implementation-ready, audited, or production-safe"
 license: "CC0-1.0; see repository LICENSE"
 lang: "en-GB"
@@ -40,7 +40,7 @@ implementation, testnet, security proof, external audit, or production network
 at this revision.
 
 The legacy filename contains “v1” so that existing links remain valid. The
-normative document version is <code>0.3.0-research</code>.
+normative document version is <code>0.4.0-research</code>.
 
 The words **MUST**, **MUST NOT**, **REQUIRED**, **SHOULD**, and **MAY** describe
 research acceptance criteria. They do not imply that an implementation already
@@ -130,7 +130,7 @@ cannot meet them.
 | Subsystem | Current status | Required next evidence |
 |---|---|---|
 | SHAKE256 | Selected standard: FIPS 202 | Domain-separation vectors and implementation KATs |
-| SLH-DSA | Selected standard: FIPS 205, SLH-DSA-SHAKE-256f | FIPS KATs, side-channel review, proof-system cost |
+| Spend authorisation | Comparative research gate; stateless incumbent: FIPS 205, SLH-DSA-SHAKE-256f | Stateful/stateless comparison, KATs, state-failure analysis, side-channel review, proof-system cost |
 | ML-KEM | Selected standard: FIPS 203, ML-KEM-1024 | FIPS KATs and an authenticated composition |
 | Note commitment | Blocking research gate | Exact construction, parameters, reduction, estimator report, review |
 | Zero-knowledge STARK | Blocking research gate | Exact field/transcript/FRI/masking profile and soundness analysis |
@@ -335,11 +335,20 @@ analysis before that use is frozen, including the time/memory models in generic
 
 ## 4.2 Transaction authorization
 
-The selected candidate is
+The current stateless candidate is
 <code>SLH-DSA-SHAKE-256f</code> from
 [NIST FIPS 205](https://csrc.nist.gov/pubs/fips/205/final). The old name
 SPHINCS+ describes the design lineage; protocol identifiers and public claims
 MUST use the standardized name SLH-DSA.
+
+This parameter profile is an incumbent under test, not a completed protocol
+decision. TzEL already demonstrates the high-level alternative of WOTS-like
+one-time authorisation under an XMSS-style tree inside a private-payment STARK.
+T202 and T305 MUST therefore compare the incumbent against an independently
+specified TzEL-shaped baseline and, if its controlled state and key-generation
+requirements fit the wallet model, one exact stateful profile from
+[NIST SP 800-208](https://csrc.nist.gov/pubs/sp/800/208/final). No TzEL code may
+be reused without compatible permission and documented legal review.
 
 The signed message MUST be a dedicated transaction authorization digest that
 binds at least:
@@ -349,14 +358,26 @@ binds at least:
 - all nullifiers and output commitments in canonical order;
 - encrypted-note digests;
 - public fee, expiry, and transaction flags;
+- authorisation profile; and
 - aggregation mode and any external proof reference.
 
 The final profile MUST pin the FIPS 205 interface, context string, randomness
-mode, key encoding, signature encoding, KATs, and failure behavior. The
-authorization public key and signature MAY remain private witness data only if
-the zero-knowledge circuit verifies them and the note commitment binds the
-authorized key. The cost and soundness of that in-proof verification are a
-blocking gate.
+mode, key encoding, signature encoding, KATs, and failure behavior. A
+profile-specific authorization public key and signature MAY remain private
+witness data only if the zero-knowledge circuit verifies them and the note
+commitment binds the authorized key. Operational signing state remains
+wallet-private and is covered by state-management evidence rather than assumed
+to be validated by the proof. The cost and soundness of in-proof verification
+are a blocking gate.
+
+Every stateful comparison profile MUST additionally pin key-index allocation,
+crash consistency, backup/restore rollback behavior, concurrency, exhaustion,
+recovery, and state desynchronisation. The stateless profile may be retained
+only if it meets every frozen system requirement and its pre-registered
+security, interoperability, or state-management benefit materially justifies
+its measured overhead. A stateful profile may be selected only through a
+versioned specification change and independent review; it is not a hidden
+fallback.
 
 FIPS 205 notes that applications needing message-bound signatures must account
 for the collision cost of <code>H_msg</code> or apply an appropriate reviewed
@@ -519,20 +540,22 @@ The public transaction contains only:
 - corresponding encrypted-note payloads or authenticated payload digests;
 - public fee in base units;
 - expiry/finality context;
+- one active authorisation profile identifier; and
 - proof mode and proof bytes or aggregate-proof reference.
 
 Every vector length and byte string MUST have a versioned maximum before parser
 implementation. Parsers MUST reject overlong, truncated, duplicate,
-non-canonical, unknown-version, and trailing-byte encodings before expensive
-cryptographic work.
+non-canonical, unknown-version, unknown-authorisation-profile, and
+trailing-byte encodings before expensive cryptographic work.
 
 ## 5.3 Private witness
 
 For every input, the witness contains the full note plaintext, commitment
 randomness, membership path, nullifier secret, authorization public key, and
-authorization signature. For every output, it contains the full new note
-plaintext, commitment randomness, and encryption witness required to bind the
-public encrypted payload.
+profile-specific authorization witness. Stateful signing state remains in the
+wallet and is not part of the transaction proof witness. For every output, the
+witness contains the full new note plaintext, commitment randomness, and
+encryption witness required to bind the public encrypted payload.
 
 Input commitments and their openings are mandatory witness relations. They
 MUST NOT be omitted merely because only the anchor root is public.
@@ -550,9 +573,9 @@ A verifier accepts only if the proof establishes all of the following:
    the exact tree hash and depth.
 4. **Nullifier correctness**: each public nullifier is derived from the opened
    note, its bound nullifier key, and the chain/version domain.
-5. **Authorization**: the opened note binds the authorization key and the
-   selected SLH-DSA profile verifies the signature over the exact transaction
-   authorization digest.
+5. **Authorization**: the opened note binds the authorization key, the declared
+   active profile verifies its complete witness over the exact transaction
+   authorization digest, and every input uses that same profile.
 6. **Output opening**: for each output <code>j</code>,
    <code>Commit(pp, output_note[j], output_rho[j])</code> equals the
    corresponding public output commitment.
@@ -565,8 +588,9 @@ A verifier accepts only if the proof establishes all of the following:
    except in the separately typed reward transaction.
 10. **No local duplicates**: input nullifiers and output commitments are unique
     within the transaction.
-11. **Public consistency**: counts, indices, flags, expiry, and proof mode agree
-    across the signed digest, encrypted payloads, and proof.
+11. **Public consistency**: counts, indices, flags, expiry, authorisation
+    profile, and proof mode agree across the signed digest, encrypted payloads,
+    and proof.
 
 The verifier then performs state checks outside the proof: the anchor is
 currently admissible, each nullifier is globally unused, the transaction is
@@ -863,12 +887,17 @@ The final profile MUST publish budgets for:
 
 Before full-node or GHOSTDAG integration begins, two independent implementations
 MUST execute a representative private transaction with exactly two inputs and
-two outputs. The measured relation MUST include:
+two outputs for every retained authorisation arm. Apart from authorisation and
+its required state, the statement, witness relation, proof profile, hardware,
+and measurement method MUST remain identical. The measured relation MUST
+include:
 
 - both input commitment openings and Merkle membership paths;
 - nullifier derivation and uniqueness constraints;
 - both output openings and encrypted-note binding;
-- complete SLH-DSA authorisation verification inside the proof;
+- complete authorisation verification inside the proof for the declared
+  profile, including exact <code>SLH-DSA-SHAKE-256f</code> for the incumbent
+  arm;
 - 64-bit ranges, carry-safe integer conservation, and the public fee; and
 - the selected STARK transcript, zero-knowledge masking, verifier, and, if
   proposed, aggregation path.
@@ -878,7 +907,11 @@ The non-normative
 pre-registers the literature boundary, exact experiment, measurement fields,
 independent-implementation rules, and stop/go evidence for this gate. It may
 make the experiment more specific but cannot omit or weaken a requirement in
-this specification.
+this specification. The versioned
+[T305 prior-art and reuse decision](decisions/t305-prior-art-decision.md)
+records why the experiment is comparative, which public work must be
+replicated or labelled author-reported, and which code may not be adopted.
+Named T001 owner and reviewer signatures remain mandatory before implementation.
 
 T004 MUST freeze reference desktop and constrained-client hardware, workload,
 parallelism, proof-latency, memory, verifier, proof-size, and aggregate
@@ -886,9 +919,13 @@ amortisation thresholds before results are interpreted. The report MUST publish
 single-wallet latency separately from aggregate throughput; multiplying ideal
 parallel jobs is not a wallet-latency result.
 
-Failure to meet the frozen feasibility budget is a design failure, not a node
-optimisation backlog. The signature profile, commitment, validity relation, or
-proof system MUST be revised, or the project MUST stop before consensus
+If the incumbent stateless arm passes and meets its frozen material-benefit
+rule, it may proceed. If a reviewed stateful arm passes while the incumbent
+fails or provides no sufficient benefit, the normative authorisation profile
+MUST be revised before integration. If no arm meets the frozen feasibility
+budget, that is a design failure, not a node optimisation backlog. The
+signature profile, commitment, validity relation, proof system, or explicit
+system requirements MUST be revised, or the project MUST stop before consensus
 integration. No fabricated “hundreds” or “thousands” of proofs per second
 threshold substitutes for the published hardware and end-to-end budget.
 
@@ -978,21 +1015,31 @@ Primary references:
    Standard](https://csrc.nist.gov/pubs/fips/203/final).
 3. NIST, [FIPS 205: Stateless Hash-Based Digital Signature
    Standard](https://csrc.nist.gov/pubs/fips/205/final).
-4. NIST, [Post-Quantum Cryptography project and standardization
+4. NIST, [SP 800-208: Recommendation for Stateful Hash-Based Signature
+   Schemes](https://csrc.nist.gov/pubs/sp/800/208/final).
+5. NIST, [SP 800-230 initial public draft: Recommendations for Parameter Sets
+   of HSS, XMSS, and SLH-DSA](https://csrc.nist.gov/pubs/sp/800/230/ipd),
+   2026; non-final at this revision.
+6. NIST, [Post-Quantum Cryptography project and standardization
    status](https://csrc.nist.gov/Projects/Post-Quantum-Cryptography/Post-Quantum-Cryptography-Standardization).
-5. Ben-Sasson et al., [Scalable, transparent, and post-quantum secure
+7. TzEL contributors, [TzEL whitepaper](https://tzel.tezos.com/whitepaper.pdf),
+   2026.
+8. Alupotha, Boyen and McKague,
+   [LACT+: Efficient Lattice-Based Aggregatable Confidential
+   Transactions](https://doi.org/10.3390/cryptography7020024), 2023.
+9. Ben-Sasson et al., [Scalable, transparent, and post-quantum secure
    computational integrity](https://eprint.iacr.org/2018/046.pdf).
-6. Ben-Sasson et al., [DEEP-FRI](https://eprint.iacr.org/2019/336.pdf).
-7. Baum et al., [More efficient commitments from structured lattice
+10. Ben-Sasson et al., [DEEP-FRI](https://eprint.iacr.org/2019/336.pdf).
+11. Baum et al., [More efficient commitments from structured lattice
    assumptions](https://eprint.iacr.org/2016/997.pdf).
-8. Sompolinsky, Wyborski and Zohar,
+12. Sompolinsky, Wyborski and Zohar,
    [PHANTOM/GHOSTDAG](https://eprint.iacr.org/2018/104.pdf).
-9. Fanti et al., [Dandelion++](https://arxiv.org/abs/1805.11060).
-10. [Noise Protocol Framework](https://noiseprotocol.org/noise.html).
-11. Bitcoin BIPs, [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki).
-12. Hosoyamada and Sasaki,
+13. Fanti et al., [Dandelion++](https://arxiv.org/abs/1805.11060).
+14. [Noise Protocol Framework](https://noiseprotocol.org/noise.html).
+15. Bitcoin BIPs, [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki).
+16. Hosoyamada and Sasaki,
     [Finding Hash Collisions with Quantum Computers](https://eprint.iacr.org/2020/213.pdf).
-13. Béguinet et al.,
+17. Béguinet et al.,
     [GeT a CAKE: Generic Transformation from KEM to PAKE](https://eprint.iacr.org/2023/470.pdf).
 
 # Appendix A — Decisions deliberately not frozen
@@ -1015,6 +1062,22 @@ Each item has an owner task in the verification guide. A value becomes
 normative only with rationale, vectors, tests, and review.
 
 # Appendix B — Revision record
+
+## 0.4.0-research — 2026-07-23
+
+- recorded TzEL as the closest public
+  note/nullifier/ML-KEM/hash-authorisation/STARK engineering baseline and
+  rejected a generic protocol
+  novelty claim;
+- changed FIPS 205 <code>SLH-DSA-SHAKE-256f</code> from an assumed final
+  profile to the stateless incumbent in a pre-registered comparison;
+- required independently specified TzEL-shaped and applicable NIST SP 800-208
+  stateful comparators under the same complete transaction relation;
+- made state-management failure analysis and a material-benefit rule mandatory
+  before retaining the stateless profile;
+- linked the versioned T305 prior-art and reuse decision, required named
+  sign-off before implementation, and prohibited unlicensed source-code
+  adoption.
 
 ## 0.3.0-research — 2026-07-21
 
