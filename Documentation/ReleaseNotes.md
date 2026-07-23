@@ -48,6 +48,9 @@
   hidden port fallback, reject malformed or out-of-range explicit ports
   before PDF checks, bind only to <code>127.0.0.1</code>, and preserve startup
   failures. The Windows launcher now reports the same loopback URL it binds.
+- Aligned server publication with Quantum's registry-owned static-site
+  boundary: the wrapper uses shared deployment helpers but stages only the
+  Quantum payload and no longer requires or deploys a Libraries payload.
 
 **Research Publication Programme**
 

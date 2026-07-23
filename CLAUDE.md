@@ -77,6 +77,9 @@ Quantum/
 - PDF build: Markdown → DocWizard-Pro/Pandoc → PDF.
 - Deployment: <code>tools/Scripts/deploy_testing.bat</code> on Windows, then
   <code>tools/Scripts/Startup/quantum_deploy_script.sh</code> on the server.
+- Server deployment uses the shared script infrastructure as tooling but
+  publishes only Quantum; the registry marks this static site as a non-consumer
+  of the shared Libraries payload.
 - Public web root: <code>index.html</code>, <code>LICENSE</code>,
   <code>assets/</code>, and <code>papers/</code>. <code>Documentation/</code> is not
   deployed publicly.

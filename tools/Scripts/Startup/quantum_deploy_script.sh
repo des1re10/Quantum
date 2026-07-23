@@ -35,10 +35,6 @@ if [ -n "${SCRIPT_REAL_PATH:-}" ] && [ -f "$SCRIPT_REAL_PATH" ]; then
 else
     SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_PATH")" >/dev/null 2>&1 && pwd)"
 fi
-QUANTUM_OUTPUT_FILE=""
-LIBRARIES_OUTPUT_FILE=""
-
-
 # Determine the system type
 SYSTEM=$(uname -s)
 
@@ -80,20 +76,20 @@ echo "Source directory: $SOURCE_BASE"
 #   3. pCloud Libraries - for manual execution from cloud
 DEPLOYED_LIBS_DIR="$(dirname "$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")")/Libraries/Scripts"
 
-LIBRARIES_DEPLOY_SCRIPT=""
-LIBRARIES_FUNCTIONS_SCRIPT=""
+SHARED_DEPLOY_SCRIPT=""
+SHARED_FUNCTIONS_SCRIPT=""
 
 for SEARCH_DIR in "${LOCAL_DEPLOY_SCRIPTS_DIR:-}" "$DEPLOYED_LIBS_DIR" "$SCRIPT_DIR" "$(dirname "$SOURCE_BASE")/Libraries/Scripts"; do
     [ -z "$SEARCH_DIR" ] && continue
     if [ -f "$SEARCH_DIR/deploy_common.sh" ]; then
-        LIBRARIES_DEPLOY_SCRIPT="$SEARCH_DIR/deploy_common.sh"
-        LIBRARIES_FUNCTIONS_SCRIPT="$SEARCH_DIR/deploy_functions.sh"
+        SHARED_DEPLOY_SCRIPT="$SEARCH_DIR/deploy_common.sh"
+        SHARED_FUNCTIONS_SCRIPT="$SEARCH_DIR/deploy_functions.sh"
         break
     fi
 done
 
 # Check if shared deployment script exists
-if [ -z "$LIBRARIES_DEPLOY_SCRIPT" ] || [ ! -f "$LIBRARIES_DEPLOY_SCRIPT" ]; then
+if [ -z "$SHARED_DEPLOY_SCRIPT" ] || [ ! -f "$SHARED_DEPLOY_SCRIPT" ]; then
     echo "ERROR: Shared deployment script not found!"
     echo "Searched locations:"
     echo "  0. Local deploy dir: ${LOCAL_DEPLOY_SCRIPTS_DIR:-not set}/deploy_common.sh"
@@ -105,17 +101,17 @@ if [ -z "$LIBRARIES_DEPLOY_SCRIPT" ] || [ ! -f "$LIBRARIES_DEPLOY_SCRIPT" ]; the
 fi
 
 # Make sure the shared scripts are executable
-chmod +x "$LIBRARIES_DEPLOY_SCRIPT"
+chmod +x "$SHARED_DEPLOY_SCRIPT"
 
 # Source shared functions (required - no fallbacks)
-if [ ! -f "$LIBRARIES_FUNCTIONS_SCRIPT" ]; then
+if [ ! -f "$SHARED_FUNCTIONS_SCRIPT" ]; then
     echo "ERROR: Shared functions script not found!"
-    echo "Expected location: $LIBRARIES_FUNCTIONS_SCRIPT"
+    echo "Expected location: $SHARED_FUNCTIONS_SCRIPT"
     exit 1
 fi
-chmod +x "$LIBRARIES_FUNCTIONS_SCRIPT"
-sed -i 's/\r$//' "$LIBRARIES_FUNCTIONS_SCRIPT" 2>/dev/null || true
-source "$LIBRARIES_FUNCTIONS_SCRIPT"
+chmod +x "$SHARED_FUNCTIONS_SCRIPT"
+sed -i 's/\r$//' "$SHARED_FUNCTIONS_SCRIPT" 2>/dev/null || true
+source "$SHARED_FUNCTIONS_SCRIPT"
 echo "Using shared deployment functions"
 
 # Ask for the deployment target (or use AUTO_DEPLOY_SERVER)
@@ -138,26 +134,14 @@ fi
 # Set paths based on deployment target
 if [ "$DEPLOY_TARGET" == "main" ]; then
     TARGET_DIR="$HOME_BASE/Quantum/Quantum"
-    TARGET_LIBRARIES="$HOME_BASE/Quantum/Libraries"
     WEB_ROOT="/var/www/quantum"
     DOMAIN="quantum.phexora.ai"
     echo "Deploying to MAIN server: $WEB_ROOT"
 else
     TARGET_DIR="$HOME_BASE/QuantumTest/Quantum"
-    TARGET_LIBRARIES="$HOME_BASE/QuantumTest/Libraries"
     WEB_ROOT="/var/www/quantum-test"
     DOMAIN="test.quantum.phexora.ai"
     echo "Deploying to TEST server: $WEB_ROOT"
-fi
-
-# Source Libraries path:
-# - In archive mode, SOURCE_BASE points to /tmp/.../Quantum Sources/Quantum
-# - In file-tree mode, SOURCE_BASE points to ~/pCloudDrive/.../Quantum Sources/Quantum
-# In both cases, Libraries is the sibling directory of SOURCE_BASE.
-if [ -n "${SOURCE_LIBRARIES_OVERRIDE:-}" ]; then
-    SOURCE_LIBRARIES="$SOURCE_LIBRARIES_OVERRIDE"
-else
-    SOURCE_LIBRARIES="$(dirname "$SOURCE_BASE")/Libraries"
 fi
 
 # Verify source directory exists
@@ -169,11 +153,6 @@ if [ ! -d "$SOURCE_BASE" ]; then
     echo "1. pCloud is running and mounted"
     echo "2. Files were synced from Windows (deploy_testing.bat)"
     keep_terminal_open
-    exit 1
-fi
-
-if [ ! -d "$SOURCE_LIBRARIES" ]; then
-    echo "ERROR: Libraries source directory not found: $SOURCE_LIBRARIES"
     exit 1
 fi
 
@@ -280,8 +259,7 @@ echo ""
 echo "=== Deployment Configuration ==="
 echo "Source: $SOURCE_BASE"
 echo "Target Project: $TARGET_DIR"
-echo "Source Libraries: $SOURCE_LIBRARIES"
-echo "Target Libraries: $TARGET_LIBRARIES"
+echo "Shared Libraries payload: not applicable (Quantum is a static non-consumer)"
 echo "Web Root: $WEB_ROOT"
 echo "Domain: $DOMAIN"
 echo ""
@@ -304,9 +282,8 @@ fi
 echo ""
 
 # === Create directories if needed ===
-echo "[1/6] Setting up directories..."
+echo "[1/5] Setting up directories..."
 mkdir -p "$TARGET_DIR" 2>/dev/null || true
-mkdir -p "$TARGET_LIBRARIES" 2>/dev/null || true
 
 if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
     sudo mkdir -p "$WEB_ROOT"
@@ -318,13 +295,12 @@ fi
 # === Deploy Quantum using shared script ===
 echo ""
 echo "=== Deploying Quantum ==="
-QUANTUM_OUTPUT_FILE="$(mktemp)"
-register_deploy_temp_file "$QUANTUM_OUTPUT_FILE"
-bash "$LIBRARIES_DEPLOY_SCRIPT" "Quantum" "$SOURCE_BASE" "$TARGET_DIR" "$DEPLOY_TARGET" "n" 2>&1 | tee "$QUANTUM_OUTPUT_FILE"
-QUANTUM_OUTPUT=$(<"$QUANTUM_OUTPUT_FILE")
-rm -f "$QUANTUM_OUTPUT_FILE"
-unregister_deploy_temp_file "$QUANTUM_OUTPUT_FILE"
-QUANTUM_OUTPUT_FILE=""
+bash "$SHARED_DEPLOY_SCRIPT" \
+    "Quantum" \
+    "$SOURCE_BASE" \
+    "$TARGET_DIR" \
+    "$DEPLOY_TARGET" \
+    "n"
 
 echo "  Verifying deployed site files..."
     for required_path in "index.html" "assets" "papers" "LICENSE"; do
@@ -336,7 +312,7 @@ done
 
 # === Copy to web root (Quantum-specific: static website served by nginx) ===
 echo ""
-echo "[2/6] Deploying to web root..."
+echo "[2/5] Deploying to web root..."
 if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
     echo "  Deploying to web root: $WEB_ROOT"
     # Copy to temp directory first (pCloud FUSE doesn't allow root access)
@@ -380,34 +356,17 @@ else
     echo "  ⏭️  Web root deployment skipped (no sudo)"
 fi
 
-# === Deploy Libraries ===
-echo ""
-echo "[3/6] Deploying Libraries..."
-echo "=== Deploying Libraries (using shared script) ==="
-LIBRARIES_OUTPUT_FILE="$(mktemp)"
-register_deploy_temp_file "$LIBRARIES_OUTPUT_FILE"
-bash "$LIBRARIES_DEPLOY_SCRIPT" "Libraries" "$SOURCE_LIBRARIES" "$TARGET_LIBRARIES" "$DEPLOY_TARGET" "n" 2>&1 | tee "$LIBRARIES_OUTPUT_FILE"
-LIBRARIES_OUTPUT=$(<"$LIBRARIES_OUTPUT_FILE")
-rm -f "$LIBRARIES_OUTPUT_FILE"
-unregister_deploy_temp_file "$LIBRARIES_OUTPUT_FILE"
-LIBRARIES_OUTPUT_FILE=""
-
 # Validate sync manifest
 MANIFEST_FILE="$TARGET_DIR/deployment_sync_manifest.json"
 validate_sync_manifest "$MANIFEST_FILE"
 
 # Cleanup source manifests
 if should_cleanup_source_manifests; then
-    cleanup_source_manifests "$SOURCE_BASE" "$SOURCE_LIBRARIES"
+    cleanup_source_manifests "$SOURCE_BASE" ""
 fi
 
-# Display combined deployment summary
-read QUANTUM_ITEMS QUANTUM_FILES <<< $(parse_deployment_counts "$QUANTUM_OUTPUT")
-read LIBRARIES_ITEMS LIBRARIES_FILES <<< $(parse_deployment_counts "$LIBRARIES_OUTPUT")
-display_deployment_summary "Quantum" "$QUANTUM_OUTPUT" "$QUANTUM_ITEMS" "$QUANTUM_FILES" "$LIBRARIES_OUTPUT" "$LIBRARIES_ITEMS" "$LIBRARIES_FILES"
-
 # === Set permissions ===
-echo "[4/6] Setting permissions..."
+echo "[3/5] Setting permissions..."
 if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
     sudo chown -R www-data:www-data "$WEB_ROOT"
     sudo chmod -R 755 "$WEB_ROOT"
@@ -426,7 +385,7 @@ chmod -R 755 "$TARGET_DIR/papers" 2>/dev/null || true
 echo "  Home directory permissions set"
 
 # === Count deployed files ===
-echo "[5/6] Verifying deployment..."
+echo "[4/5] Verifying deployment..."
 HOME_FILE_COUNT=$(find "$TARGET_DIR" -type f 2>/dev/null | wc -l)
 echo "  Deployed $HOME_FILE_COUNT files to $TARGET_DIR"
 
@@ -436,7 +395,7 @@ if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
 fi
 
 # === Run startup script for nginx/SSL setup ===
-echo "[6/6] Running startup script for nginx configuration..."
+echo "[5/5] Running startup script for nginx configuration..."
 STARTUP_SCRIPT="$TARGET_DIR/tools/Scripts/Startup/run_quantum.sh"
 
 if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
@@ -498,7 +457,7 @@ else
 fi
 
 # Cleanup prompts
-prompt_source_cleanup "$SOURCE_BASE" "$SOURCE_LIBRARIES"
+prompt_source_cleanup "$SOURCE_BASE" ""
 
 echo ""
 echo "For nginx/SSL updates without redeploying files:"

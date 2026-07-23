@@ -107,7 +107,7 @@ Server-Arbeitskopie
   ├─ index.html + LICENSE + assets/ + papers/
   ▼
 /var/www/quantum[-test] ── Nginx/HTTPS</code></pre>
-        <p>Das Server-Deployment kopiert ausschließlich <code>index.html</code>, <code>LICENSE</code>, <code>assets/</code> und <code>papers/</code> in den Web-Root. Die rechtlichen Links bleiben bei ihren zentral gepflegten Phexora-Seiten. <code>Documentation/</code>, Quellrichtlinien und Build-Skripte bleiben in der Server-Arbeitskopie und sind nicht Teil der öffentlichen Website.</p>
+        <p>Das Server-Deployment kopiert ausschließlich <code>index.html</code>, <code>LICENSE</code>, <code>assets/</code> und <code>papers/</code> in den Web-Root. Quantum verwendet die zentralen Skripte aus <code>Libraries/Scripts</code> als Deployment-Helfer, ist laut Anwendungsregistrierung jedoch kein Shared-Libraries-Consumer; deshalb wird weder eine Libraries-Nutzlast verlangt noch in das Quantum-Ziel kopiert. Die rechtlichen Links bleiben bei ihren zentral gepflegten Phexora-Seiten. <code>Documentation/</code>, Quellrichtlinien und Build-Skripte bleiben in der Server-Arbeitskopie und sind nicht Teil der öffentlichen Website.</p>
         <p><code>run_quantum.sh</code> verwendet die gemeinsame statische Nginx-Infrastruktur für Web-Root, HTTPS und Wartungsseite. Die Nginx-Konfiguration wird nicht manuell im Repository gepflegt.</p>
       </section>
 
@@ -136,7 +136,7 @@ Server-Arbeitskopie
               <tr><td>Unternehmens-Footer und Rechts-URLs</td><td><code>Libraries/frontend/components/Company/Footer.jsx</code> und <code>Libraries/frontend/components/Company/companyLinks.js</code>; statische Projektion in <code>index.html</code></td><td>Gemeinsamer UI-Vertrag ohne React-Laufzeit in Quantum</td></tr>
               <tr><td>Interne Dokumentgestaltung</td><td><code>Documentation/assets/documentation.css</code></td><td>lokale Dokumentansicht</td></tr>
               <tr><td>PDF-Konvertierung</td><td><code>DocWizard-Pro</code></td><td>Build</td></tr>
-              <tr><td>Deployment-Orchestrierung</td><td><code>Libraries/Scripts</code> über Quantum-Skripte</td><td>Deployment</td></tr>
+              <tr><td>Deployment-Orchestrierung</td><td><code>Libraries/Scripts</code> als Helfer über Quantum-Skripte; keine Libraries-Nutzlast</td><td>Deployment</td></tr>
               <tr><td>Port, Domain und App-Metadaten</td><td><code>Libraries/Python/ApplicationRegistry.py</code></td><td>Infrastruktur</td></tr>
             </tbody>
           </table>
