@@ -35,6 +35,8 @@ if [ -n "${SCRIPT_REAL_PATH:-}" ] && [ -f "$SCRIPT_REAL_PATH" ]; then
 else
     SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_PATH")" >/dev/null 2>&1 && pwd)"
 fi
+QUANTUM_OUTPUT_FILE=""
+
 # Determine the system type
 SYSTEM=$(uname -s)
 
@@ -68,47 +70,32 @@ echo "================================================"
 echo ""
 echo "Source directory: $SOURCE_BASE"
 
-# Shared deployment script location
-# Check multiple locations in priority order:
-#   0. LOCAL_DEPLOY_SCRIPTS_DIR - set by deploy_all_from_cloud.sh (local copies, avoids pCloud FUSE issues)
-#   1. Deployed Libraries folder (sibling to project folder)
-#   2. Same directory as script
-#   3. pCloud Libraries - for manual execution from cloud
-DEPLOYED_LIBS_DIR="$(dirname "$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")")/Libraries/Scripts"
+# Shared deployment tooling is owned by AppManager's installed Libraries checkout.
+# Centralized/archive deployment supplies an isolated verified copy through
+# LOCAL_DEPLOY_SCRIPTS_DIR.
+if [ -z "${LOCAL_DEPLOY_SCRIPTS_DIR:-}" ]; then
+    LOCAL_DEPLOY_SCRIPTS_DIR="$HOME/AppManager/Libraries/Scripts"
+fi
+export LOCAL_DEPLOY_SCRIPTS_DIR
 
-SHARED_DEPLOY_SCRIPT=""
-SHARED_FUNCTIONS_SCRIPT=""
-
-for SEARCH_DIR in "${LOCAL_DEPLOY_SCRIPTS_DIR:-}" "$DEPLOYED_LIBS_DIR" "$SCRIPT_DIR" "$(dirname "$SOURCE_BASE")/Libraries/Scripts"; do
-    [ -z "$SEARCH_DIR" ] && continue
-    if [ -f "$SEARCH_DIR/deploy_common.sh" ]; then
-        SHARED_DEPLOY_SCRIPT="$SEARCH_DIR/deploy_common.sh"
-        SHARED_FUNCTIONS_SCRIPT="$SEARCH_DIR/deploy_functions.sh"
-        break
+SHARED_DEPLOY_SCRIPT="$LOCAL_DEPLOY_SCRIPTS_DIR/deploy_common.sh"
+SHARED_FUNCTIONS_SCRIPT="$LOCAL_DEPLOY_SCRIPTS_DIR/deploy_functions.sh"
+for required_tool in \
+    "$SHARED_DEPLOY_SCRIPT" \
+    "$SHARED_FUNCTIONS_SCRIPT" \
+    "$LOCAL_DEPLOY_SCRIPTS_DIR/common_functions.sh" \
+    "$LOCAL_DEPLOY_SCRIPTS_DIR/setup_subdomain_ssl.sh" \
+    "$LOCAL_DEPLOY_SCRIPTS_DIR/validate_deployment_manifest.py"; do
+    if [ ! -f "$required_tool" ]; then
+        echo "ERROR: Required shared deployment tool is missing: $required_tool"
+        exit 1
     fi
 done
-
-# Check if shared deployment script exists
-if [ -z "$SHARED_DEPLOY_SCRIPT" ] || [ ! -f "$SHARED_DEPLOY_SCRIPT" ]; then
-    echo "ERROR: Shared deployment script not found!"
-    echo "Searched locations:"
-    echo "  0. Local deploy dir: ${LOCAL_DEPLOY_SCRIPTS_DIR:-not set}/deploy_common.sh"
-    echo "  1. Deployed Libraries: $DEPLOYED_LIBS_DIR/deploy_common.sh"
-    echo "  2. Script directory: $SCRIPT_DIR/deploy_common.sh"
-    echo "  3. pCloud Libraries: $(dirname "$SOURCE_BASE")/Libraries/Scripts/deploy_common.sh"
-    echo "Please ensure deploy_common.sh is in one of these locations"
-    exit 1
-fi
 
 # Make sure the shared scripts are executable
 chmod +x "$SHARED_DEPLOY_SCRIPT"
 
-# Source shared functions (required - no fallbacks)
-if [ ! -f "$SHARED_FUNCTIONS_SCRIPT" ]; then
-    echo "ERROR: Shared functions script not found!"
-    echo "Expected location: $SHARED_FUNCTIONS_SCRIPT"
-    exit 1
-fi
+# Source shared functions.
 chmod +x "$SHARED_FUNCTIONS_SCRIPT"
 sed -i 's/\r$//' "$SHARED_FUNCTIONS_SCRIPT" 2>/dev/null || true
 source "$SHARED_FUNCTIONS_SCRIPT"
@@ -157,24 +144,10 @@ if [ ! -d "$SOURCE_BASE" ]; then
 fi
 
 # Check sudo availability
-HAS_PASSWORDLESS_SUDO=0
-
 if [ "$AUTO_DEPLOY" == "1" ]; then
-    if [ "${HAS_SUDO_CACHED:-0}" == "1" ]; then
-        if sudo -n true 2>/dev/null; then
-            HAS_PASSWORDLESS_SUDO=1
-            echo "[AUTO_DEPLOY] Using cached sudo credentials from parent script"
-        else
-            echo "[AUTO_DEPLOY] Cached sudo credentials expired"
-        fi
-    elif sudo -n true 2>/dev/null; then
-        HAS_PASSWORDLESS_SUDO=1
-        echo "[AUTO_DEPLOY] Passwordless sudo available"
-    fi
-
-    if [ "$HAS_PASSWORDLESS_SUDO" == "0" ]; then
-        echo "[AUTO_DEPLOY] No sudo access - will deploy to home directory only"
-        echo "[AUTO_DEPLOY] Web root deployment (/var/www/) will be skipped"
+    if ! require_noninteractive_sudo_access; then
+        echo "ERROR: Static auto-deployment cannot publish without sudo access"
+        exit 1
     fi
 else
     echo ""
@@ -189,7 +162,6 @@ else
         exit 1
     fi
     echo "Sudo access confirmed."
-    HAS_PASSWORDLESS_SUDO=1
 fi
 
 # Verify required files exist
@@ -284,26 +256,27 @@ echo ""
 # === Create directories if needed ===
 echo "[1/5] Setting up directories..."
 mkdir -p "$TARGET_DIR" 2>/dev/null || true
-
-if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
-    sudo mkdir -p "$WEB_ROOT"
-    echo "  Directories ready (including web root)"
-else
-    echo "  Home directories ready (web root skipped - no sudo)"
-fi
+sudo mkdir -p "$WEB_ROOT"
+echo "  Directories ready (including web root)"
 
 # === Deploy Quantum using shared script ===
 echo ""
 echo "=== Deploying Quantum ==="
+QUANTUM_OUTPUT_FILE="$(mktemp)"
+register_deploy_temp_file "$QUANTUM_OUTPUT_FILE"
 bash "$SHARED_DEPLOY_SCRIPT" \
     "Quantum" \
     "$SOURCE_BASE" \
     "$TARGET_DIR" \
     "$DEPLOY_TARGET" \
-    "n"
+    "n" 2>&1 | tee "$QUANTUM_OUTPUT_FILE"
+QUANTUM_OUTPUT=$(<"$QUANTUM_OUTPUT_FILE")
+rm -f "$QUANTUM_OUTPUT_FILE"
+unregister_deploy_temp_file "$QUANTUM_OUTPUT_FILE"
+QUANTUM_OUTPUT_FILE=""
 
 echo "  Verifying deployed site files..."
-    for required_path in "index.html" "assets" "papers" "LICENSE"; do
+for required_path in "index.html" "assets" "papers" "LICENSE"; do
     if [ ! -e "$TARGET_DIR/$required_path" ]; then
         echo "ERROR: Required deployment output missing: $TARGET_DIR/$required_path"
         exit 1
@@ -313,52 +286,43 @@ done
 # === Copy to web root (Quantum-specific: static website served by nginx) ===
 echo ""
 echo "[2/5] Deploying to web root..."
-if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
-    echo "  Deploying to web root: $WEB_ROOT"
-    # Copy to temp directory first (pCloud FUSE doesn't allow root access)
-    TEMP_DIR=$(mktemp -d)
-    cp "$TARGET_DIR/index.html" "$TEMP_DIR/"
-    cp "$TARGET_DIR/LICENSE" "$TEMP_DIR/"
-    cp -r "$TARGET_DIR/assets" "$TEMP_DIR/"
-    cp -r "$TARGET_DIR/papers" "$TEMP_DIR/"
+echo "  Deploying to web root: $WEB_ROOT"
+# Copy to temp directory first (pCloud FUSE doesn't allow root access)
+TEMP_DIR=$(mktemp -d)
+cp "$TARGET_DIR/index.html" "$TEMP_DIR/"
+cp "$TARGET_DIR/LICENSE" "$TEMP_DIR/"
+cp -r "$TARGET_DIR/assets" "$TEMP_DIR/"
+cp -r "$TARGET_DIR/papers" "$TEMP_DIR/"
 
-    # Remove existing files/directories to allow clean replacement
-    sudo rm -f "$WEB_ROOT/index.html"
-    sudo rm -f "$WEB_ROOT/LICENSE"
-    sudo rm -rf "$WEB_ROOT/assets"
-    sudo rm -rf "$WEB_ROOT/papers"
+# Remove existing files/directories to allow clean replacement
+sudo rm -f "$WEB_ROOT/index.html"
+sudo rm -f "$WEB_ROOT/LICENSE"
+sudo rm -rf "$WEB_ROOT/assets"
+sudo rm -rf "$WEB_ROOT/papers"
 
-    # Move from temp to web root with sudo
-    sudo mv "$TEMP_DIR/index.html" "$WEB_ROOT/"
-    sudo mv "$TEMP_DIR/LICENSE" "$WEB_ROOT/"
-    sudo mv "$TEMP_DIR/assets" "$WEB_ROOT/"
-    sudo mv "$TEMP_DIR/papers" "$WEB_ROOT/"
-    rmdir "$TEMP_DIR"
+# Move from temp to web root with sudo
+sudo mv "$TEMP_DIR/index.html" "$WEB_ROOT/"
+sudo mv "$TEMP_DIR/LICENSE" "$WEB_ROOT/"
+sudo mv "$TEMP_DIR/assets" "$WEB_ROOT/"
+sudo mv "$TEMP_DIR/papers" "$WEB_ROOT/"
+rmdir "$TEMP_DIR"
 
-    if [ ! -f "$WEB_ROOT/index.html" ]; then
-        echo "ERROR: Web root deployment missing index.html"
-        exit 1
-    fi
-    if [ ! -d "$WEB_ROOT/assets" ]; then
-        echo "ERROR: Web root deployment missing assets directory"
-        exit 1
-    fi
-    if [ ! -d "$WEB_ROOT/papers" ]; then
-        echo "ERROR: Web root deployment missing papers directory"
-        exit 1
-    fi
-    if [ ! -f "$WEB_ROOT/LICENSE" ]; then
-        echo "ERROR: Web root deployment missing LICENSE"
-        exit 1
-    fi
-    echo "  ✓ Web root deployment complete"
-else
-    echo "  ⏭️  Web root deployment skipped (no sudo)"
-fi
+verify_published_path "$TARGET_DIR/index.html" "$WEB_ROOT/index.html"
+verify_published_path "$TARGET_DIR/LICENSE" "$WEB_ROOT/LICENSE"
+verify_published_path "$TARGET_DIR/assets" "$WEB_ROOT/assets"
+verify_published_path "$TARGET_DIR/papers" "$WEB_ROOT/papers"
+echo "  ✓ Web root deployment complete"
 
 # Validate sync manifest
 MANIFEST_FILE="$TARGET_DIR/deployment_sync_manifest.json"
 validate_sync_manifest "$MANIFEST_FILE"
+
+read -r QUANTUM_ITEMS QUANTUM_FILES <<< "$(parse_deployment_counts "$QUANTUM_OUTPUT")"
+display_app_only_deployment_summary \
+    "Quantum" \
+    "$QUANTUM_OUTPUT" \
+    "$QUANTUM_ITEMS" \
+    "$QUANTUM_FILES"
 
 # Cleanup source manifests
 if should_cleanup_source_manifests; then
@@ -367,15 +331,11 @@ fi
 
 # === Set permissions ===
 echo "[3/5] Setting permissions..."
-if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
-    sudo chown -R www-data:www-data "$WEB_ROOT"
-    sudo chmod -R 755 "$WEB_ROOT"
-    sudo chmod 644 "$WEB_ROOT/index.html"
-    sudo chmod 644 "$WEB_ROOT/LICENSE"
-    echo "  Web root permissions set"
-else
-    echo "  Permissions skipped (no sudo)"
-fi
+sudo chown -R www-data:www-data "$WEB_ROOT"
+sudo chmod -R 755 "$WEB_ROOT"
+sudo chmod 644 "$WEB_ROOT/index.html"
+sudo chmod 644 "$WEB_ROOT/LICENSE"
+echo "  Web root permissions set"
 
 # Set permissions on home directory files
 chmod 644 "$TARGET_DIR/index.html" 2>/dev/null || true
@@ -389,32 +349,23 @@ echo "[4/5] Verifying deployment..."
 HOME_FILE_COUNT=$(find "$TARGET_DIR" -type f 2>/dev/null | wc -l)
 echo "  Deployed $HOME_FILE_COUNT files to $TARGET_DIR"
 
-if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
-    WEB_FILE_COUNT=$(sudo find "$WEB_ROOT" -type f 2>/dev/null | wc -l)
-    echo "  Deployed $WEB_FILE_COUNT files to $WEB_ROOT"
-fi
+WEB_FILE_COUNT=$(sudo find "$WEB_ROOT" -type f 2>/dev/null | wc -l)
+echo "  Deployed $WEB_FILE_COUNT files to $WEB_ROOT"
 
 # === Run startup script for nginx/SSL setup ===
 echo "[5/5] Running startup script for nginx configuration..."
 STARTUP_SCRIPT="$TARGET_DIR/tools/Scripts/Startup/run_quantum.sh"
+if [ ! -f "$STARTUP_SCRIPT" ]; then
+    echo "ERROR: Required startup script not found: $STARTUP_SCRIPT"
+    exit 1
+fi
+chmod +x "$STARTUP_SCRIPT"
+sed -i 's/\r$//' "$STARTUP_SCRIPT" 2>/dev/null || true
 
-if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
-    if [ -f "$STARTUP_SCRIPT" ]; then
-        chmod +x "$STARTUP_SCRIPT"
-        sed -i 's/\r$//' "$STARTUP_SCRIPT" 2>/dev/null || true
-
-        if [ "$AUTO_DEPLOY" == "1" ]; then
-            AUTO_DEPLOY=1 DEPLOY_TARGET="$DEPLOY_TARGET" HAS_PASSWORDLESS_SUDO=1 "$STARTUP_SCRIPT"
-        else
-            "$STARTUP_SCRIPT"
-        fi
-    else
-        echo "  Warning: Startup script not found at $STARTUP_SCRIPT"
-        echo "  Nginx configuration may need manual setup"
-    fi
+if [ "$AUTO_DEPLOY" == "1" ]; then
+    AUTO_DEPLOY=1 DEPLOY_TARGET="$DEPLOY_TARGET" HAS_PASSWORDLESS_SUDO=1 "$STARTUP_SCRIPT"
 else
-    echo "  Nginx setup skipped (no sudo)"
-    echo "  Run manually with sudo: $STARTUP_SCRIPT"
+    "$STARTUP_SCRIPT"
 fi
 
 # === Deployment complete ===
@@ -424,36 +375,23 @@ echo "  Deployment COMPLETE"
 echo "================================================"
 echo ""
 echo "Files deployed to home: $TARGET_DIR ($HOME_FILE_COUNT files)"
-
-if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
-    echo "Files deployed to web root: $WEB_ROOT ($WEB_FILE_COUNT files)"
-    echo ""
-    if [ "$DEPLOY_TARGET" == "test" ]; then
-        echo "Test site: http://$DOMAIN (or https:// if SSL configured)"
-    else
-        echo "Production site: https://$DOMAIN"
-    fi
+echo "Files deployed to web root: $WEB_ROOT ($WEB_FILE_COUNT files)"
+echo ""
+if [ "$DEPLOY_TARGET" == "test" ]; then
+    echo "Test site: http://$DOMAIN (or https:// if SSL configured)"
 else
-    echo ""
-    echo "NOTE: Web root deployment was SKIPPED (no passwordless sudo)"
-    echo "To complete deployment, run manually with sudo:"
-    echo "  sudo $0"
+    echo "Production site: https://$DOMAIN"
 fi
 
 echo ""
 echo "NEXT STEPS:"
 echo "=============="
-if [ "$HAS_PASSWORDLESS_SUDO" == "1" ]; then
-    if [ "$DEPLOY_TARGET" == "test" ]; then
-        echo "1. Verify test site at http://$DOMAIN"
-        echo "2. Check nginx logs: sudo tail -20 /var/log/nginx/quantum_error.log"
-    else
-        echo "1. Verify site at https://$DOMAIN"
-        echo "2. Check all papers load correctly"
-    fi
+if [ "$DEPLOY_TARGET" == "test" ]; then
+    echo "1. Verify test site at http://$DOMAIN"
+    echo "2. Check nginx logs: sudo tail -20 /var/log/nginx/quantum_error.log"
 else
-    echo "1. Set up passwordless sudo for deployment, OR"
-    echo "2. Run this script manually with sudo for web root deployment"
+    echo "1. Verify site at https://$DOMAIN"
+    echo "2. Check all papers load correctly"
 fi
 
 # Cleanup prompts

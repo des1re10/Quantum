@@ -80,6 +80,11 @@ Quantum/
 - Server deployment uses the shared script infrastructure as tooling but
   publishes only Quantum; the registry marks this static site as a non-consumer
   of the shared Libraries payload.
+- AppManager or the central orchestrator passes the exact bundle-staged
+  `Libraries/Scripts` owner directory; manual runs use the canonical
+  `~/AppManager/Libraries/Scripts` installation.
+- Missing sudo, missing startup tooling, or web-root content that differs from
+  the staged Quantum payload is a deployment failure.
 - Public web root: <code>index.html</code>, <code>LICENSE</code>,
   <code>assets/</code>, and <code>papers/</code>. <code>Documentation/</code> is not
   deployed publicly.

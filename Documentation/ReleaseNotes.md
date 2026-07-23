@@ -51,6 +51,10 @@
 - Aligned server publication with Quantum's registry-owned static-site
   boundary: the wrapper uses shared deployment helpers but stages only the
   Quantum payload and no longer requires or deploys a Libraries payload.
+- Server publication now receives one canonical bundle-staged shared-tooling
+  directory, fails closed when non-interactive sudo is unavailable, verifies
+  every web-root file/directory against the staged app, and emits the standard
+  deployment summary used by AppManager.
 
 **Research Publication Programme**
 

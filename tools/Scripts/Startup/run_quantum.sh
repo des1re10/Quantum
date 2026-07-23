@@ -21,8 +21,11 @@ else
 fi
 # Script is in tools/Scripts/Startup/, so project root is 3 levels up
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-# Parent directory contains Libraries folder
-PARENT_DIR="$(cd "$PROJECT_DIR/.." && pwd)"
+if [ -n "${LOCAL_DEPLOY_SCRIPTS_DIR:-}" ]; then
+    SHARED_SCRIPTS_DIR="$LOCAL_DEPLOY_SCRIPTS_DIR"
+else
+    SHARED_SCRIPTS_DIR="$HOME/AppManager/Libraries/Scripts"
+fi
 
 # Determine deployment target from environment or default to main
 DEPLOY_TARGET="${DEPLOY_TARGET:-main}"
@@ -47,7 +50,6 @@ NGINX_SITES_AVAILABLE="/etc/nginx/sites-available"
 NGINX_SITES_ENABLED="/etc/nginx/sites-enabled"
 SSL_CERT="/etc/letsencrypt/live/$DOMAIN/fullchain.pem"
 SSL_KEY="/etc/letsencrypt/live/$DOMAIN/privkey.pem"
-LIBRARIES_PATH="$PARENT_DIR/Libraries/Python"
 
 # Fix own line endings (handles Windows CRLF -> Unix LF)
 sed -i 's/\r$//' "$PROJECT_DIR/tools/Scripts/Startup/$(basename "$0")" 2>/dev/null || true
@@ -63,7 +65,7 @@ echo "Domain: $DOMAIN"
 # ============================================================================
 # LOAD COMMON FUNCTIONS (REQUIRED)
 # ============================================================================
-COMMON_FUNCTIONS="$PARENT_DIR/Libraries/Scripts/common_functions.sh"
+COMMON_FUNCTIONS="$SHARED_SCRIPTS_DIR/common_functions.sh"
 
 if [ ! -f "$COMMON_FUNCTIONS" ]; then
     echo "FATAL: common_functions.sh not found at $COMMON_FUNCTIONS"
@@ -206,7 +208,7 @@ fi
 echo ""
 echo "[3/6] Rendering shared SSL/nginx configuration..."
 
-SSL_SETUP_SCRIPT="$PARENT_DIR/Libraries/Scripts/setup_subdomain_ssl.sh"
+SSL_SETUP_SCRIPT="$SHARED_SCRIPTS_DIR/setup_subdomain_ssl.sh"
 if [ ! -f "$SSL_SETUP_SCRIPT" ]; then
     echo "FATAL: shared SSL/nginx setup script not found at $SSL_SETUP_SCRIPT"
     exit 1
