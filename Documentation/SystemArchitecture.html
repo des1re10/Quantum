@@ -37,7 +37,7 @@
 
       <section class="doc-section" id="ueberblick">
         <h2>Überblick</h2>
-        <p><strong>Stand: 9. Juli 2026.</strong> Quantum ist derzeit ausschließlich ein Repository für eine statische Website und Forschungsdokumente. Es enthält keine Blockchain-Node-Implementierung.</p>
+        <p><strong>Stand: 23. Juli 2026.</strong> Quantum ist derzeit ausschließlich ein Repository für eine statische Website und Forschungsdokumente. Es enthält keine Blockchain-Node-Implementierung.</p>
         <pre><code>Markdown-Quellen ── DocWizard/Pandoc ──► PDF-Artefakte
         │                                  │
         └──────────────┬───────────────────┘
@@ -66,13 +66,15 @@ index.html + LICENSE + assets/ + papers/ ── Nginx ──► Browser</code></
             <tbody>
               <tr><td>Protokollentwurf</td><td><code>papers/zkprivacy/zkprivacy-quantum-spec-v1.md</code></td><td>gleichnamige PDF</td></tr>
               <tr><td>Verifikationsplan</td><td><code>papers/zkprivacy/zkprivacy-verification-guide.md</code></td><td>gleichnamige PDF</td></tr>
+              <tr><td>T305-Forschungsprotokoll</td><td><code>papers/zkprivacy/quantum-private-transaction-feasibility.md</code></td><td>gleichnamige PDF</td></tr>
+              <tr><td>Künftige Paper-Skizzen</td><td><code>papers/zkprivacy/templates/</code></td><td>keine PDF; keine aktive Publikation</td></tr>
               <tr><td>Öffentliche Landingpage</td><td><code>index.html</code></td><td>direkt ausgeliefert</td></tr>
               <tr><td>Forschungslizenz</td><td><code>LICENSE</code></td><td>direkt ausgeliefert</td></tr>
               <tr><td>Interne langlebige Dokumente</td><td>HTML-Dateien in <code>Documentation/</code></td><td>keine automatische Veröffentlichung</td></tr>
             </tbody>
           </table>
         </div>
-        <p>PDFs werden nicht manuell bearbeitet. Nach jeder relevanten Markdown-Änderung müssen beide PDFs neu erzeugt und zusammen mit den Quellen geprüft werden.</p>
+        <p>PDFs werden nicht manuell bearbeitet. Nach jeder relevanten Änderung an einer aktiven, direkt unter <code>papers/zkprivacy/</code> liegenden Markdown-Quelle müssen alle aktiven PDFs neu erzeugt und zusammen mit den Quellen geprüft werden. Unter <code>templates/</code> liegende Planungsdateien werden bewusst nicht konvertiert.</p>
         <p>Die vollständige Dateistruktur wird ausschließlich in <a href="ProjectStructure.md"><code>ProjectStructure.md</code></a> gepflegt.</p>
       </section>
 
@@ -85,7 +87,7 @@ index.html + LICENSE + assets/ + papers/ ── Nginx ──► Browser</code></
       <section class="doc-section" id="pdf">
         <h2>PDF-Erzeugung</h2>
         <p>Die Build-Skripte rufen den Konverter aus dem benachbarten Repository <code>DocWizard-Pro/Src/universal_converter.py</code> auf.</p>
-        <p>Die ausführbaren Befehle stehen im <a href="../README.md">README</a>. Build-Abhängigkeiten sind Python, Pandoc und die von DocWizard-Pro benötigten PDF-Werkzeuge. Sie sind keine Laufzeitabhängigkeiten der Website. Ein erfolgreicher Prozess muss Exit-Code 0 liefern, beide PDFs aktualisieren und darf keine Platzhalter oder veraltete Quellen übernehmen.</p>
+        <p>Die ausführbaren Befehle stehen im <a href="../README.md">README</a>. Build-Abhängigkeiten sind Python, Pandoc und die von DocWizard-Pro benötigten PDF-Werkzeuge. Sie sind keine Laufzeitabhängigkeiten der Website. Die Build-Skripte ermitteln alle aktiven Markdown-Quellen direkt unter <code>papers/zkprivacy/</code>; dadurch gibt es keine zweite manuell gepflegte Paper-Liste. Ein erfolgreicher Prozess muss Exit-Code 0 liefern, jedes aktive PDF aktualisieren und die Vorlagen auslassen.</p>
       </section>
 
       <section class="doc-section" id="deployment">

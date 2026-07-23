@@ -1,5 +1,27 @@
 # Quantum - Release Notes
 
+## Unreleased
+
+**Research Publication Programme**
+
+- Added a pre-registered T305 research protocol for the complete
+  2-input/2-output private-transaction STARK feasibility experiment. It reports
+  no implementation, benchmark, proof, or feasibility result.
+- Documented the prior-work boundary against Lattice RingCT, MatRiCT and
+  MatRiCT+, STARK-based hash-signature aggregation, private note retrieval,
+  network-origin anonymity, and GHOSTDAG research.
+- Split the remaining research into three templates: private note discovery,
+  network-origin anonymity, and deterministic GHOSTDAG private-state semantics.
+- Defined a four-manuscript programme and explicit promotion gates so templates
+  cannot be presented as completed papers.
+- Updated Linux and Windows PDF builders to discover every active root-level
+  Markdown paper while excluding the template directory.
+- Updated both local-preview launchers to detect a missing or stale PDF for any
+  active root-level paper instead of checking a hard-coded pair, and to fail
+  closed instead of serving a preview with missing or outdated publications.
+- Synchronized the landing page, README, architecture, market thesis, project
+  structure, and contributor guidance with the new publication contract.
+
 ## Version History
 
 ### v1.0.0 (2026-01-14)

@@ -55,40 +55,38 @@ needs_rebuild() {
 # Check if PDFs need to be built
 REBUILD_NEEDED=false
 
-if needs_rebuild "$PAPERS_DIR/zkprivacy-quantum-spec-v1.md" "$PAPERS_DIR/zkprivacy-quantum-spec-v1.pdf"; then
-    REBUILD_NEEDED=true
+shopt -s nullglob
+PAPER_SOURCES=("$PAPERS_DIR"/*.md)
+
+if [ "${#PAPER_SOURCES[@]}" -eq 0 ]; then
+    echo "ERROR: No active Markdown papers found in: $PAPERS_DIR"
+    exit 1
 fi
 
-if needs_rebuild "$PAPERS_DIR/zkprivacy-verification-guide.md" "$PAPERS_DIR/zkprivacy-verification-guide.pdf"; then
-    REBUILD_NEEDED=true
-fi
+for paper_source in "${PAPER_SOURCES[@]}"; do
+    if needs_rebuild "$paper_source" "${paper_source%.md}.pdf"; then
+        REBUILD_NEEDED=true
+        break
+    fi
+done
 
 # Auto-generate PDFs if needed
 if [ "$REBUILD_NEEDED" = true ]; then
     echo "PDFs missing or outdated. Building automatically..."
     echo ""
 
-    if [ -f "$SCRIPT_DIR/build-pdfs.sh" ]; then
-        "$SCRIPT_DIR/build-pdfs.sh"
-
-        if [ $? -ne 0 ]; then
-            echo ""
-            echo "WARNING: PDF generation failed!"
-            read -p "Continue without PDFs? (y/n) " -n 1 -r
-            echo ""
-            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-                exit 1
-            fi
-        fi
-        echo ""
-    else
-        echo "WARNING: build-pdfs.sh not found!"
-        read -p "Continue without PDFs? (y/n) " -n 1 -r
-        echo ""
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            exit 1
-        fi
+    if [ ! -x "$SCRIPT_DIR/build-pdfs.sh" ]; then
+        echo "ERROR: Executable PDF build script not found at: $SCRIPT_DIR/build-pdfs.sh"
+        exit 1
     fi
+
+    if ! "$SCRIPT_DIR/build-pdfs.sh"; then
+        echo ""
+        echo "ERROR: PDF generation failed; local preview was not started"
+        exit 1
+    fi
+
+    echo ""
 else
     echo "PDFs are up to date."
     echo ""

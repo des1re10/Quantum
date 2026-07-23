@@ -37,14 +37,19 @@ separate later profiles and do not inherit base-protocol claims.
 |---|---|
 | Protocol requirements and candidate design | <code>papers/zkprivacy/zkprivacy-quantum-spec-v1.md</code> |
 | Task graph and evidence gates | <code>papers/zkprivacy/zkprivacy-verification-guide.md</code> |
+| T305 research protocol and prior-work boundary | <code>papers/zkprivacy/quantum-private-transaction-feasibility.md</code> |
+| Future-paper scope and promotion gates | <code>papers/zkprivacy/templates/</code> |
 | Public research positioning | <code>index.html</code> and <code>README.md</code> |
 | Market/claim wording | <code>Documentation/Quantum_Market_Thesis.html</code> |
 | Actual static-site architecture | <code>Documentation/SystemArchitecture.html</code> |
 | Public site styles | <code>assets/css/style.css</code> |
 | Internal document styles | <code>Documentation/assets/documentation.css</code> |
 
-The Markdown papers are source documents. Their same-name PDFs are generated
-artifacts and must be rebuilt after material changes.
+Root-level Markdown papers in <code>papers/zkprivacy/</code> are active source
+documents. Their same-name PDFs are generated artifacts and must be rebuilt
+after material changes. Markdown files under
+<code>papers/zkprivacy/templates/</code> are planning artifacts, are excluded
+from the PDF build, and must not be presented as completed papers or results.
 
 ## Technology and structure
 
@@ -78,6 +83,10 @@ Quantum/
   lineage.
 - Do not invent cryptographic constructions, parameter security, Noise
   patterns, test vectors, benchmarks, or audit results.
+- Do not claim that post-quantum private payments, RingCT, STARK-based
+  hash-signature aggregation, private note retrieval, transaction-origin
+  anonymity, or GHOSTDAG ordering are new; the active feasibility paper owns
+  the current prior-work boundary.
 - Distinguish requirements, selected standards, candidates, open gates, and
   verified results.
 - A generic STARK, lattice commitment, or PQ primitive does not establish
@@ -96,7 +105,7 @@ For documentation changes:
 1. run the audit gate required by <code>AGENTS.md</code>;
 2. parse Markdown with Pandoc;
 3. parse or validate HTML and verify local links/assets;
-4. rebuild both PDFs;
+4. rebuild every active-paper PDF;
 5. review public claims across README, landing page, papers, and research
    briefs;
 6. run <code>git diff --check</code>.

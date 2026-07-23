@@ -25,10 +25,17 @@ Quantum/
 │
 ├── papers/                           # Research papers and specifications
 │   └── zkprivacy/                    # Quantum: Privacy-Preserving DAG Blockchain
+│       ├── quantum-private-transaction-feasibility.md  # Active T305 research protocol
+│       ├── quantum-private-transaction-feasibility.pdf # Generated PDF export
 │       ├── zkprivacy-quantum-spec-v1.md      # Research design and requirements
 │       ├── zkprivacy-quantum-spec-v1.pdf     # PDF export
 │       ├── zkprivacy-verification-guide.md   # Implementation and evidence plan
-│       └── zkprivacy-verification-guide.pdf  # PDF export
+│       ├── zkprivacy-verification-guide.pdf  # PDF export
+│       └── templates/                         # Future-paper plans; not active papers
+│           ├── README.md                      # Four-paper programme and promotion gate
+│           ├── private-note-discovery-template.md
+│           ├── network-origin-anonymity-template.md
+│           └── ghostdag-private-state-template.md
 │
 ├── assets/
 │   ├── css/
@@ -53,10 +60,14 @@ Quantum/
 
 ## PDF build contract
 
-- The two Markdown papers are the authoritative publication sources; the PDFs
-  are generated artifacts.
-- Both sources select DocWizard's `scientific` style in YAML front matter and
-  retain their explicit normative section numbers.
+- Root-level Markdown files in `papers/zkprivacy/` are the authoritative active
+  publication sources; same-name PDFs are generated artifacts.
+- Active sources select DocWizard's `scientific` style in YAML front matter.
+  The normative specification and verification guide retain their explicit
+  section numbers.
+- Markdown outlines under `papers/zkprivacy/templates/` are planning artifacts.
+  They are excluded from the PDF build and public completed-paper list.
 - `build-pdfs.sh` and `build-pdfs.bat` require the adjacent DocWizard-Pro
   repository's prepared `.venv` runtime and invoke its canonical
-  `Src/universal_converter.py` entry point.
+  `Src/universal_converter.py` entry point. Both scripts discover active
+  root-level Markdown sources instead of maintaining a duplicated paper list.

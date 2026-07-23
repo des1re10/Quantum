@@ -32,16 +32,17 @@ reviewed profiles and do not inherit the base protocol's claims.
 **Research design 0.3.0-research — not implementation-ready or production-safe.**
 
 This repository currently contains a static documentation website, a research
-design, and a verification plan. It does not contain a node, wallet,
-blockchain implementation, testnet, external security audit, or completed
-performance benchmark.
+design, a verification plan, and a pre-registered transaction-feasibility
+research protocol. It does not contain a node, wallet, blockchain
+implementation, testnet, external security audit, or completed performance
+benchmark.
 
 | Area | Status |
 |---|---|
 | SHAKE256, ML-KEM-1024, SLH-DSA-SHAKE-256f | Standards selected; integration not verified |
 | Lattice commitment | Blocking research gate |
 | STARK validity proof | Blocking research gate |
-| Complete 2-input/2-output transaction proof | Blocking pre-node feasibility gate |
+| Complete 2-input/2-output transaction proof | Experiment specified; implementation and result absent |
 | GHOSTDAG and private state ordering | Blocking research gate |
 | Network anonymity | Blocking research gate |
 | ≥1,000 accepted L1 TPS | Acceptance target; not yet benchmarked |
@@ -53,11 +54,33 @@ cannot be demonstrated.
 
 - [Research design specification](papers/zkprivacy/zkprivacy-quantum-spec-v1.md)
 - [Implementation and verification plan](papers/zkprivacy/zkprivacy-verification-guide.md)
+- [Private-transaction STARK feasibility protocol](papers/zkprivacy/quantum-private-transaction-feasibility.md)
 - [Market and claim thesis](Documentation/Quantum_Market_Thesis.html)
 - [Static-site system architecture](Documentation/SystemArchitecture.html)
 
 The specification filename retains “v1” for link compatibility. The normative
 revision is declared inside the document.
+
+## Research-paper programme
+
+Four separate manuscripts are planned because the problems have different
+adversaries, evidence, and stop/go decisions:
+
+| Order | Research question | Status |
+|---:|---|---|
+| 1 | Can the complete 2-input/2-output Quantum relation, including full in-proof SLH-DSA-SHAKE-256f verification, meet frozen security and client budgets in a transparent STARK? | Active research protocol; no result |
+| 2 | Can wallets discover post-quantum encrypted notes privately at the measured output rate? | [Template](papers/zkprivacy/templates/private-note-discovery-template.md) |
+| 3 | Can transaction origins remain hidden under a named observer model at BlockDAG throughput? | [Template](papers/zkprivacy/templates/network-origin-anonymity-template.md) |
+| 4 | Can GHOSTDAG apply private commitments, nullifiers, anchors, rewards, and reorganisations deterministically? | [Template](papers/zkprivacy/templates/ghostdag-private-state-template.md) |
+
+The programme does not claim that these broad areas are new. Published work
+already covers post-quantum Lattice RingCT and MatRiCT, STARK-based hash
+signature aggregation, private payment detection and retrieval, cryptocurrency
+network-origin anonymity, and GHOSTDAG ordering. Each Quantum manuscript must
+therefore state and independently review its narrower integration or
+measurement contribution before using an originality claim. The
+[template index](papers/zkprivacy/templates/README.md) defines when a template
+may become an active paper.
 
 ## Candidate protocol directions
 
@@ -89,15 +112,18 @@ On Windows, use <code>start-local.bat</code>.
 
 ## PDF generation
 
-The Markdown papers are the authoritative sources. PDF files are generated
-through the adjacent DocWizard-Pro repository:
+Root-level Markdown files in <code>papers/zkprivacy/</code> are the
+authoritative active-paper sources. Same-name PDF files are generated through
+the adjacent DocWizard-Pro repository:
 
 ~~~bash
 ./build-pdfs.sh
 # On Windows: build-pdfs.bat
 ~~~
 
-Both PDFs must be regenerated after material paper changes.
+All active-paper PDFs must be regenerated after material paper changes.
+Planning files under <code>papers/zkprivacy/templates/</code> are deliberately
+excluded from the PDF build and are not presented as completed papers.
 
 The papers select DocWizard's `scientific` style in their front matter. Their
 section titles already contain normative numbers, so the build deliberately

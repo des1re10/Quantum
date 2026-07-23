@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Quantum - PDF Build Script
-# Converts Markdown papers to PDF using DocWizard-Pro
+# Converts active root-level Markdown papers to PDF using DocWizard-Pro
 #
 
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOCWIZARD_ROOT="$(dirname "$SCRIPT_DIR")/DocWizard-Pro"
@@ -37,34 +37,27 @@ if ! command -v pandoc &> /dev/null; then
     exit 1
 fi
 
-echo "Building PDFs..."
+shopt -s nullglob
+PAPER_SOURCES=("$PAPERS_DIR"/*.md)
+
+if [ "${#PAPER_SOURCES[@]}" -eq 0 ]; then
+    echo "ERROR: No active Markdown papers found in: $PAPERS_DIR"
+    exit 1
+fi
+
+echo "Building ${#PAPER_SOURCES[@]} active paper PDF(s)..."
 echo ""
 
-# Convert specification
-echo "[1/2] Converting zkprivacy-quantum-spec-v1.md..."
-"$DOCWIZARD_PYTHON" "$DOCWIZARD_SCRIPT" \
-    "$PAPERS_DIR/zkprivacy-quantum-spec-v1.md" \
-    "$PAPERS_DIR/zkprivacy-quantum-spec-v1.pdf"
+paper_index=0
+for paper_source in "${PAPER_SOURCES[@]}"; do
+    paper_index=$((paper_index + 1))
+    paper_name="$(basename "$paper_source" .md)"
+    paper_pdf="$PAPERS_DIR/$paper_name.pdf"
 
-if [ $? -eq 0 ]; then
-    echo "      Done: zkprivacy-quantum-spec-v1.pdf"
-else
-    echo "      FAILED: zkprivacy-quantum-spec-v1.pdf"
-    exit 1
-fi
-
-# Convert verification guide
-echo "[2/2] Converting zkprivacy-verification-guide.md..."
-"$DOCWIZARD_PYTHON" "$DOCWIZARD_SCRIPT" \
-    "$PAPERS_DIR/zkprivacy-verification-guide.md" \
-    "$PAPERS_DIR/zkprivacy-verification-guide.pdf"
-
-if [ $? -eq 0 ]; then
-    echo "      Done: zkprivacy-verification-guide.pdf"
-else
-    echo "      FAILED: zkprivacy-verification-guide.pdf"
-    exit 1
-fi
+    echo "[$paper_index/${#PAPER_SOURCES[@]}] Converting $paper_name.md..."
+    "$DOCWIZARD_PYTHON" "$DOCWIZARD_SCRIPT" "$paper_source" "$paper_pdf"
+    echo "      Done: $paper_name.pdf"
+done
 
 echo ""
 echo "================================================"

@@ -16,6 +16,7 @@
       <a href="#v1-grenze">V1-Produktgrenze</a>
       <a href="#anforderungen">Anforderungen</a>
       <a href="#evidenz">Evidenzstatus</a>
+      <a href="#paper-programm">Paper-Programm</a>
       <a href="#zielgruppen">Zielgruppen</a>
       <a href="#positionierung">Positionierung</a>
       <a href="#anwendungen">Zielanwendungen</a>
@@ -33,7 +34,7 @@
         <p>Wie Quantum das gemeinsame Ziel aus Post-Quanten-Sicherheit, standardmäßiger Anonymität und Skalierbarkeit glaubwürdig untersucht, ohne Forschungsziele als erreichte Eigenschaften zu verkaufen.</p>
         <div class="badge-row">
           <span class="badge warning">Research Design</span>
-          <span class="badge">Stand 21. Juli 2026</span>
+          <span class="badge">Stand 23. Juli 2026</span>
           <span class="badge risk">Keine Anlagewerbung</span>
         </div>
       </header>
@@ -89,12 +90,29 @@
               <tr><td>Lattice Commitment</td><td class="status-open">Offenes Gate</td><td>Konstruktion, Parameter, Reduktion, Estimator und Review</td></tr>
               <tr><td>STARK-Profil</td><td class="status-open">Offenes Gate</td><td>AIR, FRI, ZK-Masking, QROM-Soundness und Benchmarks</td></tr>
               <tr><td>DAG und privater Zustand</td><td class="status-open">Offenes Gate</td><td>Deterministische GHOSTDAG-Integration, DAA und Konfliktbeweis</td></tr>
-              <tr><td>Transaktionsproof</td><td class="status-open">Offenes Gate</td><td>Vollständiger 2-Input/2-Output-Prototyp, Client-Latenz, RAM, Proofgröße, Verifier und Aggregation</td></tr>
+              <tr><td>Transaktionsproof</td><td class="status-open">Experiment spezifiziert; kein Ergebnis</td><td>Vollständiger 2-Input/2-Output-Prototyp, zweite Implementierung, Client-Latenz, RAM, Proofgröße, Verifier und Aggregation</td></tr>
               <tr><td>Netzwerk-Anonymität</td><td class="status-open">Offenes Gate</td><td>Exaktes Beobachtermodell, Protokoll, Experimente sowie externe Review; keine Universalbehauptung</td></tr>
               <tr><td>≥1.000 akzeptierte TPS</td><td class="status-target">Abnahmeziel</td><td>Vollständiger Prototyp und reproduzierbarer 24-Stunden-Test</td></tr>
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section class="doc-section" id="paper-programm">
+        <h2>Paper-Programm und Neuheitsgrenze</h2>
+        <p>Das Forschungsprogramm ist in vier Manuskripte getrennt. Nur das erste ist als Forschungsprotokoll aktiv; die übrigen drei sind Vorlagen und werden weder als fertige Paper noch als Ergebnisse dargestellt.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Reihenfolge</th><th>Entscheidungsfrage</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Vollständige Quantum-Transaktion mit SLH-DSA-SHAKE-256f im transparenten STARK</td><td>Aktives, vorregistriertes Forschungsprotokoll; keine Messung</td></tr>
+              <tr><td>2</td><td>Private Post-Quantum-Note-Erkennung bei gemessenem Output-Durchsatz</td><td>Vorlage; wartet auf das Transaktionsformat und T305-Messwerte</td></tr>
+              <tr><td>3</td><td>Netzwerk-Ursprungsanonymität bei BlockDAG-Durchsatz</td><td>Vorlage; wartet auf Workload und Beobachtermodell</td></tr>
+              <tr><td>4</td><td>Deterministische private Zustandssemantik für GHOSTDAG</td><td>Vorlage; wartet auf Transaktionszustand und Konsensprofil</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Die breiten Themen sind nicht neu: Lattice RingCT, MatRiCT/MatRiCT+, STARK-basierte Hash-Signatur-Aggregation, private Zahlungserkennung und -abfrage, P2P-Ursprungsanonymität sowie GHOSTDAG sind bereits Gegenstand veröffentlichter Forschung. Der mögliche Quantum-Beitrag liegt deshalb nur in einer exakt abgegrenzten Konstruktion, Komposition oder reproduzierbaren positiven beziehungsweise negativen Machbarkeitsmessung. Vor einer Einreichung wird die Literatursuche aktualisiert und der Neuheitsclaim unabhängig geprüft.</p>
       </section>
 
       <section class="doc-section" id="zielgruppen">
@@ -203,9 +221,16 @@
           <li><a href="https://csrc.nist.gov/pubs/fips/203/final">NIST FIPS 203 – ML-KEM</a></li>
           <li><a href="https://csrc.nist.gov/pubs/fips/205/final">NIST FIPS 205 – SLH-DSA</a></li>
           <li><a href="https://csrc.nist.gov/Projects/Post-Quantum-Cryptography/Post-Quantum-Cryptography-Standardization">NIST Post-Quantum Cryptography Project</a></li>
+          <li><a href="https://eprint.iacr.org/2019/1287.pdf">MatRiCT – post-quantum confidential transactions</a></li>
+          <li><a href="https://eprint.iacr.org/2021/545.pdf">MatRiCT+ – post-quantum private blockchain payments</a></li>
+          <li><a href="https://eprint.iacr.org/2021/1674">Lattice-based zero-knowledge proofs for RingCT</a></li>
           <li><a href="https://eprint.iacr.org/2018/046.pdf">STARK research paper</a></li>
+          <li><a href="https://eprint.iacr.org/2021/1048.pdf">STARK-based hash-signature aggregation</a></li>
+          <li><a href="https://eprint.iacr.org/2021/1256.pdf">Oblivious Message Retrieval</a></li>
+          <li><a href="https://eprint.iacr.org/2024/246">OCash – anonymous light-client payments</a></li>
           <li><a href="https://eprint.iacr.org/2018/104.pdf">PHANTOM/GHOSTDAG research paper</a></li>
           <li><a href="https://arxiv.org/abs/1805.11060">Dandelion++ research paper</a></li>
+          <li><a href="https://arxiv.org/abs/2201.11860">Analysis of cryptocurrency P2P anonymity schemes</a></li>
         </ul>
         <p class="source-note">Drittnamen und Marken gehören ihren jeweiligen Inhabern. Die Verweise bedeuten keine Verbindung oder Empfehlung.</p>
       </section>

@@ -98,7 +98,7 @@
         </section>
 
         <section id="papers" class="papers-section">
-            <h2>Specification</h2>
+            <h2>Research Papers</h2>
 
             <article class="paper-card">
                 <div class="paper-header">
@@ -138,6 +138,44 @@
                     <a href="papers/zkprivacy/zkprivacy-verification-guide.md">View Guide Source</a>
                 </div>
             </article>
+
+            <article class="paper-card">
+                <div class="paper-header">
+                    <span class="paper-status">Research Protocol 0.1.0</span>
+                    <span class="paper-date">July 2026</span>
+                </div>
+                <h3>Standardised Hash-Based Authorisation Inside a Private-Transaction STARK</h3>
+                <p class="paper-abstract">
+                    A pre-registered feasibility protocol for the complete Quantum 2-input/2-output
+                    relation: commitment openings, membership, nullifiers, encrypted-note binding,
+                    carry-safe balance, and full SLH-DSA-SHAKE-256f verification inside a transparent STARK.
+                </p>
+                <p class="paper-status-note">
+                    <strong>Status:</strong> Method and stop/go criteria only. No implementation,
+                    benchmark result, composed security proof, or feasibility claim is reported.
+                </p>
+                <div class="paper-tech">
+                    <span class="tech-tag">T305 Protocol</span>
+                    <span class="tech-tag">2 Inputs / 2 Outputs</span>
+                    <span class="tech-tag">SLH-DSA in Proof</span>
+                    <span class="tech-tag">Reproducibility</span>
+                    <span class="tech-tag">No Results Yet</span>
+                </div>
+                <div class="paper-links">
+                    <a href="papers/zkprivacy/quantum-private-transaction-feasibility.pdf" class="btn btn-primary" target="_blank" rel="noopener">
+                        View Research Protocol (PDF)
+                    </a>
+                    <a href="papers/zkprivacy/quantum-private-transaction-feasibility.md" class="btn btn-secondary">
+                        View Source
+                    </a>
+                </div>
+            </article>
+
+            <p class="paper-status-note">
+                Three later manuscripts—private note discovery, network-origin anonymity, and
+                deterministic GHOSTDAG private-state semantics—remain planning templates. They are
+                not listed as completed papers and advance only after their entry evidence exists.
+            </p>
         </section>
 
         <section id="about" class="about-section">
@@ -154,8 +192,10 @@
                         private state transitions, network anonymity, post-quantum security, and DAG throughput—remains open.
                     </p>
                     <p>
-                        <strong>What is selected:</strong> NIST has standardized ML-KEM and SLH-DSA, and published research
-                        exists for STARKs, lattice commitments, and GHOSTDAG. Their exact Quantum integration is not yet verified.
+                        <strong>What is selected:</strong> NIST has standardized ML-KEM and SLH-DSA.
+                        Prior work already covers post-quantum RingCT, transparent STARKs, hash-signature
+                        aggregation, private payment retrieval, network-origin anonymity, and GHOSTDAG.
+                        Their exact Quantum composition and measured feasibility are not verified.
                     </p>
                     <p>
                         <strong>What remains to prove:</strong> commitment and proof security, integer supply integrity,

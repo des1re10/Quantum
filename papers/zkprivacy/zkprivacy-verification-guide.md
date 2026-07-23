@@ -450,6 +450,12 @@ soundness proof.
 **Objective:** Decide whether the complete private transaction is practical
 before wallet, node, or GHOSTDAG integration consumes implementation effort.
 
+**Experiment protocol:** The non-normative
+[T305 research protocol](quantum-private-transaction-feasibility.md) records
+the prior-work boundary, pre-registration, independent-implementation method,
+evidence package, and stop/go form. It may strengthen experimental detail but
+cannot weaken this task or the protocol specification.
+
 **Required prototype:** exactly two inputs and two outputs with input openings,
 Merkle membership, nullifier derivation, output openings, encrypted-note
 binding, complete in-proof SLH-DSA authorisation, 64-bit range constraints,

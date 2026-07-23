@@ -873,6 +873,13 @@ two outputs. The measured relation MUST include:
 - the selected STARK transcript, zero-knowledge masking, verifier, and, if
   proposed, aggregation path.
 
+The non-normative
+[T305 research protocol](quantum-private-transaction-feasibility.md)
+pre-registers the literature boundary, exact experiment, measurement fields,
+independent-implementation rules, and stop/go evidence for this gate. It may
+make the experiment more specific but cannot omit or weaken a requirement in
+this specification.
+
 T004 MUST freeze reference desktop and constrained-client hardware, workload,
 parallelism, proof-latency, memory, verifier, proof-size, and aggregate
 amortisation thresholds before results are interpreted. The report MUST publish

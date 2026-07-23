@@ -50,34 +50,35 @@ echo ================================================
 echo.
 
 set "REBUILD_NEEDED=0"
-call :needs_rebuild "%PAPERS_DIR%\zkprivacy-quantum-spec-v1.md" "%PAPERS_DIR%\zkprivacy-quantum-spec-v1.pdf"
-if not errorlevel 1 set "REBUILD_NEEDED=1"
-call :needs_rebuild "%PAPERS_DIR%\zkprivacy-verification-guide.md" "%PAPERS_DIR%\zkprivacy-verification-guide.pdf"
-if not errorlevel 1 set "REBUILD_NEEDED=1"
+if not exist "%PAPERS_DIR%\*.md" (
+    echo FATAL: No active Markdown papers found in %PAPERS_DIR%.
+    popd
+    exit /b 1
+)
+for %%F in ("%PAPERS_DIR%\*.md") do (
+    call :needs_rebuild "%%~fF" "%%~dpnF.pdf"
+    if not errorlevel 1 set "REBUILD_NEEDED=1"
+)
 
 if "!REBUILD_NEEDED!"=="1" (
     echo PDFs missing or outdated. Building automatically...
     echo.
-    if exist "%PROJECT_ROOT%\build-pdfs.bat" (
-        call "%PROJECT_ROOT%\build-pdfs.bat"
-        if errorlevel 1 (
-            echo.
-            echo WARNING: PDF generation failed.
-            set /p "CONTINUE_WITHOUT_PDFS=Continue without PDFs? (y/n): "
-            if /I not "!CONTINUE_WITHOUT_PDFS!"=="y" (
-                popd
-                exit /b 1
-            )
-        )
-        echo.
-    ) else (
-        echo WARNING: build-pdfs.bat not found.
-        set /p "CONTINUE_WITHOUT_PDFS=Continue without PDFs? (y/n): "
-        if /I not "!CONTINUE_WITHOUT_PDFS!"=="y" (
-            popd
-            exit /b 1
-        )
+
+    if not exist "%PROJECT_ROOT%\build-pdfs.bat" (
+        echo FATAL: PDF build script not found at %PROJECT_ROOT%\build-pdfs.bat.
+        popd
+        exit /b 1
     )
+
+    call "%PROJECT_ROOT%\build-pdfs.bat"
+    if errorlevel 1 (
+        echo.
+        echo FATAL: PDF generation failed; local preview was not started.
+        popd
+        exit /b 1
+    )
+
+    echo.
 ) else (
     echo PDFs are up to date.
     echo.

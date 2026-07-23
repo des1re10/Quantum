@@ -1,6 +1,6 @@
 @echo off
 REM Quantum - PDF Build Script (Windows)
-REM Converts Markdown papers to PDF using DocWizard-Pro
+REM Converts active root-level Markdown papers to PDF using DocWizard-Pro
 
 setlocal enabledelayedexpansion
 
@@ -36,29 +36,29 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo Building PDFs...
-echo.
-
-REM Convert specification
-echo [1/2] Converting zkprivacy-quantum-spec-v1.md...
-"%DOCWIZARD_PYTHON%" "%DOCWIZARD_SCRIPT%" "%PAPERS_DIR%\zkprivacy-quantum-spec-v1.md" "%PAPERS_DIR%\zkprivacy-quantum-spec-v1.pdf"
-
-if %errorlevel% equ 0 (
-    echo       Done: zkprivacy-quantum-spec-v1.pdf
-) else (
-    echo       FAILED: zkprivacy-quantum-spec-v1.pdf
+if not exist "%PAPERS_DIR%\*.md" (
+    echo ERROR: No active Markdown papers found in: %PAPERS_DIR%
     exit /b 1
 )
 
-REM Convert verification guide
-echo [2/2] Converting zkprivacy-verification-guide.md...
-"%DOCWIZARD_PYTHON%" "%DOCWIZARD_SCRIPT%" "%PAPERS_DIR%\zkprivacy-verification-guide.md" "%PAPERS_DIR%\zkprivacy-verification-guide.pdf"
+set /a "PAPER_COUNT=0"
+for %%F in ("%PAPERS_DIR%\*.md") do set /a "PAPER_COUNT+=1"
 
-if %errorlevel% equ 0 (
-    echo       Done: zkprivacy-verification-guide.pdf
-) else (
-    echo       FAILED: zkprivacy-verification-guide.pdf
-    exit /b 1
+echo Building !PAPER_COUNT! active paper PDF(s)...
+echo.
+
+set /a "PAPER_INDEX=0"
+for %%F in ("%PAPERS_DIR%\*.md") do (
+    set /a "PAPER_INDEX+=1"
+    echo [!PAPER_INDEX!/!PAPER_COUNT!] Converting %%~nxF...
+    "%DOCWIZARD_PYTHON%" "%DOCWIZARD_SCRIPT%" "%%~fF" "%%~dpnF.pdf"
+
+    if errorlevel 1 (
+        echo       FAILED: %%~nF.pdf
+        exit /b 1
+    )
+
+    echo       Done: %%~nF.pdf
 )
 
 echo.
