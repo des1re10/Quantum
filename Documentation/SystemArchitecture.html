@@ -55,7 +55,7 @@ index.html + LICENSE + assets/ + papers/ ── Nginx ──► Browser</code></
           <div class="info-card"><strong>Nicht vorhanden</strong><span>Backend, API, Datenbank, Authentifizierung, Wallet, Node, Konsenscode oder Testnet.</span></div>
           <div class="info-card"><strong>Öffentlich ausgeliefert</strong><span><code>index.html</code>, <code>LICENSE</code>, <code>assets/</code> und <code>papers/</code>.</span></div>
         </div>
-        <p>Es gibt keine Laufzeitabhängigkeit zu Python, Redis, PostgreSQL, Node.js oder einem Frontend-Framework. Python, Pandoc und DocWizard-Pro werden nur zur PDF-Erzeugung verwendet.</p>
+        <p>Die ausgelieferte Website hat keine Laufzeitabhängigkeit zu Python, Redis, PostgreSQL, Node.js oder einem Frontend-Framework. Die lokale Vorschau nutzt Python und die gemeinsame Anwendungsregistrierung als Entwicklungswerkzeuge; Pandoc, XeLaTeX und DocWizard-Pro werden ausschließlich zur PDF-Erzeugung benötigt.</p>
       </section>
 
       <section class="doc-section" id="artefakte">
@@ -81,7 +81,7 @@ index.html + LICENSE + assets/ + papers/ ── Nginx ──► Browser</code></
 
       <section class="doc-section" id="lokal">
         <h2>Lokale Ausführung</h2>
-        <p>Der lokale Einstieg erfolgt über die im <a href="../README.md">README</a> dokumentierten Startskripte. Der in der gemeinsamen Anwendungsregistrierung reservierte Vorschau-Port ist <code>9180</code>.</p>
+        <p>Ein eigenständiger Clone kann <code>index.html</code> ohne Laufzeit direkt im Browser öffnen. Die vollständige HTTP-Vorschau ist ein Entwicklungsvertrag des gemeinsamen <code>VisualStudio</code>-Workspace und wird über die im <a href="../README.md">README</a> dokumentierten Startskripte ausgeführt. Ohne explizite Portangabe wird der in der gemeinsamen Anwendungsregistrierung reservierte Vorschau-Port <code>9180</code> verwendet. Kann ein erforderlicher Workspace-Vertrag nicht geladen werden, bricht der Start ab; beide Vorschaupfade validieren den Port und binden ausschließlich an <code>127.0.0.1</code>.</p>
         <p>Die Dokumente unter <code>Documentation/</code> können direkt als Dateien geöffnet werden. Ihr Stylesheet liegt deshalb bewusst unter <code>Documentation/assets/</code>; diese dokumentierte lokale Ausnahme vermeidet eine nicht auslieferbare relative Abhängigkeit auf ein benachbartes Repository.</p>
       </section>
 
@@ -118,7 +118,7 @@ Server-Arbeitskopie
             <tbody>
               <tr><td>Produktion</td><td><a href="https://quantum.phexora.ai">quantum.phexora.ai</a></td><td>Am 9. Juli 2026 erreichbar; Betriebszustand ist zeitabhängig.</td></tr>
               <tr><td>Test</td><td><code>test.quantum.phexora.ai</code></td><td>In Skripten vorgesehen; am 9. Juli 2026 nicht per DNS auflösbar. Nicht als verfügbare Umgebung zusichern.</td></tr>
-              <tr><td>Lokal</td><td><code>http://localhost:9180</code></td><td>Nur während eines lokalen Servers erreichbar.</td></tr>
+              <tr><td>Lokal</td><td><code>http://127.0.0.1:9180</code></td><td>Nur während eines lokal gebundenen Vorschau-Servers erreichbar.</td></tr>
             </tbody>
           </table>
         </div>

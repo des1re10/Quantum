@@ -4,26 +4,35 @@
 # Quick start script for testing the website locally
 #
 
+set -euo pipefail
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PAPERS_DIR="$SCRIPT_DIR/papers/zkprivacy"
-LIBRARIES_PYTHON="$(cd "$SCRIPT_DIR/../Libraries/Python" && pwd)"
-DEFAULT_PORT="9180"
-PORT="${1:-}"
+LIBRARIES_PYTHON="$SCRIPT_DIR/../Libraries/Python"
+PORT="${1-}"
 
 if [ -z "$PORT" ]; then
-    REGISTRY_PORT="$(python3 - <<PY 2>/dev/null
-import sys
-sys.path.insert(0, r"$LIBRARIES_PYTHON")
+    if [ ! -d "$LIBRARIES_PYTHON" ]; then
+        echo "ERROR: Shared application registry directory not found at: $LIBRARIES_PYTHON" >&2
+        exit 1
+    fi
+
+    PORT="$(PYTHONPATH="$LIBRARIES_PYTHON" python3 - <<'PY'
 from ApplicationRegistry import get_application
+
 config = get_application("quantum")
-print(getattr(config, "local_preview_port", "") or "")
+if config is None:
+    raise RuntimeError("Quantum is missing from ApplicationRegistry")
+if config.local_preview_port is None:
+    raise RuntimeError("Quantum local_preview_port is not configured")
+print(config.local_preview_port)
 PY
 )"
-    if [[ "$REGISTRY_PORT" =~ ^[0-9]+$ ]]; then
-        PORT="$REGISTRY_PORT"
-    else
-        PORT="$DEFAULT_PORT"
-    fi
+fi
+
+if ! [[ "$PORT" =~ ^[0-9]{1,5}$ ]] || (( 10#$PORT < 1 || 10#$PORT > 65535 )); then
+    echo "ERROR: Preview port must be an integer between 1 and 65535; received: $PORT" >&2
+    exit 1
 fi
 
 cd "$SCRIPT_DIR"
@@ -92,10 +101,9 @@ else
     echo ""
 fi
 
-# Start Python HTTP server
 echo "Starting local web server..."
-echo "URL: http://localhost:$PORT"
+echo "URL: http://127.0.0.1:$PORT"
 echo "Press Ctrl+C to stop"
 echo ""
 
-python3 -m http.server "$PORT"
+exec python3 -m http.server "$PORT" --bind 127.0.0.1

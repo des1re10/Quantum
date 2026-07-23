@@ -4,10 +4,11 @@
 
 **Prior-Art Decision and Comparative Authorization Gate**
 
-- Added a versioned T305 prior-art and reuse decision. It identifies TzEL as
-  the closest public engineering baseline, rejects a generic post-quantum
-  private payment novelty claim, and records an ADAPT + REPLICATE path. Named
-  owner and reviewer signatures remain required before implementation.
+- Added a versioned T305 prior-art and reuse decision. The scoped review
+  identifies TzEL as its closest public engineering baseline, rejects a generic
+  post-quantum private payment novelty claim, and records an ADAPT + REPLICATE
+  path. Named owner and reviewer signatures remain required before
+  implementation.
 - Documented Lattice RingCT, MatRiCT/MatRiCT+, Gao et al., LACT+, TzEL, NIST
   SP 800-208, and the non-final SP 800-230 draft as explicit comparison
   boundaries.
@@ -15,18 +16,34 @@
   <code>SLH-DSA-SHAKE-256f</code> stateless incumbent, an independently
   specified TzEL-shaped one-time baseline, and an applicable NIST stateful
   profile.
-- Added state-management failure cases, a pre-registered material-benefit
-  rule, source-licence restrictions, and GO/ADAPT/REPLICATE/STOP outcomes.
+- Added state-management failure cases, a requirement to pre-register the
+  material-benefit rule, source-licence restrictions, and
+  GO/ADAPT/REPLICATE/STOP outcomes.
 - Advanced the specification and verification guide to
   <code>0.4.0-research</code> and synchronized public and internal status
   surfaces. The architecture decision is evidence for Paper 1, not a fifth
   paper.
 
+**Landing Page and Local Preview**
+
+- Reworked the landing page around a concise current-state sequence, the three
+  joint release gates, an explicit reading order, and a contribution path.
+  Design targets are now labelled as unmeasured, repeated research copy and
+  duplicate legal navigation were removed, and the mobile layout was shortened.
+- Added consistent keyboard focus treatment, reduced-motion handling, and
+  non-interactive publication cards.
+- Added a dependency-free direct-file path for standalone clones and documented
+  the shared workspace dependencies required by the validated HTTP preview.
+- Made the Linux preview resolve its required registry contract without a
+  hidden port fallback, reject malformed or out-of-range explicit ports
+  before PDF checks, bind only to <code>127.0.0.1</code>, and preserve startup
+  failures. The Windows launcher now reports the same loopback URL it binds.
+
 **Research Publication Programme**
 
-- Added a pre-registered T305 research protocol for the complete
-  2-input/2-output private-transaction STARK feasibility experiment. It reports
-  no implementation, benchmark, proof, or feasibility result.
+- Added a T305 pre-registration draft for the complete 2-input/2-output
+  private-transaction STARK feasibility experiment. It reports no
+  implementation, benchmark, proof, or feasibility result.
 - Documented the prior-work boundary against Lattice RingCT, MatRiCT and
   MatRiCT+, STARK-based hash-signature aggregation, private note retrieval,
   network-origin anonymity, and GHOSTDAG research.

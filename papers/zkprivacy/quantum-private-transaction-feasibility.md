@@ -17,18 +17,20 @@ keywords:
   - transaction feasibility
   - reproducible benchmarking
 abstract: |
-  This manuscript pre-registers the first blocking experiment in the Quantum
-  research programme: a complete private note transaction with exactly two
-  inputs and two outputs, including commitment openings, membership,
-  nullifiers, encrypted-note binding, 64-bit integer conservation, and full
-  SLH-DSA-SHAKE-256f verification inside a transparent zero-knowledge STARK.
+  This manuscript defines the pre-registration draft for the first blocking
+  experiment in the Quantum research programme: a complete private note
+  transaction with exactly two inputs and two outputs, including commitment
+  openings, membership, nullifiers, encrypted-note binding, 64-bit integer
+  conservation, and full SLH-DSA-SHAKE-256f verification inside a transparent
+  zero-knowledge STARK.
   It treats TzEL's public note/nullifier/ML-KEM/one-time-signature/STARK
-  prototype as the closest engineering baseline and rejects a generic
-  post-quantum private-payment novelty claim. The remaining question is a
-  comparative one: whether exact standardised stateless authorisation provides
-  a material security, interoperability, or state-management benefit while
-  meeting direct-layer-1 and constrained-client budgets. The protocol fixes the
-  statement and witness boundary and specifies reproducibility,
+  prototype as the closest engineering baseline identified by the scoped review
+  completed on 23 July 2026 and rejects a generic post-quantum private-payment
+  novelty claim. The remaining question is a comparative one: whether exact
+  standardised stateless authorisation provides a material security,
+  interoperability, or state-management benefit while meeting direct-layer-1
+  and constrained-client budgets. The protocol fixes the statement and witness
+  boundary and specifies reproducibility,
   security-analysis, measurement, and stop/go requirements. It reports no
   implementation or result.
 
@@ -113,10 +115,11 @@ The representative relation includes all of the following at once:
 1. two committed input notes and their openings;
 2. two authenticated Merkle membership paths;
 3. two correctly derived, locally distinct public nullifiers;
-4. two output notes and their public commitment openings;
+4. two public output commitments and their private openings;
 5. binding between each output and its public encrypted-note payload;
-6. complete verification of input authorisation under the selected
-   <code>SLH-DSA-SHAKE-256f</code> profile;
+6. complete verification of input authorisation under every retained
+   comparison profile, including exact <code>SLH-DSA-SHAKE-256f</code> for the
+   stateless incumbent;
 7. canonical 64-bit values, limb ranges, carries, a public fee, and exact
    integer conservation;
 8. one frozen transparent STARK transcript and zero-knowledge profile; and
@@ -335,9 +338,10 @@ two-input transfer workload on AWS <code>c8g.16xlarge</code>, 5.235 seconds
 proving, 16.66 GiB peak resident memory, and 32 milliseconds verification
 [TZELCODE]. Those author-reported figures are not directly comparable with
 Quantum's unfrozen proof system or constrained-client profile. They do show
-that the closest public implementation is already well above the illustrative
-25 KB direct-layer-1 transaction budget in the Quantum design unless a
-different aggregation, carriage, or system requirement is approved.
+that the closest public implementation identified in the scoped review is
+already well above the illustrative 25 KB direct-layer-1 transaction budget in
+the Quantum design unless a different aggregation, carriage, or system
+requirement is approved.
 
 # 6. Frozen experiment statement
 
@@ -852,13 +856,15 @@ in any comparison.
 
 ## 0.2.0-research-protocol — 2026-07-23
 
-- identified TzEL as the closest public engineering baseline and rejected a
-  generic post-quantum private-payment novelty claim;
+- identified TzEL as the closest public engineering baseline found by the
+  scoped review and rejected a generic post-quantum private-payment novelty
+  claim;
 - reframed the experiment as a same-relation comparison of a TzEL-shaped
   one-time baseline, an applicable NIST SP 800-208 stateful profile, and exact
   FIPS 205 <code>SLH-DSA-SHAKE-256f</code>;
-- added state-management failure cases, a pre-registered material-benefit rule,
-  source-reuse restrictions, and GO/ADAPT/REPLICATE/STOP outcomes.
+- added state-management failure cases, a requirement to pre-register the
+  material-benefit rule, source-reuse restrictions, and
+  GO/ADAPT/REPLICATE/STOP outcomes.
 
 ## 0.1.0-research-protocol — 2026-07-23
 

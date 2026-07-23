@@ -3,320 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Quantum is an open research design for post-quantum security, privacy and network anonymity by default, and scalable DAG consensus.">
-    <meta name="keywords" content="post-quantum, cryptography, zero-knowledge, blockchain, privacy, STARK, lattice">
+    <meta name="description" content="Quantum is an open research design for private post-quantum settlement. It publishes requirements, open gates, and reproducible experiment protocols—not product claims.">
+    <meta name="keywords" content="post-quantum, cryptography, zero-knowledge, privacy, STARK, GHOSTDAG">
     <meta name="author" content="Phexora AI">
-    <title>Quantum | Post-Quantum Cryptography Research</title>
+    <title>Quantum | Private Post-Quantum Settlement Research</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
 </head>
 <body>
     <header>
-        <nav class="navbar">
-            <div class="nav-brand">
-                <span class="logo">
+        <nav class="navbar" aria-label="Primary navigation">
+            <a class="nav-brand" href="#top" aria-label="Quantum research home">
+                <span class="logo" aria-hidden="true">
                     <svg viewBox="0 0 448 512" width="20" height="20" fill="currentColor">
                         <path d="M223.99908,224a32,32,0,1,0,32.00782,32A32.06431,32.06431,0,0,0,223.99908,224Zm214.172-96c-10.877-19.5-40.50979-50.75-116.27544-41.875C300.39168,34.875,267.63386,0,223.99908,0s-76.39066,34.875-97.89653,86.125C50.3369,77.375,20.706,108.5,9.82907,128-6.54984,157.375-5.17484,201.125,34.958,256-5.17484,310.875-6.54984,354.625,9.82907,384c29.13087,52.375,101.64652,43.625,116.27348,41.875C147.60842,477.125,180.36429,512,223.99908,512s76.3926-34.875,97.89652-86.125c14.62891,1.75,87.14456,10.5,116.27544-41.875C454.55,354.625,453.175,310.875,413.04017,256,453.175,201.125,454.55,157.375,438.171,128ZM63.33886,352c-4-7.25-.125-24.75,15.00391-48.25,6.87695,6.5,14.12891,12.875,21.88087,19.125,1.625,13.75,4,27.125,6.75,40.125C82.34472,363.875,67.09081,358.625,63.33886,352Zm36.88478-162.875c-7.752,6.25-15.00392,12.625-21.88087,19.125-15.12891-23.5-19.00392-41-15.00391-48.25,3.377-6.125,16.37891-11.5,37.88478-11.5,1.75,0,3.875.375,5.75.375C104.09864,162.25,101.84864,175.625,100.22364,189.125ZM223.99908,64c9.50195,0,22.25586,13.5,33.88282,37.25-11.252,3.75-22.50391,8-33.88282,12.875-11.377-4.875-22.62892-9.125-33.88283-12.875C201.74516,77.5,214.49712,64,223.99908,64Zm0,384c-9.502,0-22.25392-13.5-33.88283-37.25,11.25391-3.75,22.50587-8,33.88283-12.875C235.378,402.75,246.62994,407,257.8819,410.75,246.25494,434.5,233.501,448,223.99908,448Zm0-112a80,80,0,1,1,80-80A80.00023,80.00023,0,0,1,223.99908,336ZM384.6593,352c-3.625,6.625-19.00392,11.875-43.63479,11,2.752-13,5.127-26.375,6.752-40.125,7.75195-6.25,15.00391-12.625,21.87891-19.125C384.7843,327.25,388.6593,344.75,384.6593,352ZM369.65538,208.25c-6.875-6.5-14.127-12.875-21.87891-19.125-1.625-13.5-3.875-26.875-6.752-40.25,1.875,0,4.002-.375,5.752-.375,21.50391,0,34.50782,5.375,37.88283,11.5C388.6593,167.25,384.7843,184.75,369.65538,208.25Z"/>
                     </svg>
                 </span>
                 <span class="brand-text">Quantum</span>
-            </div>
+            </a>
             <div class="nav-links">
+                <a href="#status">Status</a>
                 <a href="#papers">Papers</a>
-                <a href="#about">About</a>
-                <a href="https://phexora.ai/privacy" target="_blank" rel="noopener">Privacy Policy</a>
-                <a href="https://phexora.ai/terms" target="_blank" rel="noopener">Terms</a>
-                <a href="https://phexora.ai/impressum" target="_blank" rel="noopener">Impressum</a>
+                <a href="#contribute">Contribute</a>
                 <a href="https://phexora.ai" target="_blank" rel="noopener">Phexora AI</a>
             </div>
         </nav>
     </header>
 
-    <main>
+    <main id="top">
         <section class="hero">
             <div class="hero-content">
-                <p class="research-label">Open Research Design</p>
+                <p class="research-label">Open research · no implementation</p>
                 <h1>Private Post-Quantum Settlement—If It Can Be Proven</h1>
                 <p class="subtitle">
-                    <strong>Quantum</strong> is an open research path toward a private cash and
-                    settlement layer for people, organisations, and autonomous software agents.
-                    Post-quantum security, network anonymity, and scale are joint release
-                    requirements—not achieved capabilities.
+                    Quantum publishes a falsifiable research design for private cash and settlement.
+                    Post-quantum security, network anonymity, and layer-1 scale must all pass
+                    independently reviewed evidence gates before any production claim.
                 </p>
                 <div class="hero-actions">
-                    <a href="#papers" class="btn btn-primary">Read the research design</a>
+                    <a href="#status" class="btn btn-primary">See the current status</a>
+                    <a href="#papers" class="btn btn-secondary">Read the papers</a>
                 </div>
-                <div class="hero-stats">
+                <p class="target-label">Design targets—not measured results</p>
+                <div class="hero-stats" aria-label="Unverified design targets">
                     <div class="hero-stat">
                         <span class="stat-value">≥128</span>
-                        <span class="stat-desc">composed PQ-bit target</span>
+                        <span class="stat-desc">composed post-quantum bits</span>
                     </div>
                     <div class="hero-stat">
                         <span class="stat-value">1,000+</span>
-                        <span class="stat-desc">accepted L1 TPS target</span>
+                        <span class="stat-desc">accepted layer-1 TPS</span>
                     </div>
                     <div class="hero-stat">
                         <span class="stat-value">0</span>
-                        <span class="stat-desc">transparent transfer modes</span>
+                        <span class="stat-desc">transparent modes allowed by design</span>
                     </div>
                 </div>
-                <div class="hero-badges">
-                    <span class="badge">GHOSTDAG Research</span>
-                    <span class="badge">Privacy by Default</span>
-                    <span class="badge">Transparent STARK Candidate</span>
-                    <span class="badge">NIST PQ Standards</span>
-                    <span class="badge">Evidence-Gated Design</span>
+                <div class="hero-badges" aria-label="Research boundaries">
+                    <span class="badge">Evidence-gated</span>
+                    <span class="badge">Privacy by default</span>
+                    <span class="badge">No classical fallback</span>
                 </div>
             </div>
         </section>
 
-        <section class="challenge-section">
-            <h2>The Research Challenge</h2>
-            <div class="challenge-grid">
-                <div class="challenge-card existing">
-                    <h3>Why Composition Is Hard</h3>
-                    <ul>
-                        <li><strong>Ledger privacy:</strong> hidden values still require exact supply integrity</li>
-                        <li><strong>DAG ordering:</strong> parallel nullifier conflicts need one deterministic state</li>
-                        <li><strong>Post-quantum security:</strong> every primitive and their composition must qualify</li>
-                        <li><strong>Network anonymity:</strong> encrypted payloads do not hide timing and origin metadata</li>
-                    </ul>
-                    <p class="challenge-gap">The protocol is only as strong as its weakest layer</p>
-                </div>
-                <div class="challenge-card quantum">
-                    <h3>Quantum Release Requirements</h3>
-                    <ul>
-                        <li><strong>Post-quantum:</strong> ≥128-bit composed target, no classical fallback</li>
-                        <li><strong>Private by default:</strong> no transparent transaction type</li>
-                        <li><strong>Anonymous transport:</strong> a published observer model with explicit limits</li>
-                        <li><strong>Scalable:</strong> ≥1,000 accepted L1 TPS with all checks enabled</li>
-                        <li><strong>Verifiable:</strong> two implementations, public vectors, external review</li>
-                    </ul>
-                    <p class="challenge-novel">All requirements must pass together before production</p>
-                </div>
+        <section id="status" class="status-section">
+            <div class="section-heading">
+                <p class="section-kicker">Current state</p>
+                <h2>Documents exist. The protocol does not.</h2>
+                <p>
+                    There is no node, wallet, testnet, completed proof implementation,
+                    performance benchmark, external security audit, or production network.
+                </p>
+            </div>
+            <div class="status-grid">
+                <article class="status-card">
+                    <span class="status-chip documented">Documented</span>
+                    <p class="status-step">1 · Requirements</p>
+                    <h3>Research design 0.4.0</h3>
+                    <p>Security requirements and stop/go gates are written, but not independently approved.</p>
+                </article>
+                <article class="status-card">
+                    <span class="status-chip pending">Pending sign-off</span>
+                    <p class="status-step">2 · Prior art</p>
+                    <h3>Comparative direction recorded</h3>
+                    <p>The scoped review rejects a generic protocol-novelty claim. Owner and reviewer remain unassigned.</p>
+                </article>
+                <article class="status-card">
+                    <span class="status-chip not-started">Not implemented</span>
+                    <p class="status-step">3 · Feasibility</p>
+                    <h3>T305 comparison protocol</h3>
+                    <p>The experiment compares stateless and stateful authorisation under one complete transaction relation.</p>
+                </article>
+                <article class="status-card">
+                    <span class="status-chip template">Templates only</span>
+                    <p class="status-step">4 · Later research</p>
+                    <h3>Discovery, transport, and DAG state</h3>
+                    <p>Three separate manuscripts remain planning outlines until their entry evidence exists.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="requirements-section">
+            <div class="section-heading">
+                <p class="section-kicker">Joint release boundary</p>
+                <h2>Three requirements must pass together</h2>
+                <p>A success in one layer cannot compensate for failure in another.</p>
+            </div>
+            <div class="requirements-grid">
+                <article class="requirement-card">
+                    <span class="requirement-number">01</span>
+                    <h3>Post-quantum composition</h3>
+                    <p>Selected standards do not prove the security of their commitment, authorisation, encryption, and STARK composition.</p>
+                </article>
+                <article class="requirement-card">
+                    <span class="requirement-number">02</span>
+                    <h3>Privacy beyond ciphertexts</h3>
+                    <p>Ledger values, recipients, transaction graphs, and network origins need explicit and separately tested threat models.</p>
+                </article>
+                <article class="requirement-card">
+                    <span class="requirement-number">03</span>
+                    <h3>Measured layer-1 scale</h3>
+                    <p>The complete private relation—not a mock or isolated primitive—must meet frozen client, verifier, wire, and throughput budgets.</p>
+                </article>
             </div>
         </section>
 
         <section id="papers" class="papers-section">
-            <h2>Research Papers</h2>
+            <div class="section-heading section-heading-left">
+                <p class="section-kicker">Publication path</p>
+                <h2>Read the active work in this order</h2>
+                <p>Root-level Markdown files are authoritative. The PDFs are generated publication artifacts.</p>
+            </div>
 
             <article class="paper-card">
                 <div class="paper-header">
-                    <span class="paper-status">Research Design 0.4.0-research</span>
-                    <span class="paper-date">July 2026</span>
+                    <span class="paper-order">Start here</span>
+                    <span class="paper-status">Research design 0.4.0</span>
                 </div>
                 <h3>Quantum: Privacy-Preserving Post-Quantum DAG Protocol</h3>
                 <p class="paper-abstract">
-                    Security requirements, candidate architecture, and explicit research gates for a
-                    private post-quantum cash and settlement protocol with bounded payment policies.
-                    The design targets at least 1,000 accepted L1 transactions per second but does not
-                    yet claim implementation or benchmark results.
+                    The normative requirements, candidate architecture, and blocking evidence gates.
+                    It defines what Quantum would have to prove; it is not an implementation claim.
                 </p>
-                <p class="paper-status-note">
-                    <strong>Status:</strong> Research design only. Digest security, recipient-key privacy,
-                    commitment, STARK, complete-transaction feasibility, DAG state, network anonymity,
-                    interoperability, and performance remain open.
-                </p>
-                <div class="paper-tech">
-                    <span class="tech-tag">GHOSTDAG Candidate</span>
-                    <span class="tech-tag">STARK Research</span>
-                    <span class="tech-tag">SLH-DSA</span>
-                    <span class="tech-tag">ML-KEM-1024</span>
-                    <span class="tech-tag">Commitment Gate</span>
-                </div>
                 <div class="paper-links">
-                    <a href="papers/zkprivacy/zkprivacy-quantum-spec-v1.pdf" class="btn btn-primary" target="_blank" rel="noopener">
-                        View Specification (PDF)
-                    </a>
-                    <a href="papers/zkprivacy/zkprivacy-verification-guide.pdf" class="btn btn-secondary" target="_blank" rel="noopener">
-                        View Verification Guide (PDF)
-                    </a>
+                    <a href="papers/zkprivacy/zkprivacy-quantum-spec-v1.pdf" class="btn btn-primary" target="_blank" rel="noopener">Specification PDF</a>
+                    <a href="papers/zkprivacy/zkprivacy-verification-guide.pdf" class="btn btn-secondary" target="_blank" rel="noopener">Verification plan PDF</a>
                 </div>
                 <div class="paper-source">
-                    <a href="papers/zkprivacy/zkprivacy-quantum-spec-v1.md">View Specification Source</a>
-                    <span class="separator">|</span>
-                    <a href="papers/zkprivacy/zkprivacy-verification-guide.md">View Guide Source</a>
+                    <a href="papers/zkprivacy/zkprivacy-quantum-spec-v1.md">Specification source</a>
+                    <span class="separator" aria-hidden="true">·</span>
+                    <a href="papers/zkprivacy/zkprivacy-verification-guide.md">Verification-plan source</a>
                 </div>
             </article>
 
             <article class="paper-card">
                 <div class="paper-header">
-                    <span class="paper-status">Comparative Research Protocol 0.2.0</span>
-                    <span class="paper-date">July 2026</span>
+                    <span class="paper-order">Then review the experiment</span>
+                    <span class="paper-status">Comparative protocol 0.2.0</span>
                 </div>
                 <h3>Stateless Versus Stateful Hash-Based Authorisation Inside a Private-Transaction STARK</h3>
                 <p class="paper-abstract">
-                    A pre-registered comparison of full FIPS 205 SLH-DSA-SHAKE-256f against
-                    one-time/stateful hash-based baselines inside the same complete Quantum
-                    2-input/2-output relation and transparent STARK.
+                    A pre-registration draft for comparing full FIPS 205
+                    SLH-DSA-SHAKE-256f with one-time and stateful hash-based baselines
+                    inside the same 2-input/2-output relation.
                 </p>
                 <p class="paper-status-note">
-                    <strong>Status:</strong> At the 23 July 2026 search cut-off, TzEL was the closest
-                    reviewed public engineering baseline, so no generic private-payment-protocol
-                    novelty is claimed. Method and outcome criteria only; no implementation,
-                    benchmark result, security proof, or feasibility claim.
+                    The scoped review completed on 23 July 2026 identified TzEL as the closest
+                    public engineering baseline reviewed. No implementation, benchmark result,
+                    security proof, feasibility result, or generic protocol-novelty claim is reported.
                 </p>
-                <div class="paper-tech">
-                    <span class="tech-tag">T305 Protocol</span>
-                    <span class="tech-tag">2 Inputs / 2 Outputs</span>
-                    <span class="tech-tag">Stateless vs Stateful</span>
-                    <span class="tech-tag">Reproducibility</span>
-                    <span class="tech-tag">No Results Yet</span>
-                </div>
                 <div class="paper-links">
-                    <a href="papers/zkprivacy/quantum-private-transaction-feasibility.pdf" class="btn btn-primary" target="_blank" rel="noopener">
-                        View Research Protocol (PDF)
-                    </a>
-                    <a href="papers/zkprivacy/quantum-private-transaction-feasibility.md" class="btn btn-secondary">
-                        View Source
-                    </a>
+                    <a href="papers/zkprivacy/quantum-private-transaction-feasibility.pdf" class="btn btn-primary" target="_blank" rel="noopener">Research protocol PDF</a>
+                    <a href="papers/zkprivacy/quantum-private-transaction-feasibility.md" class="btn btn-secondary">Protocol source</a>
                 </div>
                 <div class="paper-source">
-                    <a href="papers/zkprivacy/decisions/t305-prior-art-decision.md">View Prior-Art Decision</a>
+                    <a href="papers/zkprivacy/decisions/t305-prior-art-decision.md">Prior-art and reuse decision</a>
                 </div>
             </article>
 
-            <p class="paper-status-note">
-                Three later manuscripts—private note discovery, network-origin anonymity, and
-                deterministic GHOSTDAG private-state semantics—remain planning templates. They are
-                not listed as completed papers and advance only after their entry evidence exists.
-            </p>
-        </section>
-
-        <section id="about" class="about-section">
-            <h2>About This Project</h2>
-            <blockquote class="snowden-quote">
-                <p>"Privacy isn't about something to hide. Privacy is about something to protect."</p>
-                <cite>— Edward Snowden</cite>
-            </blockquote>
-            <div class="about-content">
-                <div class="about-text">
-                    <h3>An Honest Assessment</h3>
-                    <p>
-                        This is a <strong>research design</strong>, not a product announcement. The core problem—combining
-                        private state transitions, network anonymity, post-quantum security, and DAG throughput—remains open.
-                    </p>
-                    <p>
-                        <strong>What is selected:</strong> NIST has standardized ML-KEM and SLH-DSA;
-                        SLH-DSA-SHAKE-256f remains the stateless authorization incumbent under test.
-                        The 23 July 2026 review identified TzEL as the closest reviewed
-                        note/nullifier/ML-KEM/one-time-signature/STARK baseline, and further prior
-                        work covers RingCT, confidential-value aggregation, note retrieval,
-                        network-origin anonymity, and GHOSTDAG. Quantum's comparative result and
-                        exact composition remain unverified.
-                    </p>
-                    <p>
-                        <strong>What remains to prove:</strong> commitment and proof security, integer supply integrity,
-                        deterministic nullifier handling across parallel blocks, origin anonymity, and end-to-end performance.
-                    </p>
-                    <p>
-                        We publish the specification so that its assumptions and open gates can be reviewed.
-                        Whether the design succeeds or fails, the resulting evidence will remain public.
-                    </p>
-
-                    <h3>Why This Matters</h3>
-                    <p>
-                        Public ledgers can expose personal and commercial relationships. Classical public-key assumptions face
-                        a long-term quantum risk, while throughput alone does not provide ledger or network privacy.
-                    </p>
-                    <p>
-                        Quantum tests whether one protocol can meet all three requirements without weakening any of them.
-                        The answer remains open until the evidence gates pass.
-                    </p>
-
-                    <h3>Research Principles</h3>
-                    <ul>
-                        <li><strong>Honesty</strong> - We publish what works and what doesn't</li>
-                        <li><strong>No Vaporware</strong> - We don't hype features that don't exist</li>
-                        <li><strong>Open Research</strong> - Repository-authored research text is dedicated under CC0</li>
-                        <li><strong>Clear Evidence Gates</strong> - Go/no-go decisions at each phase</li>
-                        <li><strong>Privacy First</strong> - If we can't do it privately, we don't do it</li>
-                    </ul>
-                </div>
-                <div class="about-stats">
-                    <div class="stat-card">
-                        <span class="stat-number">Open</span>
-                        <span class="stat-label">research and assurance gates</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-number">0</span>
-                        <span class="stat-label">protocol implementations</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-number">3</span>
-                        <span class="stat-label">joint release requirements</span>
-                    </div>
-                </div>
+            <div class="planning-note">
+                <strong>Not active papers:</strong> private note discovery, network-origin anonymity,
+                and deterministic GHOSTDAG private-state semantics remain planning templates.
             </div>
         </section>
 
-        <section class="cta-section">
-            <h2>Contribute</h2>
+        <section id="contribute" class="cta-section">
+            <p class="section-kicker">Independent scrutiny welcome</p>
+            <h2>Challenge the assumptions before implementation</h2>
             <p>
-                This research is open for discussion and collaboration.
-                We welcome feedback from cryptographers, developers, and researchers.
+                Useful contributions include prior-art corrections, threat-model review,
+                concrete cryptographic analysis, reproducible benchmarks, and independent
+                implementations of a future frozen experiment.
             </p>
-            <a href="https://github.com/des1re10/Quantum" class="btn btn-primary" target="_blank" rel="noopener">
-                View on GitHub
-            </a>
+            <a href="https://github.com/des1re10/Quantum" class="btn btn-primary" target="_blank" rel="noopener">Review the repository on GitHub</a>
         </section>
     </main>
 
     <footer class="site-footer">
         <div class="footer-container">
-            <div class="footer-grid">
-                <!-- Company Info -->
-                <div class="footer-section">
-                    <h3 class="footer-title">Phexora AI, LLC</h3>
-                    <p class="footer-description">Your data. Your control. Your sovereignty. We build privacy-first technology with transparent controls and no hidden tracking.</p>
+            <div class="footer-main">
+                <div>
+                    <h2 class="footer-title">Quantum</h2>
+                    <p class="footer-description">Open research by Phexora AI, LLC. No protocol implementation or production network exists.</p>
                 </div>
-
-                <!-- Navigation -->
-                <div class="footer-section">
-                    <h4 class="footer-heading">Navigation</h4>
-                    <ul class="footer-nav">
-                        <li><a href="https://phexora.ai">Home</a></li>
-                        <li><a href="https://phexora.ai/about">About</a></li>
-                        <li><a href="https://phexora.ai/applications">Applications</a></li>
-                        <li><a href="https://phexora.ai/contact">Contact</a></li>
-                        <li><a href="https://phexora.ai/privacy" target="_blank" rel="noopener">Privacy Policy</a></li>
-                        <li><a href="https://phexora.ai/terms" target="_blank" rel="noopener">Terms of Service</a></li>
-                        <li><a href="https://phexora.ai/impressum" target="_blank" rel="noopener">Impressum</a></li>
-                    </ul>
-                </div>
-
-                <!-- Contact -->
-                <div class="footer-section">
-                    <h4 class="footer-heading">Contact</h4>
-                    <ul class="footer-nav">
-                        <li><a href="mailto:support@phexora.ai">support@phexora.ai</a></li>
-                    </ul>
-                    <h4 class="footer-heading" style="margin-top: 1rem;">Follow Us</h4>
-                    <div class="footer-social">
-                        <a href="https://github.com/des1re10" target="_blank" rel="noopener" aria-label="GitHub">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                        </a>
-                        <a href="https://www.linkedin.com/company/phexora-ai-llc/" target="_blank" rel="noopener" aria-label="LinkedIn">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                        </a>
-                    </div>
-                </div>
+                <nav class="footer-nav" aria-label="Footer navigation">
+                    <a href="https://phexora.ai" target="_blank" rel="noopener">Phexora AI</a>
+                    <a href="https://github.com/des1re10/Quantum" target="_blank" rel="noopener">GitHub</a>
+                    <a href="mailto:support@phexora.ai">Contact</a>
+                </nav>
             </div>
-
             <div class="footer-divider"></div>
-
-            <!-- Bottom Footer -->
             <div class="footer-bottom">
-                <p class="footer-copyright">&copy; 2026 Phexora AI, LLC. Company and brand identifiers reserved. Delaware LLC, Berlin, Germany</p>
+                <p class="footer-copyright">© 2026 Phexora AI, LLC</p>
                 <div class="footer-legal-links">
-                <a href="https://phexora.ai/impressum" target="_blank" rel="noopener">Impressum</a>
-                <a href="https://phexora.ai/privacy" target="_blank" rel="noopener">Privacy Policy</a>
-                <a href="https://phexora.ai/terms" target="_blank" rel="noopener">Terms of Service</a>
+                    <a href="https://phexora.ai/privacy" target="_blank" rel="noopener">Privacy</a>
+                    <a href="https://phexora.ai/terms" target="_blank" rel="noopener">Terms</a>
+                    <a href="https://phexora.ai/impressum" target="_blank" rel="noopener">Impressum</a>
                 </div>
             </div>
-
-            <!-- Research License Note -->
-            <p class="footer-research-note">Repository-authored research text and documentation are dedicated under <a href="LICENSE">CC0 1.0</a>; site code, brand identifiers, and third-party rights remain unaffected.</p>
+            <p class="footer-research-note">
+                Research only—not legal, tax, financial, or investment advice and not an offer to sell a token, security, or network service.
+            </p>
         </div>
     </footer>
 </body>

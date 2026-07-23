@@ -89,10 +89,11 @@ Quantum/
   patterns, test vectors, benchmarks, or audit results.
 - Do not claim that post-quantum private payments, RingCT, STARK-based
   hash-signature aggregation, private note retrieval, transaction-origin
-  anonymity, or GHOSTDAG ordering are new. In particular, TzEL is the closest
-  public note/nullifier/ML-KEM/one-time-authorisation/STARK baseline and LACT+
-  is an aggregation/confidential-value comparator. The active feasibility
-  paper and versioned T305 decision own the current prior-work boundary.
+  anonymity, or GHOSTDAG ordering are new. In particular, the scoped current
+  review identifies TzEL as its closest public
+  note/nullifier/ML-KEM/one-time-authorisation/STARK baseline, and LACT+ is an
+  aggregation/confidential-value comparator. The active feasibility paper and
+  versioned T305 decision own the current prior-work boundary.
 - Distinguish requirements, selected standards, candidates, open gates, and
   verified results.
 - A generic STARK, lattice commitment, or PQ primitive does not establish

@@ -966,8 +966,8 @@ At the current revision the project is a **research design**.
   applicable NIST SP 800-208 stateful profile;
 - required state-management failure vectors, isolated authorisation costs, and
   reproduced-versus-author-reported evidence labels;
-- introduced a pre-registered material-benefit rule and explicit
-  GO/ADAPT/REPLICATE/STOP outcome classes.
+- introduced a requirement to pre-register the material-benefit rule and
+  explicit GO/ADAPT/REPLICATE/STOP outcome classes.
 
 ## 0.3.0-research — 2026-07-21
 

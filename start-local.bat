@@ -85,7 +85,7 @@ if "!REBUILD_NEEDED!"=="1" (
 )
 
 echo Starting local web server...
-echo URL: http://localhost:%PORT%
+echo URL: http://127.0.0.1:%PORT%
 echo Press Ctrl+C to stop
 echo.
 

@@ -32,8 +32,8 @@ reviewed profiles and do not inherit the base protocol's claims.
 **Research design 0.4.0-research — not implementation-ready or production-safe.**
 
 This repository currently contains a static documentation website, a research
-design, a verification plan, and a pre-registered transaction-feasibility
-research protocol. It does not contain a node, wallet, blockchain
+design, a verification plan, and a transaction-feasibility pre-registration
+draft. It does not contain a node, wallet, blockchain
 implementation, testnet, external security audit, or completed performance
 benchmark.
 
@@ -107,14 +107,32 @@ performance of the composed protocol.
 
 ## Local documentation site
 
+The checked-in website can be opened directly from a standalone clone without
+starting a runtime:
+
 ~~~bash
 git clone https://github.com/des1re10/Quantum.git
 cd Quantum
-./start-local.sh
-# Open http://localhost:9180
+# Open index.html in a browser
 ~~~
 
-On Windows, use <code>start-local.bat</code>.
+The validated HTTP preview is a development-workspace command. From a complete
+<code>VisualStudio</code> workspace containing the sibling
+<code>Libraries</code> repository, run:
+
+~~~bash
+cd Quantum
+./start-local.sh
+# Open http://127.0.0.1:9180
+~~~
+
+On Windows, use <code>start-local.bat</code>. When no port is supplied, both
+launchers resolve it through the shared application registry; the Windows
+launcher additionally uses the shared startup helper. Required workspace
+dependencies fail closed, selected ports are validated, and both servers bind
+to <code>127.0.0.1</code>. The launchers also verify that generated paper PDFs
+are current; rebuilding them requires the sibling <code>DocWizard-Pro</code>
+repository.
 
 ## PDF generation
 

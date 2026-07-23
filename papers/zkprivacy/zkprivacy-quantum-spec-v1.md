@@ -1066,11 +1066,11 @@ normative only with rationale, vectors, tests, and review.
 ## 0.4.0-research — 2026-07-23
 
 - recorded TzEL as the closest public
-  note/nullifier/ML-KEM/hash-authorisation/STARK engineering baseline and
-  rejected a generic protocol
-  novelty claim;
+  note/nullifier/ML-KEM/hash-authorisation/STARK engineering baseline identified
+  by the scoped review and rejected a generic protocol novelty claim;
 - changed FIPS 205 <code>SLH-DSA-SHAKE-256f</code> from an assumed final
-  profile to the stateless incumbent in a pre-registered comparison;
+  profile to the stateless incumbent in a comparison governed by a
+  pre-registration requirement;
 - required independently specified TzEL-shaped and applicable NIST SP 800-208
   stateful comparators under the same complete transaction relation;
 - made state-management failure analysis and a material-benefit rule mandatory
