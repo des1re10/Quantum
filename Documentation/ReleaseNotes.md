@@ -26,12 +26,22 @@
 
 **Landing Page and Local Preview**
 
-- Reworked the landing page around a concise current-state sequence, the three
-  joint release gates, an explicit reading order, and a contribution path.
-  Design targets are now labelled as unmeasured, repeated research copy and
-  duplicate legal navigation were removed, and the mobile layout was shortened.
+- Reworked the landing page around a concise research-programme sequence, three
+  design principles, an explicit publication order, and a contribution path.
+  Design targets are presented as the target architecture, repeated research
+  copy and duplicate legal navigation were removed, and the mobile layout was
+  shortened.
+- Reframed public copy around Quantum's vision, design principles, and research
+  progress while retaining detailed uncertainty, prior-art, and stop/go
+  analysis in the linked research documents.
 - Added consistent keyboard focus treatment, reduced-motion handling, and
   non-interactive publication cards.
+- Added one shared DE/EN locale contract for the landing page, with an
+  accessible language switcher in desktop and mobile navigation.
+- Added a static projection of the shared Phexora AI company-footer contract,
+  linked every legal destination to its canonical Phexora AI owner, removed the
+  three duplicate local legal pages, and raised footer link targets to at least
+  44 pixels.
 - Added a dependency-free direct-file path for standalone clones and documented
   the shared workspace dependencies required by the validated HTTP preview.
 - Made the Linux preview resolve its required registry contract without a

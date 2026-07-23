@@ -44,6 +44,8 @@ separate later profiles and do not inherit base-protocol claims.
 | Market/claim wording | <code>Documentation/Quantum_Market_Thesis.html</code> |
 | Actual static-site architecture | <code>Documentation/SystemArchitecture.html</code> |
 | Public site styles | <code>assets/css/style.css</code> |
+| Public DE/EN locale contract and language switching | <code>assets/js/site-i18n.js</code> |
+| Company-footer structure and legal URLs | <code>../Libraries/frontend/components/Company/Footer.jsx</code> and <code>../Libraries/frontend/components/Company/companyLinks.js</code> |
 | Internal document styles | <code>Documentation/assets/documentation.css</code> |
 
 Root-level Markdown papers in <code>papers/zkprivacy/</code> are active source
@@ -70,7 +72,7 @@ Quantum/
 └── start-local.bat
 ~~~
 
-- Runtime: static HTML/CSS served by Nginx.
+- Runtime: static HTML/CSS/JavaScript served by Nginx.
 - Local preview: port 9180 through the repository start scripts.
 - PDF build: Markdown → DocWizard-Pro/Pandoc → PDF.
 - Deployment: <code>tools/Scripts/deploy_testing.bat</code> on Windows, then
@@ -98,8 +100,9 @@ Quantum/
   verified results.
 - A generic STARK, lattice commitment, or PQ primitive does not establish
   composed protocol security.
-- Keep HTML semantic, responsive, accessible, and JavaScript-free unless a
-  documented requirement justifies JavaScript.
+- Keep HTML semantic, responsive, and accessible. Client-side JavaScript is
+  limited to the documented shared DE/EN locale contract unless another
+  requirement is approved explicitly.
 - Use external stylesheets; do not add page-specific inline style blocks.
 - Update <code>Documentation/ReleaseNotes.md</code> and
   <code>Documentation/ProjectStructure.md</code> when structure or durable
@@ -111,7 +114,7 @@ For documentation changes:
 
 1. run the audit gate required by <code>AGENTS.md</code>;
 2. parse Markdown with Pandoc;
-3. parse or validate HTML and verify local links/assets;
+3. parse or validate HTML, verify both locales, and check local links/assets;
 4. rebuild every active-paper PDF;
 5. review public claims across README, landing page, papers, and research
    briefs;

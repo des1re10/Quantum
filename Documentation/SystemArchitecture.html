@@ -51,7 +51,7 @@ index.html + LICENSE + assets/ + papers/ ── Nginx ──► Browser</code></
       <section class="doc-section" id="grenzen">
         <h2>Systemgrenzen</h2>
         <div class="card-grid">
-          <div class="info-card"><strong>Vorhanden</strong><span>HTML, CSS, Markdown, PDF, lokale Start- und Deployment-Skripte.</span></div>
+          <div class="info-card"><strong>Vorhanden</strong><span>HTML, CSS, ein gemeinsames DE/EN-JavaScript-Modul, Markdown, PDF sowie lokale Start- und Deployment-Skripte.</span></div>
           <div class="info-card"><strong>Nicht vorhanden</strong><span>Backend, API, Datenbank, Authentifizierung, Wallet, Node, Konsenscode oder Testnet.</span></div>
           <div class="info-card"><strong>Öffentlich ausgeliefert</strong><span><code>index.html</code>, <code>LICENSE</code>, <code>assets/</code> und <code>papers/</code>.</span></div>
         </div>
@@ -70,6 +70,7 @@ index.html + LICENSE + assets/ + papers/ ── Nginx ──► Browser</code></
               <tr><td>T305-Prior-Art- und Wiederverwendungsentscheidung</td><td><code>papers/zkprivacy/decisions/t305-prior-art-decision.md</code></td><td>keine PDF; Gate-Dokument, kein Paper</td></tr>
               <tr><td>Künftige Paper-Skizzen</td><td><code>papers/zkprivacy/templates/</code></td><td>keine PDF; keine aktive Publikation</td></tr>
               <tr><td>Öffentliche Landingpage</td><td><code>index.html</code></td><td>direkt ausgeliefert</td></tr>
+              <tr><td>DE/EN-Oberfläche</td><td><code>assets/js/site-i18n.js</code></td><td>direkt ausgeliefert; kein externer Übersetzungsdienst</td></tr>
               <tr><td>Forschungslizenz</td><td><code>LICENSE</code></td><td>direkt ausgeliefert</td></tr>
               <tr><td>Interne langlebige Dokumente</td><td>HTML-Dateien in <code>Documentation/</code></td><td>keine automatische Veröffentlichung</td></tr>
             </tbody>
@@ -106,7 +107,7 @@ Server-Arbeitskopie
   ├─ index.html + LICENSE + assets/ + papers/
   ▼
 /var/www/quantum[-test] ── Nginx/HTTPS</code></pre>
-        <p>Das Server-Deployment kopiert ausschließlich <code>index.html</code>, <code>LICENSE</code>, <code>assets/</code> und <code>papers/</code> in den Web-Root. <code>Documentation/</code>, Quellrichtlinien und Build-Skripte bleiben in der Server-Arbeitskopie und sind nicht Teil der öffentlichen Website.</p>
+        <p>Das Server-Deployment kopiert ausschließlich <code>index.html</code>, <code>LICENSE</code>, <code>assets/</code> und <code>papers/</code> in den Web-Root. Die rechtlichen Links bleiben bei ihren zentral gepflegten Phexora-Seiten. <code>Documentation/</code>, Quellrichtlinien und Build-Skripte bleiben in der Server-Arbeitskopie und sind nicht Teil der öffentlichen Website.</p>
         <p><code>run_quantum.sh</code> verwendet die gemeinsame statische Nginx-Infrastruktur für Web-Root, HTTPS und Wartungsseite. Die Nginx-Konfiguration wird nicht manuell im Repository gepflegt.</p>
       </section>
 
@@ -131,6 +132,8 @@ Server-Arbeitskopie
             <thead><tr><th>Verantwortung</th><th>Eigentümer</th><th>Phase</th></tr></thead>
             <tbody>
               <tr><td>Landingpage-Design</td><td><code>assets/css/style.css</code></td><td>Laufzeit</td></tr>
+              <tr><td>DE/EN-UI, Sprachstatus und lokalisierte Metadaten</td><td><code>assets/js/site-i18n.js</code></td><td>Laufzeit im Browser</td></tr>
+              <tr><td>Unternehmens-Footer und Rechts-URLs</td><td><code>Libraries/frontend/components/Company/Footer.jsx</code> und <code>Libraries/frontend/components/Company/companyLinks.js</code>; statische Projektion in <code>index.html</code></td><td>Gemeinsamer UI-Vertrag ohne React-Laufzeit in Quantum</td></tr>
               <tr><td>Interne Dokumentgestaltung</td><td><code>Documentation/assets/documentation.css</code></td><td>lokale Dokumentansicht</td></tr>
               <tr><td>PDF-Konvertierung</td><td><code>DocWizard-Pro</code></td><td>Build</td></tr>
               <tr><td>Deployment-Orchestrierung</td><td><code>Libraries/Scripts</code> über Quantum-Skripte</td><td>Deployment</td></tr>
@@ -145,6 +148,7 @@ Server-Arbeitskopie
         <h2>Sicherheitsgrenze</h2>
         <ul>
           <li>Die Website führt keinen benutzerkontrollierten Code aus und verarbeitet keine Konten, Zahlungen oder personenbezogenen Formulardaten.</li>
+          <li>Das Sprachmodul verarbeitet ausschließlich die fest eingebetteten deutschen und englischen Texte sowie den validierten Query-Parameter <code>lang</code>; es lädt keine externen Übersetzungen.</li>
           <li>Öffentliche Dateien dürfen keine Schlüssel, Secrets, internen Serverpfade oder unveröffentlichte Zugangsdaten enthalten.</li>
           <li>Externe Links verwenden bei neuen Tabs <code>rel="noopener"</code>.</li>
           <li>Die Forschungsdokumente dürfen Anforderungen darstellen, aber offene Sicherheits- oder Leistungsnachweise nicht als abgeschlossen bezeichnen.</li>
@@ -154,7 +158,8 @@ Server-Arbeitskopie
       <section class="doc-section" id="pruefung">
         <h2>Prüfung nach Änderungen</h2>
         <ol>
-          <li>HTML mit einem Parser oder Validator prüfen.</li>
+          <li>HTML und JavaScript mit Parsern oder Validatoren prüfen.</li>
+          <li>Englisch und Deutsch auf der öffentlichen Landingpage rendern; dabei Dokumenttitel, Beschreibung, <code>lang</code> und aktive Sprachschaltfläche prüfen.</li>
           <li>Alle lokalen Links und Assets gegen die tatsächliche Quellstruktur prüfen.</li>
           <li>Markdown mit Pandoc parsen und PDFs neu erzeugen.</li>
           <li>Landingpage lokal unter Port 9180 prüfen; PDF-Links öffnen.</li>

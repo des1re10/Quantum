@@ -116,6 +116,13 @@ cd Quantum
 # Open index.html in a browser
 ~~~
 
+The public interface supports English and German through the header language
+switcher. The selected language is preserved in local navigation through the
+<code>?lang=en</code> or <code>?lang=de</code> query parameter; no server
+runtime or external translation service is required. The company footer follows
+the shared Phexora AI footer contract, while privacy, terms, imprint, and refund
+policy remain at their canonical <code>phexora.ai</code> destinations.
+
 The validated HTTP preview is a development-workspace command. From a complete
 <code>VisualStudio</code> workspace containing the sibling
 <code>Libraries</code> repository, run:

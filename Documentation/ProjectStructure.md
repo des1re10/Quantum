@@ -9,9 +9,6 @@ Quantum/
 ├── README.md                         # Project overview and quick start
 ├── LICENSE                           # CC0 dedication and rights boundary
 ├── index.html                        # Landing page (static HTML)
-├── impressum.html                    # Legal notice (Impressum)
-├── privacy.html                      # Privacy policy
-├── terms.html                        # Terms of use
 ├── .gitignore                        # Git ignore rules
 │
 ├── Documentation/
@@ -42,6 +39,8 @@ Quantum/
 ├── assets/
 │   ├── css/
 │   │   └── style.css                 # Main stylesheet
+│   ├── js/
+│   │   └── site-i18n.js              # Single DE/EN landing-page locale contract
 │   └── images/
 │       └── favicon.svg               # Site favicon
 │
