@@ -349,7 +349,7 @@ echo "[4/5] Verifying deployment..."
 HOME_FILE_COUNT=$(find "$TARGET_DIR" -type f 2>/dev/null | wc -l)
 echo "  Deployed $HOME_FILE_COUNT files to $TARGET_DIR"
 
-WEB_FILE_COUNT=$(sudo find "$WEB_ROOT" -type f 2>/dev/null | wc -l)
+WEB_FILE_COUNT=$(find "$WEB_ROOT" -type f 2>/dev/null | wc -l)
 echo "  Deployed $WEB_FILE_COUNT files to $WEB_ROOT"
 
 # === Run startup script for nginx/SSL setup ===
