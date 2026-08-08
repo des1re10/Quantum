@@ -179,45 +179,27 @@ for file in "${REQUIRED_FILES[@]}"; do
     fi
 done
 
-# Quantum archives may include either PDF-only papers or both PDF+Markdown.
-# Accept either format to avoid false deployment failures.
-SPEC_FOUND=0
-for spec_file in \
-    "papers/zkprivacy/zkprivacy-quantum-spec-v1.md" \
-    "papers/zkprivacy/zkprivacy-quantum-spec-v1.pdf"; do
-    if [ -f "$SOURCE_BASE/$spec_file" ]; then
-        echo "  Found: $spec_file"
-        SPEC_FOUND=1
-        break
+# These Markdown papers are public website assets, not repository-only
+# documentation. Refuse an incomplete archive instead of reporting a
+# successful publication with missing or stale research pages.
+PUBLIC_MARKDOWN_FILES=(
+    "papers/zkprivacy/decisions/t305-prior-art-decision.md"
+    "papers/zkprivacy/quantum-private-transaction-feasibility.md"
+    "papers/zkprivacy/templates/README.md"
+    "papers/zkprivacy/templates/ghostdag-private-state-template.md"
+    "papers/zkprivacy/templates/network-origin-anonymity-template.md"
+    "papers/zkprivacy/templates/private-note-discovery-template.md"
+    "papers/zkprivacy/zkprivacy-quantum-spec-v1.md"
+    "papers/zkprivacy/zkprivacy-verification-guide.md"
+)
+for markdown_file in "${PUBLIC_MARKDOWN_FILES[@]}"; do
+    if [ -f "$SOURCE_BASE/$markdown_file" ]; then
+        echo "  Found: $markdown_file"
+    else
+        echo "  Missing: $markdown_file"
+        MISSING_FILES=1
     fi
 done
-if [ "$SPEC_FOUND" -eq 0 ]; then
-    echo "  Missing: papers/zkprivacy/zkprivacy-quantum-spec-v1.(md|pdf)"
-    MISSING_FILES=1
-fi
-
-GUIDE_FOUND=0
-for guide_file in \
-    "papers/zkprivacy/zkprivacy-verification-guide.md" \
-    "papers/zkprivacy/zkprivacy-verification-guide.pdf"; do
-    if [ -f "$SOURCE_BASE/$guide_file" ]; then
-        echo "  Found: $guide_file"
-        GUIDE_FOUND=1
-        break
-    fi
-done
-if [ "$GUIDE_FOUND" -eq 0 ]; then
-    echo "  Missing: papers/zkprivacy/zkprivacy-verification-guide.(md|pdf)"
-    MISSING_FILES=1
-fi
-
-# Optional in archive bundles (Windows packager may exclude .md files).
-if [ ! -f "$SOURCE_BASE/papers/zkprivacy/zkprivacy-quantum-spec-v1.md" ]; then
-    echo "  Warning: markdown source missing (spec): papers/zkprivacy/zkprivacy-quantum-spec-v1.md"
-fi
-if [ ! -f "$SOURCE_BASE/papers/zkprivacy/zkprivacy-verification-guide.md" ]; then
-    echo "  Warning: markdown source missing (guide): papers/zkprivacy/zkprivacy-verification-guide.md"
-fi
 
 if [ $MISSING_FILES -eq 1 ]; then
     echo ""
