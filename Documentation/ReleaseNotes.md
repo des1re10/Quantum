@@ -47,6 +47,9 @@
   decision with primary-source boundaries for GHOSTDAG transaction-selection
   incentives, Kaspa sequencing commitments, Stratum V2 Job Declaration,
   Utreexo, data availability, and fee-funded PoW security.
+- Added the new decision record to the required public-paper contract and made
+  deployment fail before activation if any declared public Markdown paper is
+  missing from either the staged target or the web root.
 - Advanced the transaction-feasibility protocol to
   <code>0.3.2-research-protocol</code>: T004 now owns the benchmark method,
   harness, and pinned environment, while T005 owns every numerical acceptance

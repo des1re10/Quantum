@@ -183,6 +183,7 @@ done
 # documentation. Refuse an incomplete archive instead of reporting a
 # successful publication with missing or stale research pages.
 PUBLIC_MARKDOWN_FILES=(
+    "papers/zkprivacy/decisions/decentralisation-operability-security-budget-decision.md"
     "papers/zkprivacy/decisions/t305-prior-art-decision.md"
     "papers/zkprivacy/quantum-private-transaction-feasibility.md"
     "papers/zkprivacy/templates/README.md"
@@ -264,6 +265,12 @@ for required_path in "index.html" "assets" "papers" "LICENSE"; do
         exit 1
     fi
 done
+for markdown_file in "${PUBLIC_MARKDOWN_FILES[@]}"; do
+    if [ ! -f "$TARGET_DIR/$markdown_file" ]; then
+        echo "ERROR: Required public paper missing from deployment output: $TARGET_DIR/$markdown_file"
+        exit 1
+    fi
+done
 
 # === Copy to web root (Quantum-specific: static website served by nginx) ===
 echo ""
@@ -293,6 +300,11 @@ verify_published_path "$TARGET_DIR/index.html" "$WEB_ROOT/index.html"
 verify_published_path "$TARGET_DIR/LICENSE" "$WEB_ROOT/LICENSE"
 verify_published_path "$TARGET_DIR/assets" "$WEB_ROOT/assets"
 verify_published_path "$TARGET_DIR/papers" "$WEB_ROOT/papers"
+for markdown_file in "${PUBLIC_MARKDOWN_FILES[@]}"; do
+    verify_published_path \
+        "$TARGET_DIR/$markdown_file" \
+        "$WEB_ROOT/$markdown_file"
+done
 echo "  ✓ Web root deployment complete"
 
 # Validate sync manifest
