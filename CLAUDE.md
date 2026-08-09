@@ -12,16 +12,20 @@ not duplicated here.
 
 ## Research status
 
-The current protocol document is revision <code>0.4.0-research</code>, even
+The current protocol document is revision <code>0.5.2-research</code>, even
 though its legacy filename contains “v1”.
 
-The three non-negotiable release requirements are:
+The five non-negotiable release requirements are:
 
 1. ≥128-bit composed post-quantum security without classical fallbacks;
 2. private transfers and network anonymity by default, with no transparent
-   transaction mode; and
+   transaction mode;
 3. ≥1,000 accepted layer-1 transactions per second in a reproducible,
-   privacy-enabled end-to-end benchmark.
+   privacy-enabled end-to-end benchmark;
+4. independently bounded executing validation and recovery without a trusted
+   sole provider; and
+5. contestable block production with explicitly reviewed ordering incentives
+   and long-run security funding.
 
 These are targets. Never describe them as achieved until the matching evidence
 gates in the specification and verification plan pass.
@@ -39,6 +43,7 @@ separate later profiles and do not inherit base-protocol claims.
 | Task graph and evidence gates | <code>papers/zkprivacy/zkprivacy-verification-guide.md</code> |
 | T305 research protocol and prior-work boundary | <code>papers/zkprivacy/quantum-private-transaction-feasibility.md</code> |
 | T305 adopt/adapt/replicate and source-reuse decision | <code>papers/zkprivacy/decisions/t305-prior-art-decision.md</code> |
+| Operability, availability, producer, and security-budget decision | <code>papers/zkprivacy/decisions/decentralisation-operability-security-budget-decision.md</code> |
 | Future-paper scope and promotion gates | <code>papers/zkprivacy/templates/</code> |
 | Public research positioning | <code>index.html</code> and <code>README.md</code> |
 | Market/claim wording | <code>Documentation/Quantum_Market_Thesis.html</code> |
@@ -106,6 +111,13 @@ Quantum/
   versioned T305 decision own the current prior-work boundary.
 - Distinguish requirements, selected standards, candidates, open gates, and
   verified results.
+- Keep executing-validator, succinct-verifier, producer, prover, state-provider,
+  archive-provider, and pool/share-aggregator claims distinct.
+- Never treat proof soundness as current-data availability, archive recovery,
+  censorship resistance, or wallet-witness availability.
+- Do not change the 21,000,000 QTM lifetime gross-issuance statement without
+  the exact versioned Product Owner, monetary-economics, consensus, and legal
+  approvals required by R12/T506.
 - A generic STARK, lattice commitment, or PQ primitive does not establish
   composed protocol security.
 - Keep HTML semantic, responsive, and accessible. Client-side JavaScript is

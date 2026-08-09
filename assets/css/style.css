@@ -340,7 +340,12 @@ a:focus-visible {
 }
 
 .requirements-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.requirements-grid > .requirement-card {
+    flex: 1 1 280px;
 }
 
 .status-card,
@@ -724,6 +729,7 @@ pre {
     }
 
     .requirements-grid {
+        display: grid;
         grid-template-columns: 1fr;
     }
 
@@ -769,8 +775,17 @@ pre {
         grid-template-columns: 1fr;
     }
 
+    .hero-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-stat + .hero-stat {
+        border-top: 1px solid var(--border-color);
+        border-left: 0;
+    }
+
     .hero-stat {
-        padding: 1rem 0.35rem;
+        padding: 1rem;
     }
 
     .hero-actions,

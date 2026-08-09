@@ -1,9 +1,9 @@
 ---
 title: "Quantum: Privacy-Preserving Post-Quantum DAG Protocol"
-subtitle: "Research Design Draft 0.4.0-research and Security Requirements"
+subtitle: "Research Design Draft 0.5.2-research and Security Requirements"
 author: "Phexora AI · [phexora.ai](https://phexora.ai)"
-date: "2026-07-23"
-version: "0.4.0-research"
+date: "2026-08-09"
+version: "0.5.2-research"
 status: "Research design draft — not implementation-ready, audited, or production-safe"
 license: "CC0-1.0; see repository LICENSE"
 lang: "en-GB"
@@ -15,15 +15,19 @@ keywords:
   - privacy-preserving ledger
   - directed acyclic graph
   - zero-knowledge proofs
+  - validator operability
+  - data availability
   - protocol research
 abstract: |
   Quantum is a research design for a private note-based DAG protocol intended
   to combine post-quantum security, privacy and network anonymity by default,
-  and at least 1,000 accepted layer-1 transactions per second. This manuscript
-  defines the non-negotiable requirements, threat and claim boundaries,
-  candidate architecture, and blocking evidence gates. It does not report a
-  conformant implementation, completed security proof, external audit, testnet,
-  or production-ready protocol. The initial product boundary is deliberately
+  at least 1,000 accepted layer-1 transactions per second, independently bounded
+  operation and recovery, and contestable block production with an explicitly
+  reviewed long-run security budget. This manuscript defines the
+  non-negotiable requirements, threat and claim boundaries, candidate
+  architecture, and blocking evidence gates. It does not report a conformant
+  implementation, completed security proof, external audit, testnet, or
+  production-ready protocol. The initial product boundary is deliberately
   narrow: private post-quantum digital cash and settlement with bounded payment
   policies, not a general-purpose smart-contract platform.
 
@@ -33,14 +37,15 @@ abstract: |
 
 # Document status
 
-This document defines the non-negotiable security and scalability requirements
-for Quantum and a candidate architecture for meeting them. It is a **research
-design draft**, not a completed protocol specification. There is no conformant
-implementation, testnet, security proof, external audit, or production network
-at this revision.
+This document defines the non-negotiable security, privacy, scalability,
+operability, recovery, producer-contestability, and economic-review
+requirements for Quantum and a candidate architecture for meeting them. It is
+a **research design draft**, not a completed protocol specification. There is
+no conformant implementation, testnet, security proof, external audit, or
+production network at this revision.
 
 The legacy filename contains “v1” so that existing links remain valid. The
-normative document version is <code>0.4.0-research</code>.
+normative document version is <code>0.5.2-research</code>.
 
 The words **MUST**, **MUST NOT**, **REQUIRED**, **SHOULD**, and **MAY** describe
 research acceptance criteria. They do not imply that an implementation already
@@ -48,7 +53,7 @@ satisfies them.
 
 ## Non-negotiable product requirements
 
-Quantum is releasable only if all three properties hold together:
+Quantum is releasable only if all five properties hold together:
 
 1. **Post-quantum security**: every security-critical primitive and their
    composition meet an end-to-end post-quantum security target of at least 128
@@ -61,6 +66,13 @@ Quantum is releasable only if all three properties hold together:
    verification, state updates, networking, and storage, sustains at least
    1,000 accepted layer-1 transactions per second under a published,
    reproducible workload.
+4. **Independent operability and recovery**: executing validation, pruning,
+   restart, bootstrap, and recovery remain inside a frozen, independently
+   obtainable resource profile without reliance on a trusted sole provider.
+5. **Contestable production and reviewed long-run security funding**: pooled
+   miners can construct their own block templates, ordering and censorship
+   incentives pass explicit gates, and the exact monetary policy is supported
+   by independently reviewed accounting and economic evidence.
 
 If any requirement cannot be met, the design MUST be changed or the project
 MUST stop before a production launch. Classical cryptographic fallbacks,
@@ -75,7 +87,8 @@ This document covers:
 - transparent zero-knowledge validity proofs;
 - deterministic DAG consensus and state ordering;
 - network-layer anonymity requirements;
-- supply integrity, rewards, serialization, and resource limits;
+- supply integrity, rewards, serialization, current-data availability,
+  recovery, producer contestability, and resource limits;
 - the evidence required before testnet or production claims.
 
 This document does not claim that combining standardized components
@@ -107,13 +120,21 @@ Research MUST proceed through explicit stop/go boundaries:
    described in Section 9.3;
 3. stop or revise the cryptographic profile if that feasibility gate fails;
 4. only then integrate wallets, private state, DAG consensus, transport, and
-   full-node operation;
+   full-node operation under the operability, availability, producer, and
+   monetary gates;
 5. add bounded payment policies or interoperability adapters only after their
    additional proof and trust assumptions pass separate gates.
 
-This sequencing does not weaken the three joint production requirements. It
+This sequencing does not weaken the five joint production requirements. It
 prevents node and ecosystem work from concealing a cryptographic design that
 cannot meet them.
+
+The versioned
+[decentralisation, operability, and security-budget decision](decisions/decentralisation-operability-security-budget-decision.md)
+at decision revision <code>0.3.1-research</code> records the boundaries
+incorporated into this 0.5.2 design, its rejected claims, candidate mechanisms,
+and human approval points. The decision record has an independent version
+lifecycle and does not mark a requirement or gate as passed.
 
 ## 1.2 Status vocabulary
 
@@ -138,7 +159,12 @@ cannot meet them.
 | DAG consensus/state | Blocking research gate | Exact GHOSTDAG profile, deterministic ordering, DAA, state proof |
 | Network anonymity | Blocking research gate | Exact protocol and analysis against the stated observer |
 | Performance | Blocking research gate | End-to-end prototype and reproducible target benchmark |
-| Economics/genesis | Provisional | DAA-score reward rules, cap proof, canonical genesis bytes |
+| Validator operability | Blocking research gate | Frozen profile and paired G7/G10 evidence |
+| Current data/recovery | Blocking research gate | Role-specific availability, bootstrap, withholding, and recovery evidence |
+| Mining templates/incentives | Blocking research gate | Miner-controlled template path, pooled-mining comparator, and incentive analysis |
+| PoW hardware contestability | Comparative research gate | Candidate measurements before PoW selection |
+| Upgrade governance | Blocking research gate | Exact post-quantum authorisation and activation state machine |
+| Economics/genesis | Provisional | DAA-score reward rules, selected monetary-invariant proof, canonical genesis bytes |
 
 # 2. Normative requirements
 
@@ -193,6 +219,16 @@ by the user; those boundaries MUST be stated with every claim.
   security property, and output length justified by the composed analysis.
 - R3.5 A “generic STARK”, “lattice-based commitment”, or “hybrid” label is not
   evidence of post-quantum security.
+- R3.6 T001 and T204 MUST derive the required wallet master-secret entropy
+  from the approved multi-user, multi-target, and protocol-lifetime bound. A
+  256-bit BIP-39 mnemonic is the minimum compatibility profile, not automatic
+  evidence that the composed R3 target remains satisfied. If the derived
+  requirement exceeds 256 bits, the wallet MUST add independently generated,
+  domain-separated secret entropy or use a separately reviewed higher-entropy
+  seed format, with exact recovery and composition rules. Lower-entropy legacy
+  mnemonic imports MAY be supported only under an explicit degraded-security
+  profile, MUST present a user-visible warning before use, and MUST NOT inherit
+  the 128-bit post-quantum claim.
 
 ## R4 — Authorization and supply integrity
 
@@ -203,14 +239,19 @@ by the user; those boundaries MUST be stated with every claim.
 - R4.3 Balance MUST be proved as bounded integer arithmetic. Equality in a
   finite field alone is forbidden.
 - R4.4 Only a consensus-authorized reward transaction MAY create value.
-- R4.5 The total issued supply MUST never exceed 21,000,000 QTM, represented in
-  a fixed base unit and checked without floating-point arithmetic.
+- R4.5 Cumulative gross issuance MUST never exceed 21,000,000 QTM, represented
+  in a fixed base unit and checked without floating-point arithmetic.
 - R4.6 Fees MUST be accounted for as value transferred from accepted ordinary
   transactions, not as newly issued value. Only the subsidy portion of an
   authorized reward transition may increase cumulative issuance.
 - R4.7 Reward outputs MUST NOT exceed the sum of the consensus-authorized
-  subsidy and fees collected by the exact canonical state transition. Unclaimed
-  value is burned and MUST NOT become reclaimable through another path.
+  subsidy and fees collected by the exact canonical state transition.
+  Unclaimed fees are burned existing value. Foregone subsidy was never issued
+  and MUST NOT be represented as burned value or counted twice.
+- R4.8 Under the current lifetime gross-issuance cap, burned existing value
+  MUST NOT restore issuance headroom. Any outstanding-supply cap, burn-and-
+  reissuance rule, tail emission, or replacement cap semantic requires a
+  separately versioned product decision and public monetary statement.
 
 ## R5 — Deterministic consensus safety
 
@@ -224,6 +265,16 @@ by the user; those boundaries MUST be stated with every claim.
   mismatch.
 - R5.4 Concurrent nullifier conflicts MUST resolve through one canonical
   ordering and atomic state transition.
+- R5.5 The mining and reward profile MUST permit a miner-controlled full node
+  or Job Declarator to construct and commit to its own candidate transaction
+  set while a separate pool or share aggregator accounts for work.
+- R5.6 No release claim may assume that public fees make transaction selection
+  mechanical or that privacy eliminates extractable ordering value. The final
+  profile MUST analyse fee, conflict, timing, censorship, duplicate-inclusion,
+  and reorganisation incentives under its exact public fields and DAG rules.
+- R5.7 The PoW algorithm MUST NOT be selected or described as ASIC-resistant
+  before the hardware-contestability gate compares commodity, specialised,
+  supply-chain, cloud, botnet, verification, energy, and block-rate costs.
 
 ## R6 — Scalability
 
@@ -249,7 +300,27 @@ by the user; those boundaries MUST be stated with every claim.
 - R7.2 Proof aggregation or recursion is allowed only if the outer proof
   preserves the post-quantum and no-secret-setup requirements.
 - R7.3 Protocol upgrades MUST be versioned, domain-separated, replay-safe, and
-  authenticated by a post-quantum governance mechanism defined before launch.
+  authenticated by the post-quantum governance and activation mechanism owned
+  by T510 and defined before launch.
+- R7.4 T306 MUST decide only whether the selected proof system provides a
+  usable transparent accumulation or recursion capability inside the R3 and
+  R9 budgets. It MUST NOT freeze the exact Quantum consensus/state relation
+  before T405, T503, and T504 define bounded-policy semantics, canonical
+  ordering, and monetary state.
+- R7.5 If T306 selects that capability, T505 MUST define the exact Quantum
+  relation binding canonical consensus ordering, complete state transitions,
+  rewards, fees, burns, issuance, protocol version, and checkpoint identity.
+- R7.6 Proof soundness MUST NOT be presented as evidence of current-data
+  availability, state availability, wallet-witness availability, canonical
+  history selection, censorship resistance, or archive recovery.
+- R7.7 A concentrated prover or aggregator MUST be modelled as able to delay,
+  withhold, censor, or selectively prove consensus-valid histories. The final
+  profile MUST state a tested degraded or alternative path.
+- R7.8 T510 does not prove governance decentralisation or prevent capture by a
+  formally authorised quorum. Its threat model MUST analyse principal
+  concentration, bribery, collusion, strategic abstention, veto power,
+  client-distribution control, and the boundary between deterministic protocol
+  activation and voluntary social adoption.
 
 ## R8 — Verifiability
 
@@ -267,6 +338,98 @@ by the user; those boundaries MUST be stated with every claim.
   gate. A base-layer proof MUST NOT be presented as evidence for an external
   bridge, general-purpose application runtime, or regulatory compliance.
 
+## R9 — Independent operability
+
+- R9.1 Every named release candidate and benchmark campaign MUST freeze one
+  executing-validator profile before results are interpreted. It MUST state
+  CPU, memory, sustained disk I/O and endurance, operational storage, network,
+  power measurement, accelerator policy, bootstrap limits, retail-availability
+  method, and cost method.
+- R9.2 The profile is immutable for that release candidate and campaign. Any
+  change creates a new profile and requires new independently reviewed evidence;
+  it MUST NOT reclassify the prior campaign.
+- R9.3 Profile ceilings MUST be justified with dated evidence for hardware and
+  connectivity independently obtainable in multiple regions. This document
+  does not fabricate numeric ceilings before T005.
+- R9.4 Executing-validator, succinct-verifier, producer, prover, state-provider,
+  archive-provider, and pool/share-aggregator resources MUST be reported
+  separately. Required work MUST NOT be hidden outside the role being claimed.
+- R9.5 G7 and G10 MUST pass as a pair. Reaching R6.1 by exceeding the frozen
+  profile is an operability failure and therefore a release failure.
+
+## R10 — Current data availability and recovery
+
+- R10.1 An executing validator MUST obtain and validate the complete current
+  block body, proof representation, and data required by the selected state-
+  transition profile before accepting a block. Sampling alone is not executing
+  validation.
+- R10.2 Consensus commitments MUST bind the exact current transaction, proof,
+  state-transition, ordering, and availability representations used by the
+  selected profile.
+- R10.3 Pruning and authenticated snapshots MAY bound operational storage, but
+  validator bootstrap, state recovery, wallet recovery, and reconstruction of
+  protocol-required data MUST NOT require a trusted sole archive, snapshot
+  signer, state provider, foundation, or company.
+- R10.4 The selected recovery design MUST specify encoding, commitments,
+  reconstruction thresholds, repair, retention and incentive assumptions,
+  selective withholding, and eclipse behavior. Storage proofs or erasure
+  coding labels alone are not evidence.
+- R10.5 A public protocol cannot prevent third parties from retaining complete
+  public history. Archive distribution MUST NOT be described as a privacy
+  guarantee. First-seen, IP, peer-route, RPC, and operator metadata remain
+  inside the R2 network-privacy threat model.
+
+## R11 — Producer contestability and transaction selection
+
+- R11.1 The profile MUST distinguish the mining device, miner-controlled
+  Template Provider/Job Declarator, block producer, pool/share aggregator, and
+  payout mechanism.
+- R11.2 A conforming miner MUST be able to construct its own candidate template,
+  bind pooled work to it, and publish a valid found block without delegating
+  transaction selection to the pool.
+- R11.3 A non-custodial pooled-mining design MUST be implemented as a comparator.
+  Its latency, variance, bandwidth, payout, reward-privacy, and revenue overhead
+  MUST be measured against pool-selected and custom-job profiles.
+- R11.4 The final ordering profile MUST pass adversarial analysis for fees,
+  fee density, nullifier conflicts, transaction/proof size, anchors and expiry,
+  arrival time, transaction-identifier grinding, duplicates, self-fees,
+  censorship, pool formation, and reorganisations.
+- R11.5 Quantum MUST NOT claim to be MEV-free, censorship-proof, pool-
+  decentralised, or ASIC-resistant while the corresponding G12 evidence is
+  absent.
+- R11.6 Before T507–T509 results are interpreted, T005 MUST freeze the named
+  metrics, adversarial scenarios, pass/fail thresholds, and STOP conditions
+  for custom-template latency and revenue penalty, direct-publication success,
+  inclusion delay under defined censorship, specialised-hardware efficiency,
+  and manufacturer, fabrication, supplier, cloud, and pool concentration.
+
+## R12 — Monetary policy and security budget
+
+- R12.1 The current monetary requirement is a 21,000,000 QTM lifetime gross-
+  issuance cap. The exact finite schedule remains provisional; no perpetual
+  tail subsidy or burn-reissuance headroom is selected at this revision.
+- R12.2 Before T504 implementation, T506 MUST compare the current lifetime-cap
+  and long-run fee-funding path against explicitly worded alternatives,
+  including tail emission and an outstanding-supply cap with burn/reissuance.
+- R12.3 Every candidate MUST use exact integer accounting and publish its cap
+  semantic, issuance schedule, fee/burn rule, supply trajectory, miner-revenue
+  assumptions, entry/exit behavior, concentration model, and sensitivity to
+  price, fees, hardware, energy, and rental markets.
+- R12.4 A positive token-denominated subsidy does not establish adequate attack
+  cost; a finite cap does not establish an adequate future fee market. G13
+  requires independent monetary-economics evidence and a signed product
+  decision under stated assumptions.
+- R12.5 Any change to cap semantics or the public 21-million statement MUST be
+  approved on the exact version by a named Product Owner, consensus reviewer,
+  monetary-economics reviewer, and Legal Counsel. Engineering review alone is
+  insufficient.
+- R12.6 Before candidate results are interpreted, T506 MUST pre-register the
+  scenario sets, metrics, pass/fail thresholds, and STOP conditions used to
+  compare monetary policies. The registration MUST cover fee and miner-revenue
+  scenarios, price and energy shocks, miner entry/exit and hashrate response,
+  security-expenditure or attack-cost proxies, and concentration. Thresholds
+  selected after viewing candidate results are invalid evidence.
+
 # 3. Threat model
 
 The final security profile MUST define exact advantage games and corruption
@@ -274,7 +437,9 @@ thresholds. The minimum research model includes:
 
 - a quantum polynomial-time cryptographic adversary with adaptive chosen-message
   and chosen-ciphertext capabilities where applicable;
-- malicious transaction creators, provers, miners, peers, and data providers;
+- malicious transaction creators, provers, miners, Template Providers, Job
+  Declarators, pools/share aggregators, peers, state/witness providers,
+  snapshot providers, and archive/recovery providers;
 - adaptive network delay, eclipse and Sybil attempts, packet observation,
   transaction injection, and intersection analysis;
 - a global passive network observer for the anonymity target, plus explicitly
@@ -283,6 +448,13 @@ thresholds. The minimum research model includes:
 - recipient-key inference from encrypted-note payloads, including multi-user,
   chosen-key, chosen-ciphertext, and cross-output correlation attacks;
 - crashes, reordering, duplicate delivery, and recovery from snapshots;
+- current-data withholding, selective archive withholding, corrupted recovery
+  shares, eclipse during bootstrap, and prover or state-provider outage;
+- fee, conflicting-nullifier, timing, duplicate-inclusion, censorship,
+  pool-formation, and reorganisation incentives under hidden transaction
+  semantics;
+- hardware, manufacturing, energy, capital, pool, prover, state, archive, and
+  network concentration; and
 - side-channel attackers against wallet and validator implementations.
 
 The consensus profile MUST separately state the assumed adversarial work
@@ -292,7 +464,9 @@ cannot be inferred from the GHOSTDAG name.
 Out of scope for a cryptographic anonymity guarantee are compromised endpoints,
 malicious operating systems, coerced key disclosure, voluntarily published
 view keys, and identifying off-chain behavior. Implementations still SHOULD
-minimize the damage of these events.
+minimize the damage of these events. Retained IP, peer-route, first-seen, RPC,
+and operator-log metadata is a separate compulsion surface even when all ledger
+payloads remain cryptographically private.
 
 # 4. Cryptographic profile
 
@@ -313,6 +487,11 @@ QH(tag, message, output_length) =
         output_length
     )
 ~~~
+
+<code>QTM-RD-0.2</code> is an independently versioned research-vector domain;
+it does not track the manuscript version. Changing it invalidates the affected
+vectors and requires a versioned domain-registry decision. It is not the final
+consensus protocol version.
 
 Tags MUST be non-empty printable ASCII, unique by purpose, and registered in
 the final protocol profile. Output length is in bytes. Decoders MUST reject
@@ -486,6 +665,16 @@ the individual proofs it replaces. The aggregate relation MUST bind the exact
 ordered transaction set, public inputs, pre-state, and post-state; aggregation
 MUST NOT turn proof generation into a trusted service.
 
+Transaction aggregation and accumulated historical validity are different
+profiles. T306 first evaluates the proof system's generic accumulation or
+recursion capability inside the R3 and R9 budgets; it does not freeze Quantum's
+consensus relation. After T405, T503, and T504 define bounded-policy semantics,
+canonical ordering, and monetary state, T505 owns the exact consensus-bound
+relation and bootstrap/state-validity profile. Neither task may count a compact
+proof as current block data,
+current state, a wallet witness, or recovery data, and a succinct verifier MUST
+NOT be reported as an executing validator.
+
 ## 4.6 Entropy, mnemonics, and key derivation
 
 Randomness MUST come from an operating-system CSPRNG and MUST fail closed if
@@ -505,6 +694,23 @@ BIP-39 derives only the wallet master seed. Quantum child keys MUST then use a
 separately reviewed, domain-separated post-quantum derivation profile. Wallet
 storage encryption MUST have its own memory-hard password-KDF profile and MUST
 not describe the BIP-39 PBKDF as storage protection.
+
+A conforming wallet MUST support a 24-word BIP-39 mnemonic generated from 256
+bits of uniform entropy as the minimum compatibility profile. T001 and T204
+MUST derive the full wallet master-secret entropy required after the approved
+multi-user, multi-target, and lifetime losses. The 24-word mnemonic alone MUST
+NOT be presented as evidence that the composed R3 target is met. If the bound
+requires more than 256 source-entropy bits, the wallet MUST combine the
+mnemonic with one or more independently generated, domain-separated secret
+components, or use a separately reviewed higher-entropy seed format. The
+profile MUST specify generation, backup, recovery, combination, and failure
+behaviour and MUST NOT count derived output length as additional entropy.
+
+A lower-entropy mnemonic MAY be imported for legacy recovery only under a
+separately identified degraded-security profile. The wallet MUST show the
+downgrade before funds or keys are used and MUST NOT label that wallet as
+meeting the 128-bit post-quantum target. PBKDF2 output length and a 512-bit
+derived seed do not increase the entropy of the imported mnemonic.
 
 # 5. Private note and transaction model
 
@@ -786,8 +992,10 @@ target for an already received DAG.
 
 ## 7.5 Rewards, supply, and genesis
 
-The monetary target is a hard cap of 21,000,000 QTM with no premine, ICO
-allocation, or founder reward. The exact emission curve remains provisional.
+The current monetary target is a lifetime gross-issuance cap of 21,000,000 QTM
+with no premine, ICO allocation, or founder reward. The exact finite emission
+curve remains provisional. Section R12 requires a separately signed decision
+before this cap semantic can change.
 
 A reward transaction MUST be a distinct consensus type. Its permitted subsidy
 MUST be calculated from a canonical DAA score or other explicitly defined DAG
@@ -799,8 +1007,11 @@ For each canonical reward transition, validators MUST derive exact integers:
 ~~~text
 collected_fees = sum(fee of each accepted ordinary transaction)
 reward_outputs <= authorized_subsidy + collected_fees
-claimed_subsidy = max(0, reward_outputs - collected_fees)
+claimed_fees = min(reward_outputs, collected_fees)
+claimed_subsidy = reward_outputs - claimed_fees
 claimed_subsidy <= authorized_subsidy
+foregone_subsidy = authorized_subsidy - claimed_subsidy
+burned_existing_value = collected_fees - claimed_fees
 next_cumulative_issuance = cumulative_issuance + claimed_subsidy
 next_note_supply = previous_note_supply
                    - collected_fees
@@ -810,14 +1021,24 @@ next_note_supply = previous_note_supply
 The authorized subsidy MUST be non-negative and no greater than
 <code>21,000,000 QTM - cumulative_issuance</code>. The fee portion is transferred
 value and MUST NOT increment cumulative issuance; only the net increase in note
-supply may be counted as claimed subsidy. Any difference between
-<code>authorized_subsidy + collected_fees</code> and
-<code>reward_outputs</code> is burned. Reward outputs and fee claims MUST use the
+supply may be counted as claimed subsidy. <code>burned_existing_value</code> is
+already-issued value destroyed by the transition. <code>foregone_subsidy</code>
+was never issued and is not a burn; under the current cap it does not create an
+additional future schedule entitlement. Burned existing value does not restore
+issuance headroom at this revision. Reward outputs and fee claims MUST use the
 same private note system without exposing recipient data beyond the final
 consensus disclosure budget. The profile MUST define reward maturity, reorg
-reversal, eligibility, and atomic application so that a fee or subsidy cannot be
-claimed twice. Supply accounting MUST prove these equations and the cap under
-rounding and reorganization.
+reversal, eligibility, and atomic application so that a fee, subsidy, foregone
+subsidy, or burn cannot be counted twice. Supply accounting MUST prove these
+equations and the selected monetary-policy invariant under rounding and
+reorganisation.
+
+T506 must treat cap semantics, the integer issuance schedule, the fee/burn
+rule, and the economic security model as separate decision axes. Greater use
+creates more fee transfer; it creates more burn only if the selected rule
+explicitly destroys part of that existing value. A halving or other schedule
+step changes the subsidy component, not necessarily total miner revenue, which
+also includes fees and responds through entry, exit, hashrate, and difficulty.
 
 There is no canonical genesis block at this revision. Before a network launch,
 one immutable genesis byte string, timestamp unit, message field, target, and
@@ -848,13 +1069,14 @@ Release evidence MUST include network simulation, adversarial experiments,
 privacy metrics with confidence intervals, and independent review. Simple byte
 uniformity or Pearson-correlation tests are diagnostics, not anonymity proofs.
 
-# 9. Scalability and resource budget
+# 9. Scalability, operability, and recovery budget
 
 ## 9.1 End-to-end target
 
 The 1,000 transactions-per-second figure is an acceptance target, not a current
 capability claim. A benchmark passes only when accepted state transitions—not
-submitted requests—sustain the target while R1–R5 remain enabled.
+submitted requests—sustain the target while every selected R1–R12 mechanism
+and required operating role remains enabled and separately measured.
 
 The reference workload MUST include a published mix of input/output counts,
 note scans, conflicts, reorgs, proof modes, peer delays, and malformed traffic.
@@ -868,10 +1090,14 @@ unique transaction data: roughly 25 KB per transaction at 1,000 tx/s. A
 110 KB transaction therefore cannot meet that example topology, even before
 headers and retransmission.
 
-Likewise, 25 KB × 1,000 tx/s is roughly 788 TB/year. A 4 TB operational-node
-target is possible only with compact proofs, pruning/state commitments, and a
-separate archival/recovery design. These calculations are mandatory design
-inputs, not optional optimizations.
+Likewise, 25 KB × 1,000 tx/s is roughly 788 TB/year of unique transaction-data
+flow at continuous target utilisation. It is not automatically live-state,
+on-disk ledger, or required archive growth. Reports MUST distinguish network
+bytes including gossip copies, unique canonical bytes, current authenticated
+state, prunable history, and durable recovery data. A bounded operational-node
+target is possible only with a measured combination of compact representations,
+pruning/state commitments, and a separate recovery design. These calculations
+are mandatory design inputs, not optional optimizations.
 
 The final profile MUST publish budgets for:
 
@@ -881,7 +1107,20 @@ The final profile MUST publish budgets for:
 - inbound/outbound propagation amplification;
 - nullifier, commitment, block, and archive growth;
 - wallet scan bandwidth and time;
-- snapshot size, creation time, verification time, and recovery trust.
+- snapshot size, creation time, verification time, and recovery trust;
+- executing-validator, succinct-verifier, producer, prover, state-provider,
+  pool/share-aggregator, and archive-provider resources separately;
+- bootstrap and restart bytes/time inside the frozen R9 profile; and
+- current-data withholding, archive reconstruction, repair, and eclipse
+  behavior.
+
+If an encrypted note payload is represented on layer 1 only by a digest, the
+payload has not disappeared from the payment system. T305 and every later
+capacity report MUST separately state consensus-transaction bytes, external
+encrypted-payload bytes, total bytes generated per payment, provider/retrieval
+traffic, and availability and retention assumptions. Digest-only carriage
+MUST NOT reduce the reported client or wire feasibility cost by moving required
+bytes to an unreported provider.
 
 ## 9.3 Pre-node cryptographic feasibility gate
 
@@ -913,11 +1152,15 @@ records why the experiment is comparative, which public work must be
 replicated or labelled author-reported, and which code may not be adopted.
 Named T001 owner and reviewer signatures remain mandatory before implementation.
 
-T004 MUST freeze reference desktop and constrained-client hardware, workload,
-parallelism, proof-latency, memory, verifier, proof-size, and aggregate
-amortisation thresholds before results are interpreted. The report MUST publish
-single-wallet latency separately from aggregate throughput; multiplying ideal
-parallel jobs is not a wallet-latency result.
+T004 MUST pin the benchmark method, artifact harness, reference desktop and
+constrained-client environment, workload, and parallelism controls. T005 MUST
+then freeze the numerical proof-latency, memory, verifier, proof-size, wire-size,
+external-payload, total-payment-byte, provider-traffic, and aggregate-
+amortisation thresholds before results are interpreted. The report MUST
+publish single-wallet latency separately from aggregate throughput and MUST
+keep consensus bytes, external payloads, total payment bytes, and provider
+traffic distinct. Multiplying ideal parallel jobs is not a wallet-latency
+result.
 
 If the incumbent stateless arm passes and meets its frozen material-benefit
 rule, it may proceed. If a reviewed stateful arm passes while the incumbent
@@ -942,6 +1185,36 @@ Before a public scalability claim:
   disproportionate work;
 - raw artifacts and reproduction commands are published.
 
+## 9.5 Operability gate
+
+T004 owns the benchmark method and artifact harness. T005 then freezes the
+named R9 executing-validator profile and every material threshold before T305,
+T306, T508, T509, or T602–T605 results are interpreted. This ordering contains
+no reverse dependency: a failed campaign may inform a later version, but cannot
+pass by changing the profile under test.
+
+Pre-registration must state how “independently obtainable” is measured across
+regions and how hardware, connectivity, power, and bootstrap cost are compared.
+This revision intentionally supplies no unsupported CPU, memory, storage,
+bandwidth, power, or price ceilings. G7 passes only when G10 passes for the same
+revision, workload, campaign, and profile.
+
+## 9.6 Validity, state, and data roles
+
+The final design must publish a role/data matrix. An executing validator must
+receive and validate complete current data under R10. A succinct verifier may
+check a compact checkpoint proof but is not an executing validator. A producer,
+prover, or state/witness provider may require more resources, but those costs
+and concentration risks remain part of G10–G12 and cannot be omitted from a
+system-level throughput claim.
+
+Witness-carrying authenticated state, accumulated-validity proofs, erasure-
+coded recovery, and data-availability sampling are candidate mechanisms. Each
+must be selected only after its task passes. None substitutes for the others:
+an authenticated witness is not historical data, a validity proof is not
+current data, sampling is not full execution, and archive reconstruction is not
+network-origin privacy.
+
 # 10. Assurance and release gates
 
 ## 10.1 Required analytical artifacts
@@ -953,7 +1226,12 @@ Before a public scalability claim:
 5. GHOSTDAG/state-ordering safety and liveness analysis;
 6. DAA and issuance correctness proof;
 7. network anonymity analysis;
-8. end-to-end multi-target security budget.
+8. end-to-end multi-target security budget;
+9. role-specific operability and current-data/recovery analysis;
+10. transaction-selection, censorship, pool, and hardware-contestability
+    analysis; and
+11. monetary-security comparison with exact cap, schedule, fee, burn, and
+    miner-revenue assumptions.
 
 ## 10.2 Required implementation evidence
 
@@ -964,14 +1242,21 @@ Before a public scalability claim:
 5. fuzzing, property tests, malformed-input and resource-exhaustion tests;
 6. constant-time and side-channel review for secret-dependent operations;
 7. state/reorg/recovery model checking or formal verification where feasible;
-8. reproducible performance and anonymity experiments.
+8. reproducible performance and anonymity experiments;
+9. current-data withholding, bootstrap, snapshot, archive reconstruction,
+   repair, and eclipse experiments; and
+10. miner-controlled template, pooled-mining, ordering, censorship, and
+    hardware-comparison artifacts.
 
 ## 10.3 Independent review
 
 Testnet promotion requires named human owners and independent specialist review
 for cryptography, proof systems, consensus, networking, implementation
-security, and economics. Production requires closure or explicit rejection of
-every high-severity finding and a public statement of residual risk.
+security, data availability/storage, mining and pool incentives, performance,
+and monetary economics. A change to token, cap, issuance, burn, or public
+monetary wording additionally requires a named Product Owner and Legal Counsel.
+Production requires closure or explicit rejection of every high-severity
+finding and a public statement of residual risk.
 
 An AI system may assist with implementation or analysis, but MUST NOT approve
 its own cryptographic design, proof, audit, benchmark, or release.
@@ -980,19 +1265,25 @@ its own cryptographic design, proof, audit, benchmark, or release.
 
 | Gate | Pass condition | Current state |
 |---|---|---|
-| G1 Requirements | R1–R8 traceable to tasks and tests | Drafted, not independently reviewed |
+| G1 Requirements | R1–R12 traceable to tasks and tests | Drafted, not independently reviewed |
 | G2 Commitment | Exact scheme and ≥128-bit composed PQ analysis | Blocked |
 | G3 Proof | Complete AIR/transcript/ZK/soundness profile | Blocked |
 | G3A Transaction feasibility | Complete 2-input/2-output proof meets frozen client, verifier, size, and aggregation budgets | Not run |
-| G4 Private transaction | No-inflation and authorization relation reviewed | Draft relation only |
+| G4 Private transaction | Prevention of unauthorised issuance and authorisation relation reviewed | Draft relation only |
 | G5 DAG state | Deterministic consensus and conflict handling proved/tested | Blocked |
 | G6 Network anonymity | Threat model, design, experiments, review pass | Blocked |
 | G7 Scalability | ≥1,000 accepted tx/s end to end with artifacts | Not run |
 | G8 Interoperability | Two independent implementations and vectors | Not started |
 | G9 External audit | Critical/high findings resolved | Not started |
+| G10 Operability | G7 passes inside the frozen executing-validator profile with bootstrap/restart evidence | Not started |
+| G11 Current data/recovery | Current-body validation, snapshot/bootstrap, withholding, and no-trusted-sole-provider recovery pass | Not started |
+| G12 Producer contestability | Pre-registered template, publication, inclusion, hardware, and concentration thresholds pass with the pooled-mining comparator | Not started |
+| G13 Monetary security | Pre-registered monetary scenarios and thresholds, selected policy invariant, accounting proof, stress model, and required reviews pass | Not started |
 
 No “specification complete,” “quantum-secure,” “fully anonymous,” or “1,000 TPS
-achieved” claim is permitted while the corresponding gate is open.
+achieved” claim is permitted while the corresponding gate is open. G7 does not
+pass G10, proof soundness does not pass G11, deterministic consensus does not
+pass G12, and a cap or positive subsidy does not pass G13.
 
 # 11. Legal and licensing boundary
 
@@ -1041,6 +1332,24 @@ Primary references:
     [Finding Hash Collisions with Quantum Computers](https://eprint.iacr.org/2020/213.pdf).
 17. Béguinet et al.,
     [GeT a CAKE: Generic Transformation from KEM to PAKE](https://eprint.iacr.org/2023/470.pdf).
+18. Perešíni et al., [DAG-Oriented Protocols PHANTOM and GHOSTDAG under
+    Incentive Attack via Transaction Selection Strategy](https://arxiv.org/abs/2109.01102),
+    arXiv preprint, 2021.
+19. Mike Zak and Ro Ma, [KIP-15: Canonical Transaction Ordering and
+    SelectedParent Accepted Transactions Commitment](https://github.com/kaspanet/kips/blob/e4ae2332117b5cb68bd6188e065ef885b6d17939/kip-0015.md).
+20. Michael Sutton, Maxim Biryukov and Hans Moog, [KIP-21: Partitioned
+    Sequencing Commitment with O(activity) Proving](https://github.com/kaspanet/kips/blob/e4ae2332117b5cb68bd6188e065ef885b6d17939/kip-0021.md),
+    with its [reserved proving companion](https://github.com/kaspanet/kips/blob/e4ae2332117b5cb68bd6188e065ef885b6d17939/kip-0021/proving-spec.md),
+    snapshot 2026-08-09.
+21. Stratum V2, [Job Declaration
+    Protocol](https://stratumprotocol.org/specification/06-job-declaration-protocol/).
+22. Dryja, [Utreexo: A dynamic hash-based accumulator optimized for the
+    Bitcoin UTXO set](https://eprint.iacr.org/2019/611).
+23. Al-Bassam, Sonnino and Buterin, [Fraud and Data Availability
+    Proofs](https://arxiv.org/abs/1809.09044).
+24. Carlsten et al., [On the Instability of Bitcoin Without the Block
+    Reward](https://www.cs.princeton.edu/~arvindn/publications/mining_CCS.pdf),
+    CCS 2016.
 
 # Appendix A — Decisions deliberately not frozen
 
@@ -1052,16 +1361,74 @@ analysis would create false precision:
 - transaction and vector byte maxima;
 - note-encryption and P2P authenticated-channel composition;
 - address payload and derivation hierarchy;
+- wallet master-secret entropy and any supplemental secret-composition profile;
+- post-quantum upgrade authorisation, activation, recovery, and emergency rules;
 - GHOSTDAG anticone/finality parameters and DAA;
-- reward curve and genesis block;
+- PoW function and measured hardware-contestability thresholds;
+- monetary-policy decision, reward curve, fee/burn rule, security-budget model,
+  and genesis block;
+- state representation, witness-carrying-state decision, accumulated-validity
+  decision and fallback;
+- miner-template, pooled-mining, ordering and incentive profiles;
+- current-data, snapshot, archive encoding, reconstruction, repair and
+  retention profiles;
 - anonymity network parameters;
-- reference hardware and latency thresholds beyond the 1,000 tx/s acceptance
-  target.
+- the R9 executing-validator hardware, connectivity, power, cost, bootstrap,
+  and latency ceilings beyond the 1,000 tx/s acceptance target.
 
 Each item has an owner task in the verification guide. A value becomes
 normative only with rationale, vectors, tests, and review.
 
 # Appendix B — Revision record
+
+## 0.5.2-research — 2026-08-09
+
+- made the wallet master-secret entropy requirement depend on the T001/T204
+  multi-user, multi-target, and lifetime bound rather than treating a 256-bit
+  BIP-39 mnemonic as automatic evidence for R3;
+- bound the exact T505 policy-state relation to T405 in the verification graph;
+- added governance-capture and voluntary-social-adoption boundaries to R7.8;
+- required digest-only encrypted note payloads and their provider traffic to
+  remain visible in T305 and later wire/capacity reports; and
+- linked the independently versioned 0.3.1 decision record explicitly to this
+  design revision without selecting a replacement monetary policy.
+
+## 0.5.1-research — 2026-08-09
+
+- required 256 bits of uniform mnemonic entropy for wallets claiming the full
+  R3 target and isolated lower-entropy legacy imports behind a visible degraded
+  profile;
+- assigned post-quantum upgrade governance and activation to T510;
+- limited T306 to generic proof-system accumulation capability and assigned
+  the exact Quantum consensus/state relation to T505 after T503 and T504;
+- required pre-registered falsifiable metrics, scenarios, thresholds, and STOP
+  conditions for G12 and G13 without inventing their numerical values;
+- replaced cap-only and no-inflation terminology with selected monetary-policy
+  invariants and prevention of unauthorised issuance; and
+- documented the independent lifecycle of the QTM-RD-0.2 research-vector
+  domain.
+
+## 0.5.0-research — 2026-08-09
+
+- added independent operability/recovery and producer-contestability/economic-
+  review properties to the joint release boundary;
+- introduced R9–R12 and paired gates G10–G13 without marking any mechanism or
+  result verified;
+- distinguished executing validators, succinct verifiers, producers, provers,
+  state/witness providers, archive/recovery providers, and pools/share
+  aggregators;
+- kept recursion, witness-carrying state, ordering rules, recovery coding, and
+  pooled-mining mechanisms as candidates behind explicit tasks;
+- required miner-controlled templates and separate transaction-selection,
+  censorship, pool-formation, and PoW hardware-contestability evidence;
+- separated proof soundness, current-data availability, state access, wallet
+  witnesses, archive recovery, and network-origin privacy;
+- corrected the distinction among claimed fees, claimed and foregone subsidy,
+  and burned existing value;
+- retained the 21,000,000 QTM lifetime gross-issuance cap pending a separately
+  signed product, monetary-economics, consensus, and legal decision; and
+- linked the versioned decentralisation, operability, and security-budget
+  decision and primary-source evidence boundaries.
 
 ## 0.4.0-research — 2026-07-23
 

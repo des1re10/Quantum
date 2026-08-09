@@ -8,7 +8,7 @@
 ## What Quantum is
 
 Quantum is a research program for a private note-based DAG protocol. A
-releasable design must satisfy three requirements together:
+releasable design must satisfy five requirements together:
 
 - **post-quantum security:** at least 128 bits of composed post-quantum security
   across every security-critical layer, without classical fallbacks;
@@ -16,7 +16,14 @@ releasable design must satisfy three requirements together:
   with sender, recipient, amount, graph relationship, and origin metadata
   protected within a published threat model;
 - **scalability:** at least 1,000 accepted layer-1 transactions per second in a
-  reproducible end-to-end test with all privacy and validation work enabled.
+  reproducible end-to-end test with all privacy and validation work enabled;
+- **independent operability and recovery:** executing validation, restart,
+  pruning, bootstrap, and recovery remain inside a frozen, independently
+  obtainable resource profile without a trusted sole provider;
+- **contestable production and reviewed long-run security funding:** pooled
+  miners can construct their own templates, ordering/censorship incentives pass
+  explicit gates, and the exact monetary policy has independently reviewed
+  accounting and economic evidence.
 
 These are release requirements, not achieved capabilities.
 
@@ -29,7 +36,7 @@ reviewed profiles and do not inherit the base protocol's claims.
 
 ## Current status
 
-**Research design 0.4.0-research — not implementation-ready or production-safe.**
+**Research design 0.5.2-research — not implementation-ready or production-safe.**
 
 This repository currently contains a static documentation website, a research
 design, a verification plan, and a transaction-feasibility pre-registration
@@ -45,10 +52,16 @@ benchmark.
 | STARK validity proof | Blocking research gate |
 | Complete 2-input/2-output transaction proof | Experiment specified; implementation and result absent |
 | GHOSTDAG and private state ordering | Blocking research gate |
+| Validator operability | Blocking research gate; no numeric profile frozen |
+| Current data, snapshots, and recovery | Blocking research gate |
+| Miner templates, pools, and ordering incentives | Blocking research gate |
+| PoW hardware contestability | Comparative research gate; algorithm not selected |
+| Post-quantum upgrade governance | Blocking research gate; authorisation and activation mechanism not selected |
+| Monetary security | Current 21M lifetime issuance cap retained; schedule/economics gate open |
 | Network anonymity | Blocking research gate |
 | ≥1,000 accepted L1 TPS | Acceptance target; not yet benchmarked |
 
-The project must stop before production if any of the three core requirements
+The project must stop before production if any of the five core requirements
 cannot be demonstrated.
 
 ## Research documents
@@ -57,6 +70,7 @@ cannot be demonstrated.
 - [Implementation and verification plan](papers/zkprivacy/zkprivacy-verification-guide.md)
 - [Private-transaction STARK feasibility protocol](papers/zkprivacy/quantum-private-transaction-feasibility.md)
 - [T305 prior-art and reuse decision](papers/zkprivacy/decisions/t305-prior-art-decision.md)
+- [Decentralisation, operability, and security-budget decision](papers/zkprivacy/decisions/decentralisation-operability-security-budget-decision.md)
 - [Market and claim thesis](Documentation/Quantum_Market_Thesis.html)
 - [Static-site system architecture](Documentation/SystemArchitecture.html)
 
@@ -99,6 +113,14 @@ may become an active paper.
 | Note commitment | Reviewed lattice construction | Construction and parameters open |
 | Consensus | Versioned GHOSTDAG-based PoW profile | State ordering, DAA and finality open |
 | Origin privacy | Dedicated anonymous transport layer | Protocol and analysis open |
+| Validator operability | Versioned profile frozen before result interpretation | Exact ceilings and G7/G10 evidence open |
+| State validity/bootstrap | Authenticated checkpoint/replay; accumulated proof only if T306 selects it | Validity, current data, wallet witnesses, and recovery remain separate |
+| Current data/recovery | Complete current data for executing validators plus authenticated multi-provider recovery | Encoding, reconstruction, repair, retention, withholding, and eclipse gates open |
+| Block templates | Miner-controlled Template Provider/Job Declarator | Pool protocol, private payouts, adoption and overhead gate open |
+| Ordering/incentives | Candidate comparison under the exact public fields and DAG rules | No MEV-free claim; fee, conflict, timing, censorship and reorg gate open |
+| Monetary policy | Current 21M lifetime gross-issuance cap pending T506 comparison | Exact schedule, fee/burn rule and long-run security evidence open |
+| PoW hardware | Candidate selected only after contestability study | No ASIC-resistance claim; algorithm open |
+| Upgrade governance | Versioned post-quantum authorisation and deterministic activation | T510 mechanism, key lifecycle, compromise recovery, and emergency path open |
 | Selective disclosure | Incoming, full-wallet, transaction, and auditor-scoped capabilities | Construction and scope proofs open |
 | Payment logic | Finite registry of bounded private payment policies | Post-core profile; no general VM |
 

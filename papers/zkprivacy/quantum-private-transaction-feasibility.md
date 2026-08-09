@@ -2,8 +2,8 @@
 title: "Stateless Versus Stateful Hash-Based Authorisation Inside a Private-Transaction STARK"
 subtitle: "Comparative reproducibility protocol for the Quantum 2-input/2-output gate"
 author: "Phexora AI · [phexora.ai](https://phexora.ai)"
-date: "2026-07-23"
-version: "0.2.0-research-protocol"
+date: "2026-08-09"
+version: "0.3.2-research-protocol"
 status: "Research protocol — no implementation, benchmark result, security proof, or feasibility claim"
 license: "CC0-1.0; see repository LICENSE"
 lang: "en-GB"
@@ -41,13 +41,13 @@ abstract: |
 # 1. Status and claim boundary
 
 This is a **research protocol**, not a result paper. At version
-<code>0.2.0-research-protocol</code>:
+<code>0.3.2-research-protocol</code>:
 
 - no complete Quantum transaction prover or verifier exists in this repository;
 - no TzEL-shaped or NIST stateful authorisation baseline has been independently
   implemented for comparison;
 - no proof-system, commitment, or note-encryption profile has been frozen;
-- no benchmark threshold has been approved under task T004;
+- no benchmark threshold has been approved under task T005;
 - no benchmark described here has been run;
 - no composed post-quantum security proof has been completed; and
 - no feasibility, throughput, anonymity, audit, testnet, or production claim is
@@ -287,22 +287,26 @@ within the pre-registered tolerance?
 
 ## 4.2 Falsifiable hypotheses
 
-Threshold symbols below are intentionally unresolved until T004 freezes their
-numeric values. They must be replaced by signed, versioned values before the
-first measured feasibility run.
+Threshold symbols below are intentionally unresolved until T005 freezes their
+numeric values. T004 first pins the measurement method, artifact harness, and
+benchmark environment. Every threshold must then be replaced by a signed,
+versioned T005 value before the first measured feasibility run.
 
-| ID | Hypothesis | Required threshold owner |
+| ID | Hypothesis | Required owner(s) |
 |---|---|---|
-| H0 | At least one authorisation arm meets all frozen requirements; Arm C is retained only if its pre-registered material benefit justifies its measured overhead over the qualifying stateful arms | T001/T004/T202/T305 |
+| H0 | At least one authorisation arm meets all frozen requirements; Arm C is retained only if its pre-registered material benefit justifies its measured overhead over the qualifying stateful arms | T001/T202/T305; T005 for any numeric benefit threshold |
 | H1 | Both implementations accept every valid canonical vector and reject every invalid vector identically | T003/T004 |
-| H2 | Complete desktop proving p95 and p99 do not exceed <code>L_desktop_p95</code> and <code>L_desktop_p99</code> | T004 |
-| H3 | Complete constrained-client proving p95 and p99 do not exceed <code>L_client_p95</code> and <code>L_client_p99</code> | T004 |
-| H4 | Peak and steady resident memory remain below the frozen hardware-specific budgets | T004 |
-| H5 | Individual proof and complete wire-transaction bytes remain below <code>B_proof</code> and <code>B_tx</code> | T004 |
-| H6 | Verifier latency, memory, and malformed-proof work remain below their frozen budgets | T004 |
-| H7 | Aggregate mode meets size and latency budgets and omits replaced individual proofs | T004/T304 |
+| H2 | Complete desktop proving p95 and p99 do not exceed <code>L_desktop_p95</code> and <code>L_desktop_p99</code> | T005 |
+| H3 | Complete constrained-client proving p95 and p99 do not exceed <code>L_client_p95</code> and <code>L_client_p99</code> | T005 |
+| H4 | Peak and steady resident memory remain below the frozen hardware-specific budgets | T005 |
+| H5a | Individual proof bytes remain below <code>B_proof</code> | T005 |
+| H5b | Consensus-transaction bytes remain below <code>B_consensus_tx</code> | T005 |
+| H5c | External encrypted payload and total payment bytes remain below <code>B_external_payload</code> and <code>B_total_payment</code> | T005 |
+| H5d | Payload-provider and retrieval traffic remain below <code>B_payload_provider</code> | T005 |
+| H6 | Verifier latency, memory, and malformed-proof work remain below their frozen budgets | T005 |
+| H7 | Aggregate mode meets size and latency budgets and omits replaced individual proofs | T304/T005 |
 | H8 | Concrete composed soundness and privacy analysis reaches at least 128 post-quantum bits under the declared model | T001/T303/T701 |
-| H9 | The second implementation reproduces metrics within the frozen tolerance and no semantic mismatch remains | T004/T305 |
+| H9 | The second implementation reproduces metrics within the frozen tolerance and no semantic mismatch remains | T004/T005/T305 |
 
 A hypothesis with an unset threshold is **not evaluated**. A run performed
 before threshold freeze is exploratory and cannot be relabelled as the
@@ -370,6 +374,21 @@ length. Vector counts are fixed to two for this experiment. The statement must
 reject unknown versions or authorisation profiles, trailing data, duplicate
 nullifiers, duplicate output commitments, and non-canonical encodings before
 expensive verification work.
+
+The <code>encrypted_note_payloads_or_digests</code> choice is not a byte-
+accounting escape hatch. If only digests are consensus-carried, the experiment
+must also produce the complete encrypted note payloads and report separately:
+
+- consensus-transaction bytes;
+- external encrypted-note payload bytes;
+- total generated bytes per payment;
+- payload-provider and retrieval bandwidth; and
+- availability and retention assumptions.
+
+Every digest must bind the exact payload, output index, transaction, protocol
+version, and chain context. An external payload required for receipt, scanning,
+recovery, or spending remains part of client and system feasibility even when
+it is not part of the layer-1 transaction encoding.
 
 ## 6.2 Private witness
 
@@ -583,7 +602,8 @@ At minimum, each implementation must reject a proof attempt or proof for:
 
 ## 9.1 Pre-registration
 
-Before acceptance measurements, T004 must publish and sign:
+Before acceptance measurements, T004 must publish and sign the benchmark method,
+artifact harness, and environment:
 
 - exact hardware identifiers, CPU features, memory, storage, and power mode;
 - operating systems, kernels, compilers, dependencies, and revisions;
@@ -591,13 +611,18 @@ Before acceptance measurements, T004 must publish and sign:
 - cold/warm cache policy and preprocessing policy;
 - workload seeds and number of samples;
 - allowed parallelism and thread affinity;
-- p50, p95, p99, memory, verifier, proof, wire, and aggregate thresholds;
-- the material-benefit criteria and minimum acceptable delta for retaining
-  stateless Arm C;
-- the rule for excluding an inapplicable NIST SP 800-208 arm before results are
-  viewed, including signed reviewer rationale;
-- reproduction tolerance; and
 - rules for exclusions, crashes, retries, and failed proofs.
+
+T202 and T305 must publish and sign the rule for excluding an inapplicable NIST
+SP 800-208 arm before results are viewed, including reviewer rationale, and the
+material-benefit rule for retaining stateless Arm C. T005 must then publish and
+sign every numerical acceptance threshold, including:
+
+- p95 and p99 latency, memory, verifier, proof, wire, and aggregate budgets;
+- separate consensus-transaction, external encrypted-payload, total-payment,
+  and payload-provider/retrieval budgets;
+- any minimum acceptable material-benefit delta; and
+- the reproduction tolerance.
 
 Any change after viewing acceptance results creates a new experiment version
 and requires a new pre-registration.
@@ -611,7 +636,10 @@ The raw record for every run must include:
 - per-component trace rows or cycles, including the isolated authorisation
   contribution;
 - peak and steady resident memory;
-- proof bytes and full canonical transaction bytes;
+- proof bytes, full canonical consensus-transaction bytes, external encrypted-
+  note payload bytes, and total generated bytes per payment;
+- payload-provider/retrieval bandwidth and the availability and retention
+  assumptions under which delivery succeeds;
 - verifier wall time, CPU time, and peak memory;
 - malformed-proof rejection time and allocation;
 - parallel-prover scaling and saturation;
@@ -640,7 +668,8 @@ The feasibility report must be accompanied by:
 
 1. a formal relation and traceability map to every constraint in Section 6.3;
 2. commitment correctness, hiding, and binding analyses;
-3. transaction unforgeability and no-inflation arguments;
+3. transaction unforgeability and prevention-of-unauthorised-issuance
+   arguments under the selected monetary-policy invariant;
 4. recipient-key privacy and encrypted-note integrity analyses;
 5. STARK completeness, knowledge soundness, and zero-knowledge analyses;
 6. Fiat–Shamir/QROM treatment for the exact adaptive and multi-proof setting;
@@ -698,7 +727,8 @@ if all of the following are true:
 - two genuinely independent implementations interoperate;
 - every positive and negative vector has the expected result;
 - every pre-registered desktop and constrained-client threshold passes;
-- individual and aggregate wire modes meet their separate thresholds;
+- individual and aggregate wire modes, external payload carriage, total payment
+  bytes, and provider traffic meet their separate thresholds;
 - the composed security analysis reaches the required target;
 - no critical or high unresolved review finding remains;
 - all raw artifacts and reproduction commands are public; and
@@ -853,6 +883,32 @@ in any comparison.
   [PHANTOM and GHOSTDAG](https://eprint.iacr.org/2018/104.pdf), 2018.
 
 # Appendix A — Revision record
+
+## 0.3.2-research-protocol — 2026-08-09
+
+- required digest-only layer-1 note carriage to report external encrypted
+  payload bytes, total generated bytes per payment, provider/retrieval traffic,
+  and availability/retention assumptions rather than hiding them from the wire
+  feasibility budget; and
+- updated the normative cross-reference to the 0.5.2 specification and
+  verification plan without reporting a benchmark result.
+
+## 0.3.1-research-protocol — 2026-08-09
+
+- aligned security-analysis terminology with the selected monetary-policy
+  invariant and prevention of unauthorised issuance; and
+- updated the normative cross-reference to the 0.5.1 specification and
+  verification plan without changing the registered experiment relation or
+  threshold ownership.
+
+## 0.3.0-research-protocol — 2026-08-09
+
+- assigned the benchmark method, artifact harness, and pinned environment to
+  T004 while assigning all numerical acceptance thresholds to T005;
+- separated the qualitative authorisation-selection rule owned by T202/T305
+  from any numerical material-benefit delta frozen by T005; and
+- aligned the feasibility protocol with the 0.5.0 specification and
+  verification task graph without reporting a benchmark result.
 
 ## 0.2.0-research-protocol — 2026-07-23
 

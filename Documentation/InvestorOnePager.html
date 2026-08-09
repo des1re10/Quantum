@@ -36,27 +36,29 @@
       <section class="doc-section" id="kurzprofil">
         <h2>Kurzprofil</h2>
         <div class="meta-grid">
-          <div class="info-card"><strong>Status</strong><span>Forschungsentwurf 0.4.0-research; keine Implementierung</span></div>
+          <div class="info-card"><strong>Status</strong><span>Forschungsentwurf 0.5.2-research; keine Implementierung</span></div>
           <div class="info-card"><strong>Aktuelles Produkt</strong><span>Offene Spezifikation und Verifikationsplan</span></div>
           <div class="info-card"><strong>Primäre Partner</strong><span>Kryptographie, Konsens, Netzwerkprivacy, Implementierung</span></div>
           <div class="info-card"><strong>Nächstes Gate</strong><span>Vergleichender vollständiger 2-Input/2-Output-Proof auf vorab festgelegter Hardware</span></div>
         </div>
-        <p class="source-note">Stand: 23. Juli 2026. Kein Mainnet, Testnet, Token-Sale oder operatives Zahlungsnetzwerk.</p>
+        <p class="source-note">Stand: 9. August 2026. Kein Mainnet, Testnet, Token-Sale oder operatives Zahlungsnetzwerk.</p>
       </section>
 
       <section class="doc-section" id="problem">
         <h2>Das Forschungsproblem</h2>
         <p>Transparente öffentliche Ledger gefährden die Vertraulichkeit persönlicher und geschäftlicher Beziehungen. Klassische Signaturverfahren sind langfristig durch leistungsfähige Quantencomputer bedroht. Hoher DAG-Durchsatz löst weder Transaktionsprivacy noch Netzwerkmetadaten automatisch.</p>
         <p><a href="https://tzel.tezos.com/whitepaper.pdf">TzEL</a> veröffentlicht bereits den nächstliegenden experimentellen Note/Nullifier/ML-KEM/One-Time-Signature/STARK-Zahlungspfad. Quantum untersucht deshalb keinen angeblich neuen Grundaufbau, sondern den reproduzierbaren Standardisierungs-, Client-, L1-Bandbreiten- und GHOSTDAG-Unterschied.</p>
-        <p>Die offene Frage ist deshalb nicht, ob einzelne Bausteine existieren, sondern ob ein vollständiges Protokoll alle drei Ziele zugleich mit nachvollziehbaren Sicherheits- und Leistungsnachweisen erfüllen kann.</p>
+        <p>Die offene Frage ist deshalb nicht, ob einzelne Bausteine existieren, sondern ob ein vollständiges Protokoll alle fünf Release-Ziele zugleich mit nachvollziehbaren Sicherheits-, Leistungs- und Anreiznachweisen erfüllen kann.</p>
       </section>
 
       <section class="doc-section" id="anforderungen">
-        <h2>Drei harte Release-Anforderungen</h2>
+        <h2>Fünf harte Release-Anforderungen</h2>
         <div class="card-grid">
           <div class="info-card"><strong>Post-Quanten-Sicherheit</strong><span>≥128 Bit komponierte PQ-Sicherheit, einschließlich Commitment, Proof, Transport, Wallet und Upgradepfad; keine klassischen Fallbacks.</span></div>
           <div class="info-card"><strong>Anonymität by default</strong><span>Keine transparenten Transfers; Ledger- und Netzwerkmetadaten müssen das definierte Anonymitätsmodell erfüllen.</span></div>
           <div class="info-card"><strong>Skalierbarkeit</strong><span>≥1.000 akzeptierte L1-TPS in einem vollständigen, reproduzierbaren 24-Stunden-Test mit aktivierter Privacy.</span></div>
+          <div class="info-card"><strong>Unabhängige Betreibbarkeit</strong><span>Der Zieldurchsatz muss innerhalb eines vorab eingefrorenen Validatorprofils erreichbar sein; Recovery darf keinen einzelnen vertrauenswürdigen Anbieter voraussetzen.</span></div>
+          <div class="info-card"><strong>Bestreitbare Produktion</strong><span>Hardwarezugang, Pool-Templates, Transaktionsauswahl und langfristige Finanzierung benötigen eigene Evidenz und unabhängige Freigabe.</span></div>
         </div>
       </section>
 

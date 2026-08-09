@@ -197,7 +197,12 @@ li + li {
 }
 
 .card-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.card-grid > .info-card {
+  flex: 1 1 320px;
 }
 
 .meta-grid {
@@ -317,7 +322,6 @@ pre code {
     max-height: none;
   }
 
-  .card-grid,
   .meta-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -330,6 +334,7 @@ pre code {
 
   .card-grid,
   .meta-grid {
+    display: grid;
     grid-template-columns: 1fr;
   }
 

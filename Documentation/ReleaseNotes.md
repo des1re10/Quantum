@@ -2,6 +2,56 @@
 
 ## Unreleased
 
+**Operability, Availability, Producer, and Monetary-Security Gates**
+
+- Advanced the specification and verification plan to
+  <code>0.5.2-research</code> while retaining their existing canonical paths and
+  generated-PDF contract.
+- Added independent operability/recovery and producer-contestability/economic-
+  review properties to the five-part release boundary. None is an achieved
+  capability.
+- Added R9-R12 and Gates G10-G13 for a frozen executing-validator profile,
+  complete current data and no-trusted-sole-provider recovery,
+  miner-controlled templates and transaction-selection incentives, and an
+  exact product-owned monetary-security decision.
+- Expanded the verification graph from 31 to 40 acyclic tasks with T005, T306,
+  T505-T510, and T605. PoW hardware contestability now precedes algorithm
+  selection; monetary analysis precedes reward implementation; T510 owns post-
+  quantum upgrade authorisation and deterministic activation; data availability
+  remains outside proof soundness.
+- Kept recursion, witness-carrying state, recovery coding, ordering rules,
+  pooled-mining mechanisms, PoW, and replacement monetary policies as
+  candidates. No numeric operability profile was invented.
+- Made 256-bit BIP-39 the minimum compatibility profile while requiring T001
+  and T204 to derive the complete wallet master-secret entropy from the approved
+  multi-user, multi-target, and lifetime bound. Lower-entropy legacy imports
+  remain explicitly degraded and do not inherit the full claim.
+- Separated generic proof-system accumulation capability in T306 from the exact
+  Quantum consensus/state relation in T505, made T405 a dependency for its
+  policy-state semantics, and removed performance-threshold ownership from the
+  T104 commitment-security decision.
+- Added governance-capture, client-distribution, and voluntary-social-adoption
+  boundaries to T510 without presenting deterministic upgrade activation as
+  governance decentralisation.
+- Required digest-only encrypted note carriage to report external payload
+  bytes, total payment bytes, provider/retrieval traffic, and retention
+  assumptions separately from consensus bytes.
+- Required G12 and G13 metrics, scenarios, pass/fail thresholds, and STOP
+  conditions to be registered before candidate results are interpreted.
+- Corrected monetary accounting to distinguish claimed fees, claimed and
+  foregone subsidy, burned existing value, gross issuance, and outstanding
+  supply. The current 21,000,000 QTM lifetime gross-issuance cap remains in
+  force pending a separately signed product, economics, consensus, and legal
+  decision.
+- Added the versioned decentralisation, operability, and security-budget
+  decision with primary-source boundaries for GHOSTDAG transaction-selection
+  incentives, Kaspa sequencing commitments, Stratum V2 Job Declaration,
+  Utreexo, data availability, and fee-funded PoW security.
+- Advanced the transaction-feasibility protocol to
+  <code>0.3.2-research-protocol</code>: T004 now owns the benchmark method,
+  harness, and pinned environment, while T005 owns every numerical acceptance
+  threshold. No measurement or feasibility result is reported.
+
 **Prior-Art Decision and Comparative Authorization Gate**
 
 - Added a versioned T305 prior-art and reuse decision. The scoped review
