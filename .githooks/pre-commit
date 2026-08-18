@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Versioned adapter for the canonical shared quality owner.
+set -euo pipefail
+
+exec ../Libraries/Scripts/pre_commit_quality_gate.sh --repo .
