@@ -36,7 +36,7 @@ reviewed profiles and do not inherit the base protocol's claims.
 
 ## Current status
 
-**Research design 0.5.2-research — not implementation-ready or production-safe.**
+**Research design 0.5.3-research — not implementation-ready or production-safe.**
 
 This repository currently contains a static documentation website, a research
 design, a verification plan, and a transaction-feasibility pre-registration
@@ -57,7 +57,7 @@ benchmark.
 | Miner templates, pools, and ordering incentives | Blocking research gate |
 | PoW hardware contestability | Comparative research gate; algorithm not selected |
 | Post-quantum upgrade governance | Blocking research gate; authorisation and activation mechanism not selected |
-| Monetary security | Current 21M lifetime issuance cap retained; schedule/economics gate open |
+| Monetary security | Current 21M lifetime issuance cap retained; bounded dynamic-fee/reward-window comparator drafted; T506/G13 not run |
 | Network anonymity | Blocking research gate |
 | ≥1,000 accepted L1 TPS | Acceptance target; not yet benchmarked |
 
@@ -118,7 +118,7 @@ may become an active paper.
 | Current data/recovery | Complete current data for executing validators plus authenticated multi-provider recovery | Encoding, reconstruction, repair, retention, withholding, and eclipse gates open |
 | Block templates | Miner-controlled Template Provider/Job Declarator | Pool protocol, private payouts, adoption and overhead gate open |
 | Ordering/incentives | Candidate comparison under the exact public fields and DAG rules | No MEV-free claim; fee, conflict, timing, censorship and reorg gate open |
-| Monetary policy | Current 21M lifetime gross-issuance cap pending T506 comparison | Exact schedule, fee/burn rule and long-run security evidence open |
+| Monetary policy | Current 21M lifetime gross-issuance cap with bounded dynamic-fee/reward-window comparator | Exact controller parameters, allocation, schedule and long-run security evidence open |
 | PoW hardware | Candidate selected only after contestability study | No ASIC-resistance claim; algorithm open |
 | Upgrade governance | Versioned post-quantum authorisation and deterministic activation | T510 mechanism, key lifecycle, compromise recovery, and emergency path open |
 | Selective disclosure | Incoming, full-wallet, transaction, and auditor-scoped capabilities | Construction and scope proofs open |

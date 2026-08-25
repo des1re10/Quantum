@@ -36,12 +36,12 @@
       <section class="doc-section" id="kurzprofil">
         <h2>Kurzprofil</h2>
         <div class="meta-grid">
-          <div class="info-card"><strong>Status</strong><span>Forschungsentwurf 0.5.2-research; keine Implementierung</span></div>
+          <div class="info-card"><strong>Status</strong><span>Forschungsentwurf 0.5.3-research; keine Implementierung</span></div>
           <div class="info-card"><strong>Aktuelles Produkt</strong><span>Offene Spezifikation und Verifikationsplan</span></div>
           <div class="info-card"><strong>Primäre Partner</strong><span>Kryptographie, Konsens, Netzwerkprivacy, Implementierung</span></div>
           <div class="info-card"><strong>Nächstes Gate</strong><span>Vergleichender vollständiger 2-Input/2-Output-Proof auf vorab festgelegter Hardware</span></div>
         </div>
-        <p class="source-note">Stand: 9. August 2026. Kein Mainnet, Testnet, Token-Sale oder operatives Zahlungsnetzwerk.</p>
+        <p class="source-note">Stand: 25. August 2026. Kein Mainnet, Testnet, Token-Sale oder operatives Zahlungsnetzwerk.</p>
       </section>
 
       <section class="doc-section" id="problem">
@@ -73,6 +73,10 @@
           <li>ein noch auszuwählendes, konkret analysiertes Lattice Commitment;</li>
           <li>private note-basierte UTXO-Transaktionen mit gebundenen Input- und Output-Werten;</li>
           <li>ein versioniertes GHOSTDAG-Profil mit deterministischer Zustandsordnung;</li>
+          <li>maximal 21 Millionen QTM Lifetime-Bruttoemission; ein begrenzter
+              dynamischer Gebühren- und Reward-Fenster-Ansatz ist nur ein
+              Forschungsvergleich und noch kein Nachweis ausreichender
+              Miner-Finanzierung;</li>
           <li>ein eigener Netzwerk-Anonymitätslayer, der über Link-Verschlüsselung hinausgeht.</li>
         </ul>
         <p>Die V1-Grenze ist bewusst eng: native-QTM-Zahlung, selektive nutzergesteuerte Offenlegung und eine endliche, beweisbar begrenzte Payment-Policy-Schicht. Allgemeine Smart Contracts, private Assets und Bridges sind getrennte spätere Profile.</p>
@@ -88,6 +92,7 @@
               <tr><td>NIST-PQ-Bausteine</td><td class="status-selected">Standards ausgewählt</td><td>KATs, begründete Hash-Längen, Schutz der Empfängerzuordnung sowie Integrations- und Kompositionsreview</td></tr>
               <tr><td>Commitment und STARK</td><td class="status-open">Offen</td><td>Konstruktion, Parameter, Security Proof und unabhängige Review</td></tr>
               <tr><td>DAG + privater Zustand</td><td class="status-open">Offen</td><td>Determinismus-, Safety-, Liveness- und Reorg-Evidenz</td></tr>
+              <tr><td>Monetäre Sicherheit</td><td class="status-open">Offen</td><td>T506/G13 müssen den 21M-Cap, dynamische Gebühren, Nutzerkosten und Miner-Umsatz unter Stress gemeinsam prüfen</td></tr>
               <tr><td>Netzwerk-Anonymität</td><td class="status-open">Offen</td><td>Threat Model, Protokoll, Angriffsversuche und Review</td></tr>
               <tr><td>1.000 TPS</td><td class="status-target">Ziel</td><td>End-to-End-Prototyp und reproduzierbare Benchmark-Artefakte</td></tr>
             </tbody>

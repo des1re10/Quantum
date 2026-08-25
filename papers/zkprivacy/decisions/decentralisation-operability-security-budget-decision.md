@@ -3,9 +3,9 @@
 **Status:** Recorded research direction; named owner and independent reviewer
 signatures required before implementation; not a protocol, monetary-policy,
 security, benchmark, or release approval<br>
-**Decision revision:** 0.3.1-research<br>
-**Decision date:** 2026-08-09<br>
-**Applies to protocol design:** 0.5.2-research<br>
+**Decision revision:** 0.3.2-research<br>
+**Decision date:** 2026-08-25<br>
+**Applies to protocol design:** 0.5.3-research<br>
 **Applies to:** R3–R12, T001, T004–T005, T204, T306, T501–T510,
 T603–T605, T701, and Gates G5, G7, G10–G13<br>
 **Evidence cut-off:** 2026-08-09<br>
@@ -44,6 +44,9 @@ The following directions are recorded:
   mining research, and ordering/censorship incentives;
 - add R12/G13 for an explicit monetary-security decision with exact accounting
   and independently reviewed assumptions;
+- compare a bounded, non-oracle dynamic-fee and finalised reward-window design
+  inside the retained lifetime cap without claiming that it guarantees miner
+  revenue or real-world attack cost;
 - evaluate witness-carrying state and accumulated-validity proofs as
   **candidates**, not as already selected protocol mechanisms; and
 - evaluate proof-of-work candidates for hardware contestability before the PoW
@@ -215,6 +218,14 @@ transaction and proof sizes, anchor or expiry context, arrival time, mempool
 visibility, censorship, data withholding, reorganisation, or
 transaction-selection incentives.
 
+The bounded dynamic-fee candidate adds controller-specific strategies to this
+gate. T508 must test whether miners or pools can omit transactions, create self-
+fees, alter accepted weight, time publication, duplicate high-fee transactions,
+or coordinate reward-window work to move a later resource or security rate. It
+must adversarially test the exact T506-frozen payout, pool, burn, and resource/
+security/priority charge-to-destination allocation for inclusion, free-riding,
+fee-sniping, censorship, variance, and pool-formation effects.
+
 No fee bucket, deterministic tie-breaker, encrypted mempool, batch auction, or
 inclusion rule is selected by this record. T508 must compare candidates and
 measure the value that remains extractable when transaction semantics are
@@ -266,6 +277,62 @@ in discrete units. T506 must therefore compare at least:
   permits lifetime gross issuance above the outstanding cap; and
 - other non-oracle funding rules proposed with exact accounting.
 
+Within the lifetime-cap comparator, T506 must now include a bounded dynamic-fee
+candidate. For each fee/reward epoch derived from canonical DAA score, it
+separates:
+
+- a **resource rate** driven by finalised canonical utilisation and transaction
+  weight;
+- a **security rate** driven by the gap between a pre-registered QTM-denominated
+  sustainable-miner-budget objective and finalised authorised subsidy plus
+  newly miner-eligible fees; burned fees, non-miner allocations, and old fee-
+  pool withdrawals are excluded, while total accepted fees, claimed miner
+  revenue, payout capacity, and pool balance remain separately reported; and
+- an optional bounded priority amount or class whose public privacy and
+  selection effects remain inside T508.
+
+Transactions must know and commit to their fee epoch before authorisation. The
+next controller state may use only canonical data finalised before the next
+epoch, with exact integer rounding, update lag, minimum and maximum rates,
+per-window change bounds, one explicit zero-accepted-weight transition, and an
+exact expiry and epoch-admission/grace rule for delayed transactions. No
+fiat-price, energy-price, local-mempool, arrival-order, wall-clock, or current-
+candidate-block input is permitted.
+
+The selected allocation must decompose every canonically accepted total fee by
+both charge class—resource, security, and optional priority—and destination—new
+miner-eligible pool value, explicit burn on acceptance, and a named non-miner
+output. Those sums must be equal. Any allocation matrix between the two views is
+an exact T506 parameter, not a miner or implementation choice. Miner-eligible
+new fees exclude value already designated for burn or a non-miner output; an
+expiry burn may occur only after the frozen maturity/claim opportunity and is
+reported separately from sustainable and claimed miner revenue.
+
+The controller is a pricing and variance-management candidate, not a source of
+funds. When transaction demand is absent, fee revenue remains zero. Missing a
+target records an underfunded G13 result and never authorises extra issuance,
+restores issuance headroom, or changes the 21-million commitment. T506 must
+reject a controller that reaches a miner-revenue threshold only by breaching a
+pre-registered user-cost, stability, concentration, or censorship threshold.
+The controller must use sustainable miner budget—authorised subsidy plus only
+new miner-eligible fees—rather than total fees, burns, non-miner outputs, reward
+outputs, or an old fee-pool balance. This prevents destroyed value or delayed
+payout from masquerading as new miner revenue and prevents a producer from
+raising a later rate merely by foregoing an authorised reward. Claimed revenue
+remains part of the G13 evidence. Payout capacity includes only authorised
+subsidy and matured claimable miner-fee-pool value.
+
+Each fee enters exactly one canonical acceptance interval on the selected
+history. A reorganisation atomically reverses its old assignment, pool change,
+burn, and output before any exactly-once assignment on the new history.
+T506 must compare direct allocation to the first-including eligible work,
+partial and full delayed pooling, partial payout plus explicit burn, and
+different treatment of the resource-fee and security-fee components. It must
+freeze one exact rule before T504. The exact work weights, pool maturity,
+maximum retention, rounding, remainder, burn, and optional-priority treatment
+remain unselected until that decision. T508 then tests the frozen rule against
+its adversarial thresholds; it does not edit monetary policy in place.
+
 No candidate may be selected merely because it copies Bitcoin, Kaspa, Monero,
 or another network. A tail subsidy guarantees only a positive token-denominated
 flow, not adequate fiat-denominated security. A hard cap does not prove that a
@@ -274,17 +341,43 @@ future fee market is adequate.
 Accounting must distinguish:
 
 ~~~text
-claimed_fees          = min(reward_outputs, collected_fees)
-claimed_subsidy       = reward_outputs - claimed_fees
-foregone_subsidy      = authorised_subsidy - claimed_subsidy
-burned_existing_value = collected_fees - claimed_fees
-
-next_gross_issuance   = gross_issuance + claimed_subsidy
-next_outstanding      = previous_outstanding
-                        - collected_fees
-                        + reward_outputs
+accepted_total_fees = accepted_resource_fees
+                      + accepted_security_fees
+                      + accepted_priority_fees
+accepted_total_fees = miner_eligible_new_fees
+                      + fees_burned_on_acceptance
+                      + other_explicit_fee_outputs
+available_miner_fee_pool = previous_miner_fee_pool
+                           + miner_eligible_new_fees
+0 <= matured_claimable_fee_pool <= available_miner_fee_pool
+0 <= claimed_fees <= matured_claimable_fee_pool
+0 <= claimed_subsidy <= authorized_subsidy
+reward_outputs = claimed_fees + claimed_subsidy
+foregone_subsidy = authorized_subsidy - claimed_subsidy
+0 <= fees_burned_from_pool <= available_miner_fee_pool - claimed_fees
+burned_existing_value = fees_burned_on_acceptance
+                        + fees_burned_from_pool
+next_miner_fee_pool = available_miner_fee_pool
+                      - claimed_fees
+                      - fees_burned_from_pool
+next_cumulative_issuance = cumulative_issuance + claimed_subsidy
+next_note_supply = previous_note_supply
+                   - accepted_total_fees
+                   + reward_outputs
+                   + other_explicit_fee_outputs
+previous_outstanding_supply = previous_note_supply
+                              + previous_miner_fee_pool
+next_outstanding_supply = next_note_supply + next_miner_fee_pool
+next_outstanding_supply = previous_outstanding_supply
+                          + claimed_subsidy
+                          - burned_existing_value
 ~~~
 
+All values and intermediates are non-negative. The miner fee pool is a consensus
+liability containing already-issued value. It counts toward outstanding supply
+but never gross issuance; miner-eligible value that is not yet paid remains
+there unless the selected rule explicitly burns it. Other allocations in this
+candidate settle as named non-miner outputs in the same interval.
 Foregone subsidy was never issued and is not burned existing value. Under the
 current lifetime-cap baseline, burned existing value does not restore issuance
 headroom. More use creates more fees, not necessarily more burn.
@@ -300,6 +393,18 @@ revenue cases, price and energy shocks, entry/exit and hashrate response,
 security-expenditure or attack-cost proxies, and concentration. If no policy
 meets those registered conditions, T506 stops or starts a new reviewed campaign;
 it must not select a policy by describing the failed result as residual risk.
+
+T506 must also freeze exact unsigned widths and operand maxima for monetary
+fields, weight, rates, fee products, interval accumulators, and controller
+state. Addition, multiplication, and accumulation are checked operations with
+no wrap or saturation. Ceiling division uses quotient and remainder for a
+non-negative numerator and positive divisor; an unchecked <code>a + b - 1</code>
+construction is forbidden.
+
+Genesis must commit to a zero initial miner fee pool, cumulative issuance and
+note supply equal to the explicitly authorised genesis subsidy, and canonical
+initial fee-controller epoch and rates. Under the retained no-premine baseline,
+the genesis subsidy is zero.
 
 ## 8. D7 — Proof-of-work hardware contestability
 
@@ -325,13 +430,20 @@ R7.3 cannot be discharged by release review alone. T510 owns the exact post-
 quantum principals, authorisation rule, canonical proposal and activation
 encodings, key generation and lifecycle, compromise recovery, normal and
 emergency state machines, timelocks or thresholds, replay/downgrade protection,
-and persistent-split analysis.
+and persistent-split analysis. It must also publish an exhaustive parameter
+registry separating immutable historical invariants, normal-upgrade-only
+protected parameters, and emergency-changeable parameters.
 
 The task may select a voting, threshold-signature, constitution-like, or other
 model only after its exact trust and failure boundaries are stated. Social
 coordination may remain part of incident response, but it is not a substitute
 for deterministic consensus activation rules. No hidden unilateral key,
 classical fallback, or unspecified emergency bypass may activate a release.
+No upgrade may rewrite cumulative issuance or erase or reclassify an accrued
+fee-pool liability. An emergency path cannot change the 21-million cap semantic,
+issuance schedule, fee allocation, or value-conservation equations. A
+prospective monetary change requires a new T506 campaign, the named monetary
+approvals, normal versioned activation, and rebuilt dependent evidence.
 
 Passing T510 does not prove governance decentralisation or prevent capture by
 a formally authorised quorum. The threat model must cover principal
@@ -360,7 +472,7 @@ T506 Monetary-security decision                          <- T001, T004, T005, T5
 T504 Rewards, selected supply policy and genesis         <- T503, T506
 T505 Consensus-bound state validity and bootstrap        <- T306, T405, T503, T504
 T507 Miner-template and pooled-mining profile            <- T501, T502, T503, T504
-T508 Ordering, censorship and incentive gate             <- T005, T503, T507
+T508 Ordering, censorship and incentive gate             <- T005, T503, T506, T507
 
 T605 Current-data availability, snapshot and recovery    <- T002, T004, T005, T505, T601
 T603 Full node, pruning and recovery                      <- T305, T403, T505, T601, T605
@@ -374,6 +486,12 @@ T405, T503, and T504 precede T505 so that the exact Quantum relation cannot
 omit payment-policy state, canonical ordering, rewards, fees, burns, or
 issuance. T510 owns post-quantum upgrade authorisation and activation before
 release review.
+
+For each monetary campaign, T506 freezes the exact fee, controller, pool, and
+burn rule before T504. T508 may reject but must not revise that frozen rule. A
+rejection starts a new versioned T506 campaign and invalidates dependent
+T504/T507/T508 evidence until the replacement is implemented and retested; this
+campaign reset is not a reverse dependency in the task DAG.
 
 ## 11. What this decision does not establish
 
@@ -412,11 +530,31 @@ The Kaspa KIP repository snapshot used for KIP-15 and KIP-21 was master commit
 7. Carlsten et al.,
    [On the Instability of Bitcoin Without the Block Reward](https://www.cs.princeton.edu/~arvindn/publications/mining_CCS.pdf),
    CCS 2016.
+8. Ethereum Improvement Proposal 1559,
+   [Fee market change for ETH 1.0 chain](https://eips.ethereum.org/EIPS/eip-1559),
+   including the base-fee burn as prior art for reducing producer manipulation
+   incentives rather than as evidence that the same allocation fits Quantum.
 
 These sources provide prior art, threat questions, or comparator mechanisms.
 They do not verify the Quantum design.
 
 ## 13. Revision record
+
+### 0.3.2-research — 2026-08-25
+
+- aligned the decision with protocol design 0.5.3-research while retaining the
+  21,000,000 QTM lifetime gross-issuance cap;
+- recorded a bounded dynamic resource/security fee controller and finalised
+  reward-window allocation as required T506/T508 comparators, not as a selected
+  policy or miner-revenue guarantee;
+- added fee-pool liability accounting, payout/burn variants, and the rule that a
+  T508 rejection starts a new T506 campaign;
+- separated total accepted fees from miner-eligible revenue and constrained
+  payout capacity to matured claimable pool value;
+- required non-negative checked arithmetic, canonical reorg reassignment,
+  explicit genesis controller state, and emergency-upgrade monetary guards; and
+- required explicit zero-demand underfunding, prior-finalised inputs, integer
+  clamps, no oracle, no extra issuance, and manipulation/free-riding analysis.
 
 ### 0.3.1-research — 2026-08-09
 

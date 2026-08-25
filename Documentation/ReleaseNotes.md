@@ -2,6 +2,42 @@
 
 ## Unreleased
 
+**Bounded Dynamic-Fee and Reward-Window Comparator**
+
+- Advanced the specification and verification plan to
+  <code>0.5.3-research</code> and the independently versioned decentralisation,
+  operability, and security-budget decision to <code>0.3.2-research</code>.
+- Retained the 21,000,000 QTM lifetime gross-issuance cap and added a bounded,
+  non-oracle dynamic resource/security fee controller as a required T506/T508
+  comparator. No controller parameter, fee schedule, reward allocation, or
+  adequate-security result is selected.
+- Required fee epochs and controller inputs to derive only from prior-finalised
+  canonical DAG state with exact integer rounding, rate clamps, update lag, and
+  an explicit zero-accepted-weight transition.
+- Added an observable <code>UNDERFUNDED</code> result: missing transaction demand
+  remains zero fee revenue and cannot authorise extra issuance, restore cap
+  headroom, or be reported as adequate miner funding.
+- Added a consensus fee-pool liability so delayed, unpaid miner-eligible fees
+  remain in outstanding supply until deterministic payout or explicit burn;
+  they do not become gross issuance or disappear implicitly.
+- Separated accepted resource/security/priority fees from their miner-eligible,
+  burn, and non-miner-output destinations. Sustainable miner budget now uses
+  only newly miner-eligible fees, while payout capacity uses only matured
+  claimable pool value.
+- Required non-negative exact-width arithmetic, checked add/multiply/accumulate,
+  quotient/remainder ceiling division, exactly-once canonical fee assignment
+  across reorgs, and explicit genesis pool/controller state.
+- Added direct payout, partial/full delayed pooling, partial payout plus burn,
+  and resource/security split comparators plus permanent adversarial scenarios
+  for omission, self-fees, accepted-weight manipulation, fee sniping, free-
+  riding, censorship, reorganisation, and pool coordination.
+- Required T506 to freeze the exact controller and payout/pool/burn rule before
+  T504; a T508 rejection starts a new versioned campaign and rebuilds dependent
+  evidence instead of changing the rule in place.
+- Required T510 to classify immutable, normal-upgrade-only, and emergency-
+  changeable parameters; emergency activation cannot alter protected monetary
+  rules or erase accrued fee-pool liabilities.
+
 **Operability, Availability, Producer, and Monetary-Security Gates**
 
 - Advanced the specification and verification plan to

@@ -1,9 +1,9 @@
 ---
 title: "Quantum: Privacy-Preserving Post-Quantum DAG Protocol"
-subtitle: "Research Design Draft 0.5.2-research and Security Requirements"
+subtitle: "Research Design Draft 0.5.3-research and Security Requirements"
 author: "Phexora AI · [phexora.ai](https://phexora.ai)"
-date: "2026-08-09"
-version: "0.5.2-research"
+date: "2026-08-25"
+version: "0.5.3-research"
 status: "Research design draft — not implementation-ready, audited, or production-safe"
 license: "CC0-1.0; see repository LICENSE"
 lang: "en-GB"
@@ -45,7 +45,7 @@ no conformant implementation, testnet, security proof, external audit, or
 production network at this revision.
 
 The legacy filename contains “v1” so that existing links remain valid. The
-normative document version is <code>0.5.2-research</code>.
+normative document version is <code>0.5.3-research</code>.
 
 The words **MUST**, **MUST NOT**, **REQUIRED**, **SHOULD**, and **MAY** describe
 research acceptance criteria. They do not imply that an implementation already
@@ -131,8 +131,8 @@ cannot meet them.
 
 The versioned
 [decentralisation, operability, and security-budget decision](decisions/decentralisation-operability-security-budget-decision.md)
-at decision revision <code>0.3.1-research</code> records the boundaries
-incorporated into this 0.5.2 design, its rejected claims, candidate mechanisms,
+at decision revision <code>0.3.2-research</code> records the boundaries
+incorporated into this 0.5.3 design, its rejected claims, candidate mechanisms,
 and human approval points. The decision record has an independent version
 lifecycle and does not mark a requirement or gate as passed.
 
@@ -164,7 +164,7 @@ lifecycle and does not mark a requirement or gate as passed.
 | Mining templates/incentives | Blocking research gate | Miner-controlled template path, pooled-mining comparator, and incentive analysis |
 | PoW hardware contestability | Comparative research gate | Candidate measurements before PoW selection |
 | Upgrade governance | Blocking research gate | Exact post-quantum authorisation and activation state machine |
-| Economics/genesis | Provisional | DAA-score reward rules, selected monetary-invariant proof, canonical genesis bytes |
+| Economics/genesis | Provisional | Bounded dynamic-fee comparator, DAA-score reward rules, selected monetary-invariant proof, canonical genesis bytes |
 
 # 2. Normative requirements
 
@@ -244,14 +244,25 @@ by the user; those boundaries MUST be stated with every claim.
 - R4.6 Fees MUST be accounted for as value transferred from accepted ordinary
   transactions, not as newly issued value. Only the subsidy portion of an
   authorized reward transition may increase cumulative issuance.
-- R4.7 Reward outputs MUST NOT exceed the sum of the consensus-authorized
-  subsidy and fees collected by the exact canonical state transition.
-  Unclaimed fees are burned existing value. Foregone subsidy was never issued
-  and MUST NOT be represented as burned value or counted twice.
+- R4.7 Reward outputs MUST equal explicitly accounted claimed fees plus claimed
+  subsidy. Claimed fees MUST NOT exceed the matured balance of the canonical
+  miner-fee pool; claimed subsidy MUST NOT exceed the consensus-authorized
+  subsidy. Miner-eligible fees that are neither paid nor explicitly burned by
+  the selected policy MUST remain a consensus liability in the fee pool rather
+  than disappearing.
 - R4.8 Under the current lifetime gross-issuance cap, burned existing value
   MUST NOT restore issuance headroom. Any outstanding-supply cap, burn-and-
   reissuance rule, tail emission, or replacement cap semantic requires a
   separately versioned product decision and public monetary statement.
+- R4.9 The fee-pool balance MUST count toward outstanding supply but MUST NOT
+  count as gross issuance. Its maturity buckets, claims, burns, rounding,
+  remainders, and reorganisation reversal MUST be deterministic and atomic so
+  no fee-pool amount can be lost, recreated, paid twice, or burned implicitly.
+- R4.10 Every monetary quantity and intermediate MUST be a non-negative integer.
+  The selected profile MUST fix serialized field widths, accumulator widths,
+  operand maxima, and checked multiplication/addition bounds before T504. An
+  overflow, underflow, wrap, saturation, negative value, zero divisor, or value
+  outside those bounds MUST invalidate the transition.
 
 ## R5 — Deterministic consensus safety
 
@@ -321,6 +332,15 @@ by the user; those boundaries MUST be stated with every claim.
   concentration, bribery, collusion, strategic abstention, veto power,
   client-distribution control, and the boundary between deterministic protocol
   activation and voluntary social adoption.
+- R7.9 T510 MUST publish a consensus-parameter registry classifying historical
+  invariants, normal-upgrade-only protected parameters, and parameters that an
+  emergency transition may change. No normal or emergency upgrade may rewrite
+  cumulative issuance, erase or reclassify an accrued fee-pool liability, or
+  reinterpret an accepted fee. An emergency transition MUST NOT change the
+  21,000,000 QTM cap semantic, issuance schedule, fee allocation, or value-
+  conservation equations. A prospective monetary-policy change requires a new
+  T506 campaign, the R12.5 approvals, a normal versioned activation path, and
+  new dependent evidence; it cannot be disguised as incident response.
 
 ## R8 — Verifiability
 
@@ -429,6 +449,53 @@ by the user; those boundaries MUST be stated with every claim.
   scenarios, price and energy shocks, miner entry/exit and hashrate response,
   security-expenditure or attack-cost proxies, and concentration. Thresholds
   selected after viewing candidate results are invalid evidence.
+- R12.7 The lifetime-cap comparison MUST include a bounded dynamic-fee candidate
+  that derives a common required fee rate for each fee epoch from canonical DAG
+  state finalised before that epoch. It MUST NOT depend on a node's mempool,
+  local arrival order, wall clock, current candidate block, fiat price, energy
+  price, or another external oracle.
+- R12.8 The candidate MUST separate a resource rate from a security rate. The
+  resource rate prices canonical transaction weight and network utilisation;
+  the security rate responds to a pre-registered token-denominated sustainable-
+  miner-budget objective based only on newly miner-eligible fees and authorised
+  subsidy, not burned fees, other allocations, or withdrawals from a prior fee-
+  pool balance. Transaction weight, fee-rate scale, integer rounding,
+  minimum and maximum rates, update lag, window length, and per-window change
+  bounds MUST be exact consensus parameters before the candidate is tested.
+- R12.9 Every transaction evaluated under the candidate MUST commit to its fee
+  epoch and pay at least the deterministic required fee for its canonical
+  weight. The profile MUST define an exact expiry and epoch-admission or grace
+  rule so a rate change cannot reinterpret a signed transaction. An optional
+  priority amount or fee class is permitted only if its public encoding, bounds,
+  selection effect, and privacy impact are frozen by T506 and subsequently pass
+  T508.
+- R12.10 A low or zero accepted transaction weight MUST follow one explicit
+  bounded controller transition; it MUST NOT cause division by zero, an
+  unbounded fee, additional issuance, restoration of issuance headroom, or an
+  implicit monetary-policy change. An unmet revenue objective is an observable
+  underfunded result, not evidence that miners are adequately paid.
+- R12.11 T506 MUST compare direct payout, partial or full delayed pooling,
+  partial payout plus burn, and separate resource-fee and security-fee
+  treatment, then freeze one exact allocation before T504. Every canonically
+  accepted fee MUST enter exactly one canonical acceptance interval on the
+  selected history. A reorganisation MUST atomically reverse the old assignment
+  before the transaction may be assigned exactly once on the new selected
+  history. T508 MUST adversarially test the frozen rule for omission, self-fee,
+  duplicate-inclusion, fee-sniping, controller manipulation, censorship,
+  reorganisation, and pool-formation incentives; it MUST NOT revise that rule
+  in place.
+- R12.12 The dynamic-fee candidate MAY reduce miner-revenue variance or adapt
+  user prices to measured use. It MUST NOT be described as guaranteeing a
+  real-world security budget: no transaction demand produces no fee revenue,
+  and a token-denominated target does not establish fiat-denominated attack
+  cost. G13 MUST fail if the candidate misses a pre-registered security or
+  user-cost threshold in any applicable scenario.
+- R12.13 Every canonically accepted total fee MUST be decomposed both by charge
+  class—resource, security, and optional priority—and by destination—new miner-
+  eligible fee-pool value, explicit burn on acceptance, and any exact non-miner
+  output. The two sums MUST be equal. Only new miner-eligible fees may enter the
+  fee-derived part of sustainable miner budget; only matured claimable miner-
+  fee-pool value may enter the fee-derived part of payout capacity.
 
 # 3. Threat model
 
@@ -1002,34 +1069,69 @@ MUST be calculated from a canonical DAA score or other explicitly defined DAG
 measure—not an ambiguous linear block height—and MUST specify eligibility for
 blue, red, merged, and stale blocks.
 
-For each canonical reward transition, validators MUST derive exact integers:
+For each atomic accounting interval spanning canonical ordinary-transaction
+acceptance and its reward transition, validators MUST derive exact integers:
 
 ~~~text
-collected_fees = sum(fee of each accepted ordinary transaction)
-reward_outputs <= authorized_subsidy + collected_fees
-claimed_fees = min(reward_outputs, collected_fees)
-claimed_subsidy = reward_outputs - claimed_fees
-claimed_subsidy <= authorized_subsidy
+accepted_total_fees = accepted_resource_fees
+                      + accepted_security_fees
+                      + accepted_priority_fees
+accepted_total_fees = miner_eligible_new_fees
+                      + fees_burned_on_acceptance
+                      + other_explicit_fee_outputs
+available_miner_fee_pool = previous_miner_fee_pool
+                           + miner_eligible_new_fees
+0 <= matured_claimable_fee_pool <= available_miner_fee_pool
+0 <= claimed_fees <= matured_claimable_fee_pool
+0 <= claimed_subsidy <= authorized_subsidy
+reward_outputs = claimed_fees + claimed_subsidy
 foregone_subsidy = authorized_subsidy - claimed_subsidy
-burned_existing_value = collected_fees - claimed_fees
+0 <= fees_burned_from_pool <= available_miner_fee_pool - claimed_fees
+burned_existing_value = fees_burned_on_acceptance
+                        + fees_burned_from_pool
+next_miner_fee_pool = available_miner_fee_pool
+                      - claimed_fees
+                      - fees_burned_from_pool
 next_cumulative_issuance = cumulative_issuance + claimed_subsidy
 next_note_supply = previous_note_supply
-                   - collected_fees
+                   - accepted_total_fees
                    + reward_outputs
+                   + other_explicit_fee_outputs
+previous_outstanding_supply = previous_note_supply
+                              + previous_miner_fee_pool
+next_outstanding_supply = next_note_supply + next_miner_fee_pool
+next_outstanding_supply = previous_outstanding_supply
+                          + claimed_subsidy
+                          - burned_existing_value
 ~~~
 
-The authorized subsidy MUST be non-negative and no greater than
+All terms in these equations MUST be non-negative. The selected policy MUST
+determine the charge-class and destination split, <code>claimed_fees</code>,
+<code>claimed_subsidy</code>, <code>other_explicit_fee_outputs</code>, and both
+burn components exactly; failure to claim miner-eligible value does not
+authorise a burn. In this candidate, an other explicit allocation MUST settle
+as a named protocol-authorised non-miner output in the same atomic interval. A
+T506 profile MUST define its recipient/eligibility and privacy semantics; an
+unspecified treasury or producer-selected recipient is forbidden. A
+future delayed non-miner liability would require its own outstanding-supply
+state and a separately versioned accounting rule. The authorized subsidy MUST
+be non-negative and no greater than
 <code>21,000,000 QTM - cumulative_issuance</code>. The fee portion is transferred
-value and MUST NOT increment cumulative issuance; only the net increase in note
-supply may be counted as claimed subsidy. <code>burned_existing_value</code> is
-already-issued value destroyed by the transition. <code>foregone_subsidy</code>
-was never issued and is not a burn; under the current cap it does not create an
-additional future schedule entitlement. Burned existing value does not restore
-issuance headroom at this revision. Reward outputs and fee claims MUST use the
-same private note system without exposing recipient data beyond the final
-consensus disclosure budget. The profile MUST define reward maturity, reorg
-reversal, eligibility, and atomic application so that a fee, subsidy, foregone
-subsidy, or burn cannot be counted twice. Supply accounting MUST prove these
+value and MUST NOT increment cumulative issuance. A fee awaiting later payout
+is held in the miner <code>fee_pool</code>: it is existing value and part of
+outstanding supply, but is not a spendable note and is not gross issuance. The
+direct-payout case is the special case in which the applicable pool balance
+returns to zero.
+<code>burned_existing_value</code> is already-issued value destroyed only by an
+explicit selected rule. <code>foregone_subsidy</code> was never issued and is not
+a burn; under the current cap it does not create an additional future schedule
+entitlement. Burned existing value does not restore issuance headroom at this
+revision. Reward outputs and fee claims MUST use the same private note system
+without exposing recipient data beyond the final consensus disclosure budget.
+The profile MUST define fee-pool maturity buckets or their equivalent, maximum
+retention, reorg reversal, reward eligibility, rounding and remainder
+ownership, and atomic application so that a fee, subsidy, foregone subsidy, or
+burn cannot be lost or counted twice. Supply accounting MUST prove these
 equations and the selected monetary-policy invariant under rounding and
 reorganisation.
 
@@ -1040,11 +1142,131 @@ explicitly destroys part of that existing value. A halving or other schedule
 step changes the subsidy component, not necessarily total miner revenue, which
 also includes fees and responds through entry, exit, hashrate, and difficulty.
 
+### 7.5.1 Bounded dynamic-fee and reward-window candidate
+
+The retained lifetime-cap baseline now includes a dynamic-fee candidate for
+T506/T508 comparison. This records an interface and failure boundary, not a
+selected fee schedule or evidence that the revenue objective can be met.
+
+Let <code>e</code> identify a fee/reward epoch derived from non-overlapping
+ranges of canonical DAA score. The candidate interface is:
+
+~~~text
+fee_rate_sum[e] = add_checked(resource_rate[e], security_rate[e])
+fee_numerator(tx, e) = mul_checked(
+    transaction_weight(tx), fee_rate_sum[e]
+)
+required_fee(tx, e) = ceil_div_nonnegative(
+    fee_numerator(tx, e), fee_rate_scale
+)
+total_fee(tx, e) = add_checked(required_fee(tx, e), priority_fee(tx, e))
+0 <= priority_fee(tx, e) <= maximum_priority_fee[e]
+
+accepted_total_fees[e] = sum(total_fee(tx, e) for each transaction
+                             canonically accepted in e)
+accepted_total_fees[e] = accepted_resource_fees[e]
+                         + accepted_security_fees[e]
+                         + accepted_priority_fees[e]
+accepted_total_fees[e] = miner_eligible_new_fees[e]
+                         + fees_burned_on_acceptance[e]
+                         + other_explicit_fee_outputs[e]
+sustainable_miner_budget[e] = authorized_subsidy[e]
+                              + miner_eligible_new_fees[e]
+payout_capacity[e] = authorized_subsidy[e]
+                     + matured_claimable_miner_fee_pool[e]
+claimed_miner_revenue[e] = reward_outputs[e]
+revenue_gap[e] = 0
+    if sustainable_miner_budget[e] >= target_miner_budget[e]
+    else sub_checked(target_miner_budget[e], sustainable_miner_budget[e])
+
+resource_rate[e + 1] = bounded_resource_controller(
+    resource_rate[e], finalized_utilization[e]
+)
+security_rate[e + 1] = bounded_security_controller(
+    security_rate[e], revenue_gap[e], accepted_weight[e]
+)
+~~~
+
+For non-negative <code>a</code> and positive <code>b</code>, the consensus
+operation <code>ceil_div_nonnegative(a, b)</code> MUST compute
+<code>q = a div b</code>, <code>r = a mod b</code>, and
+<code>q + 1</code> iff <code>r != 0</code>, otherwise <code>q</code>. It MUST NOT
+use an unchecked <code>(a + b - 1)</code> expression. T506 MUST freeze the exact
+unsigned widths of monetary fields, transaction weight, rates, fee numerator,
+per-interval accumulators, target/gap values, and controller state plus every
+operand maximum. <code>fee_rate_scale</code> MUST be positive.
+<code>add_checked</code>, <code>mul_checked</code>, summation, and the final
+division MUST reject any out-of-range input or intermediate rather than wrap or
+saturate.
+
+<code>miner_eligible_new_fees</code> means newly accepted value scheduled by the
+frozen rule to become claimable by miners. It excludes every amount already
+designated for burn or a non-miner output. A later explicit expiry burn is
+permitted only after the amount had the defined opportunity to mature and be
+claimed; T506 reports that burn separately from sustainable budget and actual
+claimed revenue.
+
+<code>transaction_weight</code> MUST be one canonical integer function of
+serialised bytes, proof-verification work, and state/witness impact. The exact
+components and coefficients remain a T506 decision followed by T508 validation.
+Every controller input MUST come from the same finalised canonical state and be
+delayed far enough that a transaction knows its fee epoch and required rate
+before authorisation. The transaction authorization digest and validity
+relation MUST bind the fee epoch, fee, weight/profile identifier, and any
+permitted priority class. Validators
+MUST reject an unknown epoch/profile or an underpayment before expensive proof
+verification.
+
+The selected controller MUST define an exact integer transition for zero
+accepted weight and every boundary value. Rate clamps limit price movement; they
+do not create missing revenue. The target is a pre-registered QTM-denominated
+comparison input, not an oracle claim about energy expenditure or attack cost.
+The controller uses sustainable miner budget, excluding burns, non-miner
+outputs, and withdrawals from the prior fee-pool balance, so a producer cannot
+raise a later fee rate merely by foregoing a valid reward, and neither an old
+pool balance nor destroyed value can masquerade as new miner revenue. T506
+separately reports total accepted fees, each charge and destination component,
+claimed miner revenue, payout capacity, and fee-pool balance. If either
+applicable rolling metric remains below its registered threshold, the result is
+<code>UNDERFUNDED</code> for G13 and MUST NOT authorize extra issuance or a cap
+bypass.
+
+Fees are accounted for only in their one canonical acceptance interval on the
+selected history. A reorganisation reverses the former interval assignment,
+pool change, burn, and output before any exactly-once reassignment. T506 must
+compare whether each finalised window assigns them directly to the first-including
+eligible work, shares or pools a fixed portion, burns an explicit fixed portion,
+or treats resource and security components differently. Any retained miner-
+eligible portion MUST stay in the canonical fee-pool liability and use
+deterministic work weights, maturity, maximum retention, rounding, and
+remainder rules. T506
+freezes the exact candidate for one campaign before T504 implements it. T508
+then attempts to falsify that frozen implementation against inclusion, free-
+riding, censorship, self-fee, duplicate, reorganisation, controller, and pool-
+formation attacks. If T508 rejects it, the dependent T504/T507/T508 evidence is
+invalid for selection and a new versioned T506 campaign is required; T508 MUST
+NOT silently mutate the rule or create a task-graph back edge.
+
 There is no canonical genesis block at this revision. Before a network launch,
 one immutable genesis byte string, timestamp unit, message field, target, and
 hash algorithm MUST be published with vectors. Seconds and milliseconds MUST
 not be mixed, and genesis MUST use the same block hashing rules as later
-blocks.
+blocks. The selected genesis profile MUST also commit to exact values satisfying:
+
+~~~text
+initial_miner_fee_pool = 0
+initial_cumulative_issuance = genesis_claimed_subsidy
+initial_note_supply = genesis_claimed_subsidy
+initial_controller_epoch = GENESIS_FEE_EPOCH
+resource_rate[GENESIS_FEE_EPOCH] = GENESIS_RESOURCE_RATE
+security_rate[GENESIS_FEE_EPOCH] = GENESIS_SECURITY_RATE
+~~~
+
+The epoch and both rates MUST be canonical constants inside the frozen T506
+profile and fit its exact integer widths. Under the current no-premine, no-ICO,
+and no-founder-reward baseline, <code>genesis_claimed_subsidy</code> MUST be zero;
+changing that value requires the same separately approved monetary and public-
+claim replacement as any other premine.
 
 # 8. Network anonymity and transport
 
@@ -1362,11 +1584,13 @@ analysis would create false precision:
 - note-encryption and P2P authenticated-channel composition;
 - address payload and derivation hierarchy;
 - wallet master-secret entropy and any supplemental secret-composition profile;
-- post-quantum upgrade authorisation, activation, recovery, and emergency rules;
+- post-quantum upgrade authorisation, activation, recovery, parameter registry,
+  and emergency-changeable allowlist;
 - GHOSTDAG anticone/finality parameters and DAA;
 - PoW function and measured hardware-contestability thresholds;
-- monetary-policy decision, reward curve, fee/burn rule, security-budget model,
-  and genesis block;
+- monetary-policy decision, reward curve, dynamic-fee controller parameters and
+  exact integer widths, charge-to-destination allocation, fee/reward-window
+  allocation, fee/burn rule, security-budget model, and genesis constants;
 - state representation, witness-carrying-state decision, accumulated-validity
   decision and fallback;
 - miner-template, pooled-mining, ordering and incentive profiles;
@@ -1380,6 +1604,24 @@ Each item has an owner task in the verification guide. A value becomes
 normative only with rationale, vectors, tests, and review.
 
 # Appendix B — Revision record
+
+## 0.5.3-research — 2026-08-25
+
+- retained the 21,000,000 QTM lifetime gross-issuance cap while adding a bounded
+  dynamic-fee and finalised reward-window design as a required T506/T508
+  comparator;
+- separated resource pricing from a token-denominated miner-revenue controller,
+  required prior-finalised inputs, integer clamps, an explicit zero-use branch,
+  and an observable <code>UNDERFUNDED</code> outcome without extra issuance;
+- added fee-pool liability and outstanding-supply accounting for delayed payout
+  and explicit burn;
+- separated accepted fee classes from miner-eligible, burn, and non-miner
+  destinations; required exact integer/overflow semantics and canonical genesis
+  controller state;
+- prevented emergency upgrades from silently changing protected monetary rules;
+  and
+- made T506 freeze the payout/pool/burn rule before implementation while T508
+  adversarially tests it and triggers a new campaign after rejection.
 
 ## 0.5.2-research — 2026-08-09
 
