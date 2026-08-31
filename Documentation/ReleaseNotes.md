@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Reduced the initial analytics choice to a compact bottom bar with equal
+  necessary-only and consent actions, plus a footer settings control.
 **Consent-based static-site measurement**
 
 - Registered Quantum as its own SiteBuilder website analytics owner, restricted

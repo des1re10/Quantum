@@ -90,18 +90,18 @@ window.phexoraTrack=function(type,properties,additionalAttribution){
 let pageTracked=false;
 const start=()=>{if(!pageTracked&&window.phexoraTrack('page_view',{}))pageTracked=true};
 const labels=String(document.documentElement.lang||'').toLowerCase().startsWith('de')?{
-  title:'Datenschutz-Einstellungen',
-  text:'Darf diese Website datensparsame Seitenaufrufe, Klicks und Formularinteraktionen messen? Formularinhalte werden nicht erfasst.',
-  reject:'Nur notwendige Funktionen',
-  accept:'Analytics erlauben',
-  settings:'Datenschutz-Einstellungen',
+  title:'Datenschutz',
+  text:'Mit deiner Zustimmung messen wir die Nutzung von Seiten, Links und Formularen. Inhalte werden nicht erfasst.',
+  reject:'Nur notwendige',
+  accept:'Zustimmen',
+  settings:'Cookie-Einstellungen',
   storageError:'Die Auswahl konnte nicht gespeichert werden. Analytics bleibt deaktiviert.'
 }:{
-  title:'Privacy settings',
-  text:'May this website measure privacy-conscious page views, clicks, and form interactions? Form contents are not collected.',
+  title:'Privacy',
+  text:'With your consent, we measure use of pages, links, and forms. We do not collect their contents.',
   reject:'Necessary only',
-  accept:'Allow analytics',
-  settings:'Privacy settings',
+  accept:'Agree',
+  settings:'Cookie settings',
   storageError:'Your choice could not be saved. Analytics remains disabled.'
 };
 const elementId=value=>`phexora-${value}-${c.siteId}`;
@@ -110,7 +110,7 @@ const ensureStyles=()=>{
   if(document.getElementById(elementId('consent-style')))return;
   const style=document.createElement('style');
   style.id=elementId('consent-style');
-  style.textContent='.phexora-consent{position:fixed;z-index:2147483647;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033}.phexora-consent-banner{left:12px;right:12px;bottom:12px;max-width:760px;margin:0 auto;padding:16px;border:1px solid #d7deea;border-radius:12px;background:#fff;box-shadow:0 12px 36px rgba(15,23,42,.22)}.phexora-consent-title{display:block;margin:0 0 6px;font-size:16px}.phexora-consent-text{margin:0;font-size:14px;line-height:1.45;color:#475569}.phexora-consent-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:14px}.phexora-consent button{min-height:44px;padding:9px 14px;border:1px solid #2563eb;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}.phexora-consent-reject{background:#fff;color:#1d4ed8}.phexora-consent-accept{background:#2563eb;color:#fff}.phexora-consent-status{margin:8px 0 0;color:#b91c1c;font-size:13px}.phexora-consent-settings{left:12px;bottom:12px;min-height:40px!important;padding:7px 11px!important;background:#fff;color:#1d4ed8;box-shadow:0 4px 16px rgba(15,23,42,.16);font-size:13px!important}@media(max-width:520px){.phexora-consent-banner{left:8px;right:8px;bottom:8px;padding:14px}.phexora-consent-actions{display:grid;grid-template-columns:1fr 1fr}.phexora-consent-actions button{width:100%;padding:8px}}';
+  style.textContent='.phexora-consent{position:fixed;z-index:2147483647;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033}.phexora-consent-banner{left:0;right:0;bottom:0;padding:10px 16px;border-top:1px solid #d7deea;background:#fff;box-shadow:0 -2px 12px rgba(15,23,42,.12)}.phexora-consent-content{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px}.phexora-consent-copy{min-width:0}.phexora-consent-title{display:block;margin:0 0 3px;font-size:14px}.phexora-consent-text{margin:0;font-size:13px;line-height:1.4;color:#475569}.phexora-consent-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:0 0 auto}.phexora-consent button{min-height:44px;padding:8px 13px;border:1px solid #2563eb;border-radius:6px;background:#fff;color:#1d4ed8;font:inherit;font-size:13px;font-weight:600;cursor:pointer}.phexora-consent button:hover{background:#eff6ff}.phexora-consent-accept,.phexora-consent-reject{min-width:132px}.phexora-consent-status{margin:4px 0 0;color:#b91c1c;font-size:12px}.phexora-consent-settings{position:static!important;min-height:24px!important;padding:0!important;margin:0 0 0 10px!important;border:0!important;background:transparent!important;color:inherit!important;box-shadow:none!important;font-size:inherit!important;font-weight:inherit!important;text-decoration:underline}.phexora-consent-settings:hover{background:transparent!important;text-decoration:none}@media(max-width:700px){.phexora-consent-banner{max-height:45vh;overflow-y:auto;padding:9px 10px}.phexora-consent-content{display:block}.phexora-consent-title{display:none}.phexora-consent-text{font-size:12px;line-height:1.35}.phexora-consent-actions{margin-top:8px}.phexora-consent-actions button{width:100%;min-width:0;padding:7px 8px}}';
   document.head.appendChild(style);
 };
 const consentRecord=analytics=>({preferences:{necessary:true,functional:false,analytics,marketing:false},timestamp:new Date().toISOString(),version:consentVersion});
@@ -123,7 +123,8 @@ const renderSettingsButton=()=>{
   button.className='phexora-consent phexora-consent-settings';
   button.textContent=labels.settings;
   button.addEventListener('click',()=>{button.remove();renderBanner()});
-  document.body.appendChild(button);
+  const settingsHost=document.querySelector('.footer-legal-links, footer .legal:last-of-type, footer')||document.body;
+  settingsHost.appendChild(button);
 };
 const saveConsent=(analytics,status)=>{
   const record=consentRecord(analytics);
@@ -148,6 +149,8 @@ function renderBanner(){
   const text=document.createElement('p');
   text.className='phexora-consent-text';
   text.textContent=labels.text;
+  const copy=document.createElement('div');
+  copy.className='phexora-consent-copy';
   const status=document.createElement('p');
   status.className='phexora-consent-status';
   status.setAttribute('role','status');
@@ -164,7 +167,11 @@ function renderBanner(){
   accept.textContent=labels.accept;
   accept.addEventListener('click',()=>saveConsent(true,status));
   actions.append(reject,accept);
-  banner.append(title,text,actions,status);
+  copy.append(title,text,status);
+  const content=document.createElement('div');
+  content.className='phexora-consent-content';
+  content.append(copy,actions);
+  banner.append(content);
   document.body.appendChild(banner);
 }
 const initializeConsentUi=()=>{
