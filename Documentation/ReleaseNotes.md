@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+**Consent-based static-site measurement**
+
+- Registered Quantum as its own SiteBuilder website analytics owner, restricted
+  collection to the exact production origin, and linked aggregate reporting to
+  BusinessPlanner.
+- Installed the SiteBuilder-generated opt-in runtime and assigned stable CTA
+  names to the research status, specification, verification plan, feasibility
+  protocol, and GitHub contribution paths.
+
 **Bounded Dynamic-Fee and Reward-Window Comparator**
 
 - Advanced the specification and verification plan to

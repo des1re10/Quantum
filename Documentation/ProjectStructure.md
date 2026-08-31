@@ -8,7 +8,7 @@ Quantum/
 ├── AGENTS.md                         # Agent instructions (local start commands)
 ├── README.md                         # Project overview and quick start
 ├── LICENSE                           # CC0 dedication and rights boundary
-├── index.html                        # Landing page (static HTML)
+├── index.html                        # Landing page plus generated consent analytics
 ├── .gitignore                        # Git ignore rules
 │
 ├── Documentation/
@@ -77,3 +77,12 @@ Quantum/
   repository's prepared `.venv` runtime and invoke its canonical
   `Src/universal_converter.py` entry point. Both scripts discover active
   root-level Markdown sources instead of maintaining a duplicated paper list.
+
+## Production measurement
+
+- `quantum.phexora.ai` owns a dedicated SiteBuilder analytics identity and
+  exact allowed origin; it is not grouped with another static website.
+- The SiteBuilder-generated runtime remains off until explicit analytics
+  consent and records page views plus named research-document CTAs without
+  form contents.
+- Aggregate reports are linked to the internal BusinessPlanner workspace.

@@ -10,6 +10,224 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
     <script src="assets/js/site-i18n.js" defer></script>
+<script data-phexora-site-analytics="fc176b863055461690a4295c0f5f9d89">(function(){
+const c={"endpoint":"https://phexorasitebuilder.phexora.ai/api/website-integrations/events","siteId":"fc176b863055461690a4295c0f5f9d89","trackingKey":"2e312d2f5462689ae85f721354bc5e1feb1964d117fce1aa24e7ab45f58d84e2"};
+const consentKey='phexora-cookie-consent';
+const sessionKey='phexora-website-session';
+const attributionKey='phexora-website-attribution';
+const attributionFields=['campaign','experiment_id','fbclid','gclid','msclkid','utm_campaign','utm_content','utm_medium','utm_source','utm_term'];
+const consentVersion='1.0';
+const externalConsentOwner=()=>typeof window.PHEXORA_ANALYTICS_ALLOWED==='boolean';
+const exactKeys=(value,expected)=>Object.keys(value).sort().join(',')===expected;
+const readStoredConsent=()=>{
+  try{
+    const raw=localStorage.getItem(consentKey);
+    if(!raw)return null;
+    const record=JSON.parse(raw);
+    const preferences=record&&record.preferences;
+    const valid=record&&typeof record==='object'&&!Array.isArray(record)
+      &&exactKeys(record,'preferences,timestamp,version')
+      &&record.version===consentVersion
+      &&typeof record.timestamp==='string'&&!Number.isNaN(Date.parse(record.timestamp))
+      &&preferences&&typeof preferences==='object'&&!Array.isArray(preferences)
+      &&exactKeys(preferences,'analytics,functional,marketing,necessary')
+      &&preferences.necessary===true
+      &&['analytics','functional','marketing','necessary'].every(key=>typeof preferences[key]==='boolean');
+    if(valid)return preferences.analytics;
+    localStorage.removeItem(consentKey);
+  }catch(error){return null}
+  return null;
+};
+const allowed=()=>externalConsentOwner()?window.PHEXORA_ANALYTICS_ALLOWED===true:readStoredConsent()===true;
+const id=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(16).slice(2);
+let memorySession='';
+let memoryAttribution=null;
+const session=()=>{
+  if(memorySession)return memorySession;
+  try{memorySession=sessionStorage.getItem(sessionKey)||''}catch(error){memorySession=''}
+  if(!memorySession){
+    memorySession=id();
+    try{sessionStorage.setItem(sessionKey,memorySession)}catch(error){}
+  }
+  return memorySession;
+};
+const clearSession=()=>{
+  memorySession='';
+  memoryAttribution=null;
+  try{sessionStorage.removeItem(sessionKey);sessionStorage.removeItem(attributionKey)}catch(error){}
+};
+const sessionAttribution=()=>{
+  if(memoryAttribution!==null)return memoryAttribution;
+  let stored={};
+  try{
+    const raw=sessionStorage.getItem(attributionKey);
+    const parsed=raw?JSON.parse(raw):{};
+    const valid=parsed&&typeof parsed==='object'&&!Array.isArray(parsed)
+      &&Object.keys(parsed).every(key=>attributionFields.includes(key)&&typeof parsed[key]==='string'&&parsed[key].length>0&&parsed[key].length<=200);
+    if(valid)stored=parsed;else sessionStorage.removeItem(attributionKey);
+  }catch(error){stored={}}
+  if(Object.keys(stored).length===0){
+    const params=new URLSearchParams(location.search);
+    const current={};
+    attributionFields.forEach(key=>{
+      const value=(params.get(key)||'').trim().slice(0,200);
+      if(value)current[key]=value;
+    });
+    if(Object.keys(current).length>0){
+      stored=current;
+      try{sessionStorage.setItem(attributionKey,JSON.stringify(stored))}catch(error){}
+    }
+  }
+  memoryAttribution=stored;
+  return stored;
+};
+const eventAttribution=additional=>Object.assign({},sessionAttribution(),additional||{});
+window.phexoraTrack=function(type,properties,additionalAttribution){
+  if(!allowed())return false;
+  fetch(c.endpoint,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify({site_id:c.siteId,tracking_key:c.trackingKey,event_id:id(),event_type:type,occurred_at:new Date().toISOString(),session_id:session(),page_url:location.href,referrer:document.referrer||'',attribution:eventAttribution(additionalAttribution),properties:properties||{}}),keepalive:true});
+  return true;
+};
+let pageTracked=false;
+const start=()=>{if(!pageTracked&&window.phexoraTrack('page_view',{}))pageTracked=true};
+const labels=String(document.documentElement.lang||'').toLowerCase().startsWith('de')?{
+  title:'Datenschutz-Einstellungen',
+  text:'Darf diese Website datensparsame Seitenaufrufe, Klicks und Formularinteraktionen messen? Formularinhalte werden nicht erfasst.',
+  reject:'Nur notwendige Funktionen',
+  accept:'Analytics erlauben',
+  settings:'Datenschutz-Einstellungen',
+  storageError:'Die Auswahl konnte nicht gespeichert werden. Analytics bleibt deaktiviert.'
+}:{
+  title:'Privacy settings',
+  text:'May this website measure privacy-conscious page views, clicks, and form interactions? Form contents are not collected.',
+  reject:'Necessary only',
+  accept:'Allow analytics',
+  settings:'Privacy settings',
+  storageError:'Your choice could not be saved. Analytics remains disabled.'
+};
+const elementId=value=>`phexora-${value}-${c.siteId}`;
+const removeElement=value=>document.getElementById(elementId(value))?.remove();
+const ensureStyles=()=>{
+  if(document.getElementById(elementId('consent-style')))return;
+  const style=document.createElement('style');
+  style.id=elementId('consent-style');
+  style.textContent='.phexora-consent{position:fixed;z-index:2147483647;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033}.phexora-consent-banner{left:12px;right:12px;bottom:12px;max-width:760px;margin:0 auto;padding:16px;border:1px solid #d7deea;border-radius:12px;background:#fff;box-shadow:0 12px 36px rgba(15,23,42,.22)}.phexora-consent-title{display:block;margin:0 0 6px;font-size:16px}.phexora-consent-text{margin:0;font-size:14px;line-height:1.45;color:#475569}.phexora-consent-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:14px}.phexora-consent button{min-height:44px;padding:9px 14px;border:1px solid #2563eb;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}.phexora-consent-reject{background:#fff;color:#1d4ed8}.phexora-consent-accept{background:#2563eb;color:#fff}.phexora-consent-status{margin:8px 0 0;color:#b91c1c;font-size:13px}.phexora-consent-settings{left:12px;bottom:12px;min-height:40px!important;padding:7px 11px!important;background:#fff;color:#1d4ed8;box-shadow:0 4px 16px rgba(15,23,42,.16);font-size:13px!important}@media(max-width:520px){.phexora-consent-banner{left:8px;right:8px;bottom:8px;padding:14px}.phexora-consent-actions{display:grid;grid-template-columns:1fr 1fr}.phexora-consent-actions button{width:100%;padding:8px}}';
+  document.head.appendChild(style);
+};
+const consentRecord=analytics=>({preferences:{necessary:true,functional:false,analytics,marketing:false},timestamp:new Date().toISOString(),version:consentVersion});
+const renderSettingsButton=()=>{
+  if(externalConsentOwner()||document.getElementById(elementId('consent-settings')))return;
+  ensureStyles();
+  const button=document.createElement('button');
+  button.id=elementId('consent-settings');
+  button.type='button';
+  button.className='phexora-consent phexora-consent-settings';
+  button.textContent=labels.settings;
+  button.addEventListener('click',()=>{button.remove();renderBanner()});
+  document.body.appendChild(button);
+};
+const saveConsent=(analytics,status)=>{
+  const record=consentRecord(analytics);
+  try{localStorage.setItem(consentKey,JSON.stringify(record))}catch(error){status.textContent=labels.storageError;return false}
+  if(!analytics)clearSession();
+  window.dispatchEvent(new CustomEvent('cookieConsentUpdated',{detail:record}));
+  removeElement('consent-banner');
+  renderSettingsButton();
+  return true;
+};
+function renderBanner(){
+  if(externalConsentOwner()||document.getElementById(elementId('consent-banner')))return;
+  ensureStyles();
+  const banner=document.createElement('section');
+  banner.id=elementId('consent-banner');
+  banner.className='phexora-consent phexora-consent-banner';
+  banner.setAttribute('role','dialog');
+  banner.setAttribute('aria-label',labels.title);
+  const title=document.createElement('strong');
+  title.className='phexora-consent-title';
+  title.textContent=labels.title;
+  const text=document.createElement('p');
+  text.className='phexora-consent-text';
+  text.textContent=labels.text;
+  const status=document.createElement('p');
+  status.className='phexora-consent-status';
+  status.setAttribute('role','status');
+  const actions=document.createElement('div');
+  actions.className='phexora-consent-actions';
+  const reject=document.createElement('button');
+  reject.type='button';
+  reject.className='phexora-consent-reject';
+  reject.textContent=labels.reject;
+  reject.addEventListener('click',()=>saveConsent(false,status));
+  const accept=document.createElement('button');
+  accept.type='button';
+  accept.className='phexora-consent-accept';
+  accept.textContent=labels.accept;
+  accept.addEventListener('click',()=>saveConsent(true,status));
+  actions.append(reject,accept);
+  banner.append(title,text,actions,status);
+  document.body.appendChild(banner);
+}
+const initializeConsentUi=()=>{
+  if(externalConsentOwner()){
+    if(!allowed())clearSession();
+    return;
+  }
+  const storedConsent=readStoredConsent();
+  if(storedConsent!==true)clearSession();
+  if(storedConsent===null)renderBanner();else renderSettingsButton();
+};
+window.addEventListener('cookieConsentUpdated',()=>{if(allowed())start();else clearSession()});
+window.addEventListener('openCookiePreferences',()=>{if(!externalConsentOwner()){removeElement('consent-settings');renderBanner()}});
+window.phexoraSetAnalyticsConsent=enabled=>{
+  if(typeof enabled!=='boolean')throw new TypeError('Analytics consent must be boolean');
+  const status=document.createElement('span');
+  return saveConsent(enabled,status);
+};
+const semanticCtaName=eventTarget=>{
+  if(!(eventTarget instanceof Element))return '';
+  const explicit=eventTarget.closest('[data-phexora-event]');
+  if(explicit&&!explicit.closest('.phexora-consent'))return explicit.dataset.phexoraEvent||'';
+  const link=eventTarget.closest('a[href]');
+  if(!link||link.closest('.phexora-consent'))return '';
+  const href=link.getAttribute('href')||'';
+  if(/^mailto:/i.test(href))return 'contact_email';
+  if(/^tel:/i.test(href))return 'contact_phone';
+  let destination;
+  try{destination=new URL(href,location.href)}catch(error){return ''}
+  const intent=(destination.pathname+' '+destination.hash).toLowerCase();
+  if(/(^|[\/#_-])(book|booking|schedule|appointment|termin|calendly)([\/#_-]|$)/.test(intent))return 'booking';
+  if(/(^|[\/#_-])(contact|kontakt)([\/#_-]|$)/.test(intent))return 'contact';
+  if(/(^|[\/#_-])(checkout|buy|purchase|order|kaufen|bestellen)([\/#_-]|$)/.test(intent))return 'checkout';
+  if(/(^|[\/#_-])(signup|sign-up|register|registrieren)([\/#_-]|$)/.test(intent))return 'signup';
+  if(/(^|[\/#_-])(pricing|plans|preise|tarife)([\/#_-]|$)/.test(intent))return 'pricing';
+  if(/(^|[\/#_-])(demo|beratung)([\/#_-]|$)/.test(intent))return 'demo';
+  return '';
+};
+const destinationAttribution=eventTarget=>{
+  if(!(eventTarget instanceof Element))return {};
+  const link=eventTarget.closest('a[href]');
+  if(!link||link.closest('.phexora-consent'))return {};
+  let destination;
+  try{destination=new URL(link.getAttribute('href')||'',location.href)}catch(error){return {}}
+  const attribution={};
+  attributionFields.forEach(key=>{
+    const value=(destination.searchParams.get(key)||'').trim().slice(0,200);
+    if(value)attribution[key]=value;
+  });
+  return attribution;
+};
+document.addEventListener('click',event=>{
+  const name=semanticCtaName(event.target);
+  if(name)window.phexoraTrack('cta_click',{name},destinationAttribution(event.target));
+});
+document.addEventListener('focusin',event=>{
+  const form=event.target instanceof Element?event.target.form:null;
+  if(form&&!form.dataset.phexoraStarted&&window.phexoraTrack('form_start',{form:form.id||'form'}))form.dataset.phexoraStarted='1';
+});
+document.addEventListener('submit',event=>window.phexoraTrack('form_submit',{form:event.target.id||'form'}));
+if(allowed())start();
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initializeConsentUi,{once:true});else initializeConsentUi();
+})();</script>
 </head>
 <body>
     <header>
@@ -44,7 +262,7 @@
                     and scalable layer-1 architecture in one coherent design.
                 </p>
                 <div class="hero-actions">
-                    <a href="#status" class="btn btn-primary" data-i18n="home.statusCta">Explore the vision</a>
+                    <a href="#status" class="btn btn-primary" data-phexora-event="research_status_open" data-i18n="home.statusCta">Explore the vision</a>
                     <a href="#papers" class="btn btn-secondary" data-i18n="home.papersCta">View the research</a>
                 </div>
                 <p class="target-label" data-i18n="home.targetLabel">The target architecture</p>
@@ -158,8 +376,8 @@
                 <h3 data-i18n="home.paper1Title">Quantum: Privacy-Preserving Post-Quantum DAG Protocol</h3>
                 <p class="paper-abstract" data-i18n="home.paper1Abstract">The normative requirements, candidate architecture, and verification path connect the complete Quantum design in one technical foundation.</p>
                 <div class="paper-links">
-                    <a href="papers/zkprivacy/zkprivacy-quantum-spec-v1.pdf" class="btn btn-primary" target="_blank" rel="noopener" data-i18n="home.specificationPdf">Specification PDF</a>
-                    <a href="papers/zkprivacy/zkprivacy-verification-guide.pdf" class="btn btn-secondary" target="_blank" rel="noopener" data-i18n="home.verificationPdf">Verification plan PDF</a>
+                    <a href="papers/zkprivacy/zkprivacy-quantum-spec-v1.pdf" class="btn btn-primary" target="_blank" rel="noopener" data-phexora-event="specification_pdf_open" data-i18n="home.specificationPdf">Specification PDF</a>
+                    <a href="papers/zkprivacy/zkprivacy-verification-guide.pdf" class="btn btn-secondary" target="_blank" rel="noopener" data-phexora-event="verification_plan_pdf_open" data-i18n="home.verificationPdf">Verification plan PDF</a>
                 </div>
                 <div class="paper-source">
                     <a href="papers/zkprivacy/zkprivacy-quantum-spec-v1.md" data-i18n="home.specificationSource">Specification source</a>
@@ -183,7 +401,7 @@
                 </p>
                 <p class="paper-status-note" data-i18n="home.paper2Note">The comparison protocol creates a measurable decision basis for authorisation, state management, and constrained-client budgets.</p>
                 <div class="paper-links">
-                    <a href="papers/zkprivacy/quantum-private-transaction-feasibility.pdf" class="btn btn-primary" target="_blank" rel="noopener" data-i18n="home.researchProtocolPdf">Research protocol PDF</a>
+                    <a href="papers/zkprivacy/quantum-private-transaction-feasibility.pdf" class="btn btn-primary" target="_blank" rel="noopener" data-phexora-event="research_protocol_pdf_open" data-i18n="home.researchProtocolPdf">Research protocol PDF</a>
                     <a href="papers/zkprivacy/quantum-private-transaction-feasibility.md" class="btn btn-secondary" data-i18n="home.protocolSource">Protocol source</a>
                 </div>
                 <div class="paper-source">
@@ -205,7 +423,7 @@
                 reproducible benchmarks, interoperability work, and independent
                 implementations of the published experiments.
             </p>
-            <a href="https://github.com/des1re10/Quantum" class="btn btn-primary" target="_blank" rel="noopener" data-i18n="home.contributeCta">Contribute on GitHub</a>
+            <a href="https://github.com/des1re10/Quantum" class="btn btn-primary" target="_blank" rel="noopener" data-phexora-event="github_contribution_open" data-i18n="home.contributeCta">Contribute on GitHub</a>
         </section>
     </main>
 
