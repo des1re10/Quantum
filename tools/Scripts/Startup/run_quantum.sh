@@ -29,21 +29,35 @@ fi
 
 # Determine deployment target from environment or default to main
 DEPLOY_TARGET="${DEPLOY_TARGET:-main}"
+PRODUCTION_DOMAIN="quantum.phexora.ai"
+TEST_WEB_ROOT="/var/www/quantum-test"
 
-if [ "$DEPLOY_TARGET" == "main" ]; then
-    WEB_ROOT="/var/www/quantum"
-    DOMAIN="quantum.phexora.ai"
+if [ "$DEPLOY_TARGET" = "main" ]; then
+    DOMAIN="$PRODUCTION_DOMAIN"
     NGINX_CONFIG_NAME="quantum.conf"
     NGINX_SSL_SESSION_CACHE_NAME="QuantumTLS"
     MAINTENANCE_PAGE="/var/www/html/maintenance_quantum.html"
     MAINTENANCE_PAGE_FILENAME="maintenance_quantum.html"
-else
-    WEB_ROOT="/var/www/quantum-test"
+elif [ "$DEPLOY_TARGET" = "test" ]; then
     DOMAIN="test.quantum.phexora.ai"
     NGINX_CONFIG_NAME="quantum-test.conf"
     NGINX_SSL_SESSION_CACHE_NAME="QuantumTestTLS"
     MAINTENANCE_PAGE="/var/www/html/maintenance_quantum_test.html"
     MAINTENANCE_PAGE_FILENAME="maintenance_quantum_test.html"
+else
+    echo "FATAL: DEPLOY_TARGET must be main or test, got: $DEPLOY_TARGET"
+    exit 1
+fi
+
+SITEBUILDER_PUBLICATION_ROOT_HELPER="$SHARED_SCRIPTS_DIR/static_sitebuilder_publication_root.sh"
+if [ ! -f "$SITEBUILDER_PUBLICATION_ROOT_HELPER" ]; then
+    echo "FATAL: shared SiteBuilder publication helper not found at $SITEBUILDER_PUBLICATION_ROOT_HELPER"
+    exit 1
+fi
+sed -i 's/\r$//' "$SITEBUILDER_PUBLICATION_ROOT_HELPER" 2>/dev/null || true
+source "$SITEBUILDER_PUBLICATION_ROOT_HELPER"
+if ! WEB_ROOT="$(resolve_sitebuilder_static_web_root "$DEPLOY_TARGET" "$PRODUCTION_DOMAIN" "$TEST_WEB_ROOT")"; then
+    exit 1
 fi
 
 NGINX_SITES_AVAILABLE="/etc/nginx/sites-available"
@@ -331,18 +345,11 @@ echo "Verifying site accessibility..."
 
 sleep 2
 
-if [ "$cert_valid" = true ]; then
-    SITE_URL="https://$DOMAIN"
-else
-    SITE_URL="http://$DOMAIN"
+if ! verify_static_site_web_root_exactly "$WEB_ROOT" "$DOMAIN" "$cert_valid"; then
+    exit 1
 fi
-
-if curl -s --max-time 10 -o /dev/null -w "%{http_code}" "$SITE_URL" | grep -q "200\|301\|302"; then
-    echo "  Site is accessible at $SITE_URL"
-else
-    echo "  WARNING: Site may not be accessible"
-    echo "  Check: curl -I $SITE_URL"
-fi
+SITE_URL="$STATIC_SITE_VERIFIED_URL"
+echo "  Served index verified exactly via $SITE_URL"
 
 # ============================================================================
 # SUMMARY

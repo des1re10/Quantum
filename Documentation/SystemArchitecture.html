@@ -106,9 +106,11 @@ Server-Arbeitskopie
   │
   ├─ index.html + LICENSE + assets/ + papers/
   ▼
-/var/www/quantum[-test] ── Nginx/HTTPS</code></pre>
-        <p>Das Server-Deployment kopiert ausschließlich <code>index.html</code>, <code>LICENSE</code>, <code>assets/</code> und <code>papers/</code> in den Web-Root. Quantum verwendet genau den vom AppManager beziehungsweise Zentral-Orchestrator übergebenen Bundle-Stand aus <code>Libraries/Scripts</code> als Deployment-Werkzeug, ist laut Anwendungsregistrierung jedoch kein Shared-Libraries-Consumer; deshalb wird weder eine Libraries-Nutzlast verlangt noch in das Quantum-Ziel kopiert. Fehlende sudo-Berechtigung, fehlende Startup-Werkzeuge oder vom App-Stand abweichende Web-Root-Inhalte brechen das Deployment ab. Die rechtlichen Links bleiben bei ihren zentral gepflegten Phexora-Seiten. <code>Documentation/</code>, Quellrichtlinien und Build-Skripte bleiben in der Server-Arbeitskopie und sind nicht Teil der öffentlichen Website.</p>
-        <p><code>run_quantum.sh</code> verwendet die gemeinsame statische Nginx-Infrastruktur für Web-Root, HTTPS und Wartungsseite. Die Nginx-Konfiguration wird nicht manuell im Repository gepflegt.</p>
+/var/www/quantum[-test] ── registrierte Quelle/TEST
+  │
+  └─ MAIN: SiteBuilder publication-domains/quantum.phexora.ai ── Nginx/HTTPS</code></pre>
+        <p>Das Server-Deployment kopiert ausschließlich <code>index.html</code>, <code>LICENSE</code>, <code>assets/</code> und <code>papers/</code> in den repository-eigenen Web-Root. Quantum verwendet genau den vom AppManager beziehungsweise Zentral-Orchestrator übergebenen Bundle-Stand aus <code>Libraries/Scripts</code> als Deployment-Werkzeug, ist laut Anwendungsregistrierung jedoch kein Shared-Libraries-Consumer; deshalb wird weder eine Libraries-Nutzlast verlangt noch in das Quantum-Ziel kopiert. Fehlende sudo-Berechtigung, fehlende Startup-Werkzeuge oder vom App-Stand abweichende Web-Root-Inhalte brechen das Deployment ab. Die rechtlichen Links bleiben bei ihren zentral gepflegten Phexora-Seiten. <code>Documentation/</code>, Quellrichtlinien und Build-Skripte bleiben in der Server-Arbeitskopie und sind nicht Teil der öffentlichen Website.</p>
+        <p><code>run_quantum.sh</code> verwendet die gemeinsame statische Nginx-Infrastruktur für HTTPS und Wartungsseite. MAIN wird über den stabilen, von SiteBuilder beim Veröffentlichen atomar umgeschalteten Domain-Alias ausgeliefert; TEST verbleibt unter <code>/var/www/quantum-test</code>. Der Start bricht ab, wenn der Alias fehlt oder die Domain nicht exakt dessen <code>index.html</code> ausliefert.</p>
       </section>
 
       <section class="doc-section" id="umgebungen">

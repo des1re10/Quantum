@@ -86,3 +86,12 @@ Quantum/
   consent and records page views plus named research-document CTAs without
   form contents.
 - Aggregate reports are linked to the internal BusinessPlanner workspace.
+
+## Production publication
+
+The repository deployment keeps `/var/www/quantum` as the registered restore
+source. Production Nginx serves the stable SiteBuilder domain alias
+`runtime/main/publication-domains/quantum.phexora.ai`; SiteBuilder atomically
+moves that alias to the deployment of the currently assigned site when its
+owner or a publisher selects Publish. TEST remains repository-owned at
+`/var/www/quantum-test`.
