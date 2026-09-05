@@ -2,8 +2,8 @@
 title: "Private Post-Quantum Note Discovery at High Throughput"
 subtitle: "Research-paper template"
 author: "Phexora AI · [phexora.ai](https://phexora.ai)"
-date: "2026-07-23"
-version: "template-0.1"
+date: "2026-09-05"
+version: "template-0.2"
 status: "Template only — no construction, implementation, result, or novelty claim"
 license: "CC0-1.0; see repository LICENSE"
 lang: "en-GB"
@@ -14,6 +14,13 @@ lang: "en-GB"
 Do not cite this outline as a completed paper. Promote it only after the
 complete-transaction paper freezes the output format, encrypted payload,
 transaction size, and measured output rate.
+
+Before that promotion, T006 in the [verification guide](../zkprivacy-verification-guide.md)
+screens real candidate encrypted outputs, full scans, private retrieval,
+offline catch-up and provider costs under frozen limits. NOT_RULED_OUT is
+only an early feasibility screen; it is neither this paper's result nor a
+recipient-privacy claim. T305's actual formats must remain inside that envelope
+or trigger a new reviewed screen before integration.
 
 # Working decision
 

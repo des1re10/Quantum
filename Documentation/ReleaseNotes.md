@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+**Research revision 0.5.4 — 2026-09-05**
+
+- Advanced the specification and verification guide to 0.5.4-research and
+  the comparative feasibility protocol to 0.4.0-research-protocol.
+- Required independently spendable note instances across duplicate commitments,
+  historical-note/nullifier continuity through upgrades, and wallet witness
+  refresh and rollback after reorgs.
+- Specified an acyclic encryption/effects-ID/authorisation/proof construction,
+  separate proof carriage and pre-sign fee-context/weight contracts.
+- Required exact contextual DAG acceptance and atomic rejection/rollback;
+  added a symbolic merge/reorg example without claiming a consensus proof.
+- Corrected semantic prerequisites in the 41-task graph and added T006 as an
+  early receiving, offline catch-up and transport screen before T305.
+- Added required FIPS 205 256s Arm D beside 256f and an explicitly exploratory,
+  limited-use SP 800-230 draft boundary; each stateless arm must qualify separately.
+- Added scenarios A039–A047, synchronized decision revisions 1.1/0.3.3,
+  research templates and DE/EN summaries, and regenerated all three active PDFs.
+- Reflowed the existing SHAKE256 wrapper vectors so every hexadecimal byte
+  remains visible in the PDF; the independently recomputed values are unchanged.
+- Kept all research gates and specialist approvals open. No implementation,
+  benchmark, security proof or monetary-policy change is reported.
+
 - Reduced the initial analytics choice to a compact bottom bar with equal
   necessary-only and consent actions, plus a footer settings control.
 **Consent-based static-site measurement**

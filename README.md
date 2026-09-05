@@ -36,7 +36,7 @@ reviewed profiles and do not inherit the base protocol's claims.
 
 ## Current status
 
-**Research design 0.5.3-research — not implementation-ready or production-safe.**
+**Research design 0.5.4-research — not implementation-ready or production-safe.**
 
 This repository currently contains a static documentation website, a research
 design, a verification plan, and a transaction-feasibility pre-registration
@@ -47,10 +47,11 @@ benchmark.
 | Area | Status |
 |---|---|
 | SHAKE256 and ML-KEM-1024 | Standards selected; integration not verified |
-| Spend authorization | FIPS 205 SLH-DSA-SHAKE-256f is the stateless incumbent; comparative gate open |
+| Spend authorization | FIPS 205 SLH-DSA-SHAKE-256f incumbent and required 256s comparator; comparative gate open |
 | Lattice commitment | Blocking research gate |
 | STARK validity proof | Blocking research gate |
 | Complete 2-input/2-output transaction proof | Experiment specified; implementation and result absent |
+| Receiving, offline catch-up and transport costs | Early T006 screen specified before T305; not run |
 | GHOSTDAG and private state ordering | Blocking research gate |
 | Validator operability | Blocking research gate; no numeric profile frozen |
 | Current data, snapshots, and recovery | Blocking research gate |
@@ -84,7 +85,7 @@ adversaries, evidence, and stop/go decisions:
 
 | Order | Research question | Status |
 |---:|---|---|
-| 1 | Does full in-proof FIPS 205 SLH-DSA-SHAKE-256f provide a material benefit over one-time/stateful hash-based baselines while the same complete 2-input/2-output relation meets frozen security and client budgets? | Active comparative research protocol; no result |
+| 1 | Does full in-proof FIPS 205 SLH-DSA-SHAKE-256f or 256s provide a material benefit over one-time/stateful hash-based baselines while the same complete 2-input/2-output relation meets frozen security and client budgets? | Active comparative research protocol 0.4.0; no result |
 | 2 | Can wallets discover post-quantum encrypted notes privately at the measured output rate? | [Template](papers/zkprivacy/templates/private-note-discovery-template.md) |
 | 3 | Can transaction origins remain hidden under a named observer model at BlockDAG throughput? | [Template](papers/zkprivacy/templates/network-origin-anonymity-template.md) |
 | 4 | Can GHOSTDAG apply private commitments, nullifiers, anchors, rewards, and reorganisations deterministically? | [Template](papers/zkprivacy/templates/ghostdag-private-state-template.md) |
@@ -107,7 +108,7 @@ may become an active paper.
 | Responsibility | Candidate direction | Evidence boundary |
 |---|---|---|
 | Hash/XOF | SHAKE256, NIST FIPS 202 | Standard selected |
-| Authorization | Stateless incumbent: SLH-DSA-SHAKE-256f; stateful comparators: independently specified one-time tree and applicable NIST SP 800-208 profile | Same-relation cost, state-failure model, and material-benefit decision open |
+| Authorization | Stateless incumbent: SLH-DSA-SHAKE-256f; required 256s comparator; stateful comparators: independently specified one-time tree and applicable NIST SP 800-208 profile | Same-relation cost, state-failure model, and separate material-benefit decisions open |
 | Key encapsulation | ML-KEM-1024, NIST FIPS 203 | Authenticated composition open |
 | Validity proof | Transparent STARK | Exact AIR/FRI/ZK profile open |
 | Note commitment | Reviewed lattice construction | Construction and parameters open |

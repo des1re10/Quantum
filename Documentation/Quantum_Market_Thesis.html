@@ -89,7 +89,7 @@
             <tbody>
               <tr><td>SHAKE256</td><td class="status-selected">Standard ausgewählt</td><td>Domain-Vektoren sowie begründete Output-Längen für jede Sicherheitsanforderung</td></tr>
               <tr><td>ML-KEM</td><td class="status-selected">NIST-Standard und ML-KEM-1024-Kandidat ausgewählt</td><td>Exakte Integration, KATs, Empfänger-Key-Privacy, Side-Channel- und Kompositionsreview</td></tr>
-              <tr><td>Spend-Autorisierung</td><td class="status-open">FIPS-205-SLH-DSA-SHAKE-256f ist der stateless Vergleichskandidat</td><td>Gleiche Relation gegen eine an TzEL orientierte und eine geeignete NIST-SP-800-208-Stateful-Baseline messen; Zustandsfehler und materiellen Nutzen bewerten</td></tr>
+              <tr><td>Spend-Autorisierung</td><td class="status-open">FIPS-205-SLH-DSA-SHAKE-256f und 256s sind zustandslose Vergleichskandidaten</td><td>Gleiche Relation gegen eine an TzEL orientierte und eine geeignete NIST-SP-800-208-Stateful-Baseline messen; Zustandsfehler und materiellen Nutzen je Kandidat bewerten</td></tr>
               <tr><td>Lattice Commitment</td><td class="status-open">Offenes Gate</td><td>Konstruktion, Parameter, Reduktion, Estimator und Review</td></tr>
               <tr><td>STARK-Profil</td><td class="status-open">Offenes Gate</td><td>AIR, FRI, ZK-Masking, QROM-Soundness und Benchmarks</td></tr>
               <tr><td>DAG und privater Zustand</td><td class="status-open">Offenes Gate</td><td>Deterministische GHOSTDAG-Integration, DAA und Konfliktbeweis</td></tr>
@@ -108,7 +108,7 @@
           <table>
             <thead><tr><th>Reihenfolge</th><th>Entscheidungsfrage</th><th>Status</th></tr></thead>
             <tbody>
-              <tr><td>1</td><td>FIPS-205-SLH-DSA-SHAKE-256f gegen einmalige und zustandsbehaftete Hash-Signatur-Baselines in derselben vollständigen Quantum-Transaktion</td><td>Aktives, vergleichendes Forschungsprotokoll; keine Messung</td></tr>
+              <tr><td>1</td><td>FIPS-205-SLH-DSA-SHAKE-256f und 256s gegen einmalige und zustandsbehaftete Hash-Signatur-Baselines in derselben vollständigen Quantum-Transaktion</td><td>Aktives, vergleichendes Forschungsprotokoll; keine Messung</td></tr>
               <tr><td>2</td><td>Private Post-Quantum-Note-Erkennung bei gemessenem Output-Durchsatz</td><td>Vorlage; wartet auf das Transaktionsformat und T305-Messwerte</td></tr>
               <tr><td>3</td><td>Netzwerk-Ursprungsanonymität bei BlockDAG-Durchsatz</td><td>Vorlage; wartet auf Workload und Beobachtermodell</td></tr>
               <tr><td>4</td><td>Deterministische private Zustandssemantik für GHOSTDAG</td><td>Vorlage; wartet auf Transaktionszustand und Konsensprofil</td></tr>

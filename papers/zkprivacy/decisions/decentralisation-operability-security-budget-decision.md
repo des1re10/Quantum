@@ -3,11 +3,11 @@
 **Status:** Recorded research direction; named owner and independent reviewer
 signatures required before implementation; not a protocol, monetary-policy,
 security, benchmark, or release approval<br>
-**Decision revision:** 0.3.2-research<br>
-**Decision date:** 2026-08-25<br>
-**Applies to protocol design:** 0.5.3-research<br>
-**Applies to:** R3–R12, T001, T004–T005, T204, T306, T501–T510,
-T603–T605, T701, and Gates G5, G7, G10–G13<br>
+**Decision revision:** 0.3.3-research<br>
+**Decision date:** 2026-09-05<br>
+**Applies to protocol design:** 0.5.4-research<br>
+**Applies to:** R1, R3–R12, T001, T004–T006, T204, T302, T306, T402–T403,
+T501–T510, T603–T605, T701, and Gates G3B, G5, G7, G10–G13<br>
 **Evidence cut-off:** 2026-08-09<br>
 **Accountable owner:** Unassigned<br>
 **Independent reviewer:** Unassigned<br>
@@ -101,6 +101,13 @@ passing campaign for that version.
 The profile is immutable for the named release candidate and campaign. Any
 change creates a new profile and new release evidence. The failed campaign
 remains failed for the old profile.
+
+T005 also pre-registers the early receiving and transport envelope for T006.
+T006 uses actual T401/T402 encrypted-output artifacts, explicitly modelled
+proof/transport components and frozen offline/client/provider workloads. Its
+NOT_RULED_OUT result only permits T305; it passes no privacy or capacity gate.
+Actual T305 sizes outside the envelope require a new reviewed screen before
+integration. Missing required evidence cannot pass the screen.
 
 For G12, T005 must also freeze the named metrics, adversarial scenarios,
 pass/fail thresholds, and STOP conditions for custom-template latency and
@@ -299,6 +306,13 @@ exact expiry and epoch-admission/grace rule for delayed transactions. No
 fiat-price, energy-price, local-mempool, arrival-order, wall-clock, or current-
 candidate-block input is permitted.
 
+T402 freezes the canonical static/dynamic fee-context encoding and a weight
+computable before signing. Variable proof-envelope size or later aggregate
+membership cannot reprice signed effects; the profile must use fixed lengths
+or enforce conservative bounds and reject oversize envelopes. T506 instantiates
+the dynamic context without a silent fallback to static fees. If it changes
+the proved relation or cost envelope, dependent T305 evidence must be rebuilt.
+
 The selected allocation must decompose every canonically accepted total fee by
 both charge class—resource, security, and optional priority—and destination—new
 miner-eligible pool value, explicit burn on acceptance, and a named non-miner
@@ -445,6 +459,13 @@ issuance schedule, fee allocation, or value-conservation equations. A
 prospective monetary change requires a new T506 campaign, the named monetary
 approvals, normal versioned activation, and rebuilt dependent evidence.
 
+R1.7/R7.10 also require continuity of note-instance identity and spent status.
+T510 consumes T204's key/recovery policy, T302's immutable nullifier-domain
+contract and T403's apply/revert state. Active transaction/proof versions must
+not give an old spent note a fresh nullifier or silently strand unspent notes.
+Any explicit migration must consume the old instance once, preserve value and
+define historical signing, offline recovery and reorg behaviour before activation.
+
 Passing T510 does not prove governance decentralisation or prevent capture by
 a formally authorised quorum. The threat model must cover principal
 concentration, bribery, collusion, strategic abstention, veto power, and control
@@ -454,30 +475,22 @@ cannot prevent users from declining a client release or choosing a social fork.
 
 ## 10. Task-graph decision
 
-The verification guide owns the executable task graph. The required ordering
-is:
+The [verification guide](../zkprivacy-verification-guide.md)
+owns the complete 41-task dependency graph. This record states the decision
+boundaries; it does not maintain a second copy of that graph.
 
-~~~text
-T004 Benchmark and artifact harness                      <- T001, T002
-T005 Operability-profile freeze                          <- T001, T002, T004
+T002 owns common encoding rules and interface ownership, T401 the encryption
+contract, T402 the staged codec, and T304 the proof envelope. T401 and T402
+precede T301; T006 and T402 precede T305. Early task completion must not require
+future protocol measurements. T510 additionally consumes T204/T302/T403 so
+activation cannot ignore historical-note continuity.
 
-T306 Proof-system accumulation capability               <- T303, T304, T005
-
-T501 Versioned GHOSTDAG consensus profile                <- T001, T002
-T509 PoW hardware contestability study                   <- T001, T004, T005, T201, T501
-T502 Header, selected PoW and deterministic DAA          <- T201, T501, T509
-T510 Post-quantum upgrade governance and activation      <- T001, T002, T202, T501, T502
-T503 Canonical DAG-to-state ordering                     <- T403, T501, T502
-T506 Monetary-security decision                          <- T001, T004, T005, T501, T509
-T504 Rewards, selected supply policy and genesis         <- T503, T506
-T505 Consensus-bound state validity and bootstrap        <- T306, T405, T503, T504
-T507 Miner-template and pooled-mining profile            <- T501, T502, T503, T504
-T508 Ordering, censorship and incentive gate             <- T005, T503, T506, T507
-
-T605 Current-data availability, snapshot and recovery    <- T002, T004, T005, T505, T601
-T603 Full node, pruning and recovery                      <- T305, T403, T505, T601, T605
-T604 End-to-end system validation                        <- T405, T508, T602, T603
-~~~
+T503 must freeze the exact header/checkpoint execution context, separate
+malformed-block rules from contextual transaction rejection, and test parallel
+conflicts with atomic rollback. The symbolic example in specification Section
+7.3.1 is an illustrative deferred-acceptance candidate, not a selected consensus
+profile or a correctness proof. T503 uses an accounting interface; T504 supplies
+the selected reward and fee semantics without a reverse task dependency.
 
 T004 owns the method and artifact harness. T005 freezes the profile before any
 later result is interpreted; there is no dependency in the reverse direction.
@@ -539,6 +552,17 @@ These sources provide prior art, threat questions, or comparator mechanisms.
 They do not verify the Quantum design.
 
 ## 13. Revision record
+
+### 0.3.3-research — 2026-09-05
+
+- Aligned with design 0.5.4, T006 receiving/transport screening and pre-sign
+  fee-context/weight construction, without selecting fees or budgets.
+- Required note/nullifier continuity through upgrades and explicit contextual
+  DAG acceptance/rejection/rollback semantics.
+- Replaced the duplicated graph with its canonical verification-guide owner
+  and recorded the prerequisite/interface boundaries.
+- Preserved the 2026-08-09 prior-art snapshot, 21-million lifetime cap and
+  pending specialist approvals; no gate or implementation is approved.
 
 ### 0.3.2-research — 2026-08-25
 

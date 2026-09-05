@@ -2,8 +2,8 @@
 title: "Network-Origin Anonymity for a High-Throughput BlockDAG"
 subtitle: "Research-paper template"
 author: "Phexora AI · [phexora.ai](https://phexora.ai)"
-date: "2026-07-23"
-version: "template-0.1"
+date: "2026-09-05"
+version: "template-0.2"
 status: "Template only — no protocol, implementation, anonymity result, or novelty claim"
 license: "CC0-1.0; see repository LICENSE"
 lang: "en-GB"
@@ -13,6 +13,12 @@ lang: "en-GB"
 
 Do not cite this outline as a completed paper. Promote it only after the
 transaction propagation format, target workload, and observer model are frozen.
+
+T006 in the [verification guide](../zkprivacy-verification-guide.md) first
+screens candidate packet sizes, latency, batching, mixing, cover traffic,
+idle-client cost and correlated retries against a named observer. Modelled
+proof/transport components must be explicit. NOT_RULED_OUT permits T305;
+it does not establish R2/G6 or promote this template to a result paper.
 
 # Working decision
 

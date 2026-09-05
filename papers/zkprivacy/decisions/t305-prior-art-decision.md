@@ -3,10 +3,12 @@
 **Status:** Recorded research direction; named owner and reviewer signatures
 required before implementation; not a protocol, security, licensing, or release
 approval<br>
-**Decision revision:** 1.0-research<br>
-**Decision date:** 2026-07-23<br>
-**Applies to:** T103, T104, T202, T203, T301–T305, and Paper 1<br>
-**Evidence cut-off:** 2026-07-23<br>
+**Decision revision:** 1.1-research<br>
+**Decision date:** 2026-09-05<br>
+**Applies to:** T006, T103, T104, T202, T203, T301–T305, T401–T402,
+and Paper 1 (0.4.0-research-protocol)<br>
+**Prior-art evidence cut-off:** 2026-07-23; scoped NIST profile update
+2026-09-05, not a refreshed full novelty or source-licence review<br>
 **Accountable owner:** Unassigned<br>
 **Independent reviewer:** Unassigned<br>
 **Approval status:** PENDING
@@ -91,22 +93,37 @@ incumbent as already justified:
 | A — TzEL-shaped one-time baseline | Measure the proof-native stateful approach that closest prior work uses | Independently specified WOTS/XMSS-style relation, explicit key-reuse/exhaustion model, trace and benchmark artifacts |
 | B — NIST stateful comparator | Determine whether an approved XMSS/XMSSMT or LMS/HSS profile can supply a standards boundary without full stateless cost | Exact NIST SP 800-208 parameter set, hardware/state requirements, in-proof cost, and applicability decision |
 | C — Quantum incumbent | Test exact FIPS 205 `SLH-DSA-SHAKE-256f` verification | Official KATs, complete in-proof relation, concrete multi-target rationale, and full benchmark |
+| D — Required stateless comparator | Test exact FIPS 205 `SLH-DSA-SHAKE-256s` verification | Same complete relation, KATs, signing and proving measurements, concrete security, and independently evaluated material benefit |
+
+The two category-5 stateless signatures encode 49,856 and 29,792 bytes,
+respectively. Signature size alone does not predict proving cost. Failure of
+Arm C cannot exclude Arm D; both require measurement under the same frozen
+statement, hardware, security and client budgets.
 
 NIST SP 800-208 stateful schemes are not general-purpose drop-in replacements:
 their safety depends on state management and the NIST profile imposes controlled
-key-generation requirements. NIST SP 800-230 was only an initial public draft
-at the evidence cut-off; its limited-signature SLH-DSA parameter sets must not
-be treated as final standards.
+key-generation requirements. NIST SP 800-230, *Additional SLH-DSA Parameter
+Sets for Limited-Signature Use Cases*, remains an initial public draft as
+checked on 2026-09-05. It may supply a separately labelled exploratory arm,
+never replace mandatory Arm D or be treated as a final standard. Its ceiling
+of 2^24 signatures per key counts all signing across devices, retries and
+restored backups, not only accepted ledger spends. Applicability and enforceable
+key-use accounting must be reviewed before measurements are interpreted.
 
 ## Stop/go classification
 
-Paper 1 may continue only as the comparison above.
+Paper 1 may continue only as the comparison above. T006 must first return
+NOT_RULED_OUT for a frozen receiving/offline-catch-up/transport envelope;
+this does not establish privacy or full-system feasibility. T305 must reuse
+the T402 codec and recheck its actual sizes against that envelope before
+integration. An out-of-envelope result requires a new reviewed T006 campaign.
 
-- **GO — retain the stateless profile:** Arm C meets every frozen threshold and
-  its state-management, interoperability, or security benefit is material
-  enough to justify its extra cost over Arms A and B.
+- **GO — retain a stateless profile:** Arm C or D meets every frozen threshold
+  and independently passes the material-benefit rule against every qualifying
+  stateful comparator. Selecting D requires a versioned authorisation-profile
+  decision before integration.
 - **ADAPT — select a stateful profile:** A reviewed Arm A or B meets the
-  complete requirements while Arm C fails or adds no material benefit. The
+  complete requirements while neither C nor D qualifies. The
   normative specification must then change before node work begins.
 - **REPLICATE — publish a comparative or negative result:** No arm establishes
   a new construction, but the independent measurements or failure analysis are
@@ -155,7 +172,24 @@ the implementation tasks.
   Schemes](https://csrc.nist.gov/pubs/sp/800/208/final), 2020.
 - NIST,
   [SP 800-230 initial public draft](https://csrc.nist.gov/pubs/sp/800/230/ipd),
-  2026; non-final at the evidence cut-off.
+  *Additional SLH-DSA Parameter Sets for Limited-Signature Use Cases*, 2026;
+  non-final in the scoped 2026-09-05 update.
 - NIST,
   [FIPS 205: Stateless Hash-Based Digital Signature
   Standard](https://csrc.nist.gov/pubs/fips/205/final), 2024.
+
+## Revision record
+
+### 1.1-research — 2026-09-05
+
+- Added mandatory Arm D (256s), separate stateless-arm decisions and the
+  explicit limited-use draft boundary.
+- Required T006 before T305, reuse of T402 and a measured-envelope recheck
+  before integration.
+- Preserved the original prior-art/code-licence snapshot and pending signatures;
+  no implementation, benchmark or security approval is recorded.
+
+### 1.0-research — 2026-07-23
+
+- Recorded the comparative adopt/adapt/replicate direction and source-reuse
+  boundary from the original evidence snapshot.

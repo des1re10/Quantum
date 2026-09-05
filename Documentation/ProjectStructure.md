@@ -22,11 +22,11 @@ Quantum/
 │
 ├── papers/                           # Research papers and specifications
 │   └── zkprivacy/                    # Quantum: Privacy-Preserving DAG Blockchain
-│       ├── quantum-private-transaction-feasibility.md  # 0.3.2 active T305 research protocol
+│       ├── quantum-private-transaction-feasibility.md  # 0.4.0 active T305 research protocol
 │       ├── quantum-private-transaction-feasibility.pdf # Generated PDF export
-│       ├── zkprivacy-quantum-spec-v1.md      # 0.5.3 research design and requirements
+│       ├── zkprivacy-quantum-spec-v1.md      # 0.5.4 research design and requirements
 │       ├── zkprivacy-quantum-spec-v1.pdf     # PDF export
-│       ├── zkprivacy-verification-guide.md   # 0.5.3 implementation and evidence plan
+│       ├── zkprivacy-verification-guide.md   # 0.5.4 implementation and evidence plan
 │       ├── zkprivacy-verification-guide.pdf  # PDF export
 │       ├── decisions/                         # Versioned research gates; not papers
 │       │   ├── t305-prior-art-decision.md     # Adopt/adapt/replicate and reuse boundary

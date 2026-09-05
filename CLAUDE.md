@@ -12,7 +12,7 @@ not duplicated here.
 
 ## Research status
 
-The current protocol document is revision <code>0.5.3-research</code>, even
+The current protocol document is revision <code>0.5.4-research</code>, even
 though its legacy filename contains “v1”.
 
 The five non-negotiable release requirements are:

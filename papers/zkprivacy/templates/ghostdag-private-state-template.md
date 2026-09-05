@@ -2,8 +2,8 @@
 title: "Deterministic Private-State Semantics for GHOSTDAG"
 subtitle: "Research-paper template"
 author: "Phexora AI · [phexora.ai](https://phexora.ai)"
-date: "2026-07-23"
-version: "template-0.1"
+date: "2026-09-05"
+version: "template-0.2"
 status: "Template only — no consensus profile, proof, implementation, or result"
 license: "CC0-1.0; see repository LICENSE"
 lang: "en-GB"
@@ -13,6 +13,13 @@ lang: "en-GB"
 
 Do not cite this outline as a completed paper. Promote it only after the
 transaction/state transition and the versioned GHOSTDAG candidate are frozen.
+
+The [specification](../zkprivacy-quantum-spec-v1.md), Sections 5.6.1 and
+7.3–7.3.1, requires authenticated note-instance identity, exact header/checkpoint
+execution context and atomic acceptance/rejection/reorg accounting. Its
+symbolic deferred-acceptance example is a candidate reference-model case,
+not a selected consensus profile, byte/root vector or correctness proof.
+T503–T505 own the instantiated semantics and independent evidence.
 
 # Working decision
 

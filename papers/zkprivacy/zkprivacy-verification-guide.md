@@ -1,9 +1,9 @@
 ---
 title: "Quantum Research Implementation and Verification Plan"
-subtitle: "Evidence plan for the 0.5.3 research design"
+subtitle: "Evidence plan for the 0.5.4 research design"
 author: "Phexora AI · [phexora.ai](https://phexora.ai)"
-date: "2026-08-25"
-version: "0.5.3-research"
+date: "2026-09-05"
+version: "0.5.4-research"
 status: "Planning document — no conformant implementation or completed verification"
 license: "CC0-1.0; see repository LICENSE"
 lang: "en-GB"
@@ -116,13 +116,13 @@ bytes do not prove privacy.
 
 | Requirement | Primary tasks | Required release evidence |
 |---|---|---|
-| R1 Private ledger | T103–T104, T301–T305, T401–T405 | security argument, vectors, two implementations, audit |
-| R2 Network anonymity | T601–T602, T604 | threat model, simulation, adversarial experiments, review |
+| R1 Private ledger | T006, T103–T104, T301–T305, T401–T405 | note-instance spendability, security argument, vectors, two implementations, audit |
+| R2 Network anonymity | T006, T601–T602, T604 | early cost screen, threat model, simulation, adversarial experiments, review |
 | R3 Post-quantum security | T001, T103–T104, T201–T204, T303–T306, T505, T510, T601, T701 | composed ≥128-bit PQ analysis and KATs |
 | R4 Authorization/supply | T202, T301, T305, T402–T405, T504, T506 | prevention of unauthorised issuance, exact accounting, and selected monetary-invariant proof |
 | R5 Consensus safety | T403, T501–T505, T507–T508, T603 | deterministic models, vectors, state/reorg and template tests |
-| R6 Scalability | T004–T005, T304–T306, T603–T605 | pre-node feasibility and ≥1,000 accepted tx/s end-to-end artifacts |
-| R7 Setup/upgrade safety | T002, T202, T303–T306, T501–T502, T505, T510, T701 | setup/accumulation analysis and versioned PQ upgrade-governance evidence |
+| R6 Scalability | T004–T006, T304–T306, T603–T605 | pre-node receiving/transport and transaction feasibility; ≥1,000 accepted tx/s end-to-end artifacts |
+| R7 Setup/upgrade safety | T002, T202, T204, T302–T306, T403, T501–T502, T505, T510, T701 | setup/accumulation analysis, historical-note/nullifier continuity, versioned PQ upgrade-governance evidence |
 | R8 Verifiability | T003–T005, all implementation tasks, T701 | trace report, independent implementations, external review |
 | R9 Operability | T004–T005, T305, T403–T404, T505, T603–T605 | frozen profile, paired G7/G10 artifacts, bootstrap/restart evidence |
 | R10 Current data/recovery | T403–T404, T505, T603–T605 | complete-current-data, snapshot, withholding, reconstruction, and repair evidence |
@@ -140,7 +140,7 @@ earlier task back to design, but dependencies MUST NOT be bypassed.
 ~~~text
 Layer 0 — Scope and evidence
 T001 Security profile and threat model
-T002 Canonical serialization and domain registry       <- T001
+T002 Common encoding rules and domain registry          <- T001
 T003 Test-vector and interoperability harness           <- T002
 T004 Benchmark and artifact harness                     <- T001, T002
 T005 Operability-profile freeze                         <- T001, T002, T004
@@ -158,7 +158,7 @@ T203 ML-KEM, KDF and authenticated encryption           <- T201
 T204 Wallet key hierarchy and address profile           <- T202, T203
 
 Layer 3 — Validity proof
-T301 Integer transaction relation and AIR               <- T101, T104, T201, T202
+T301 Integer transaction relation and AIR               <- T101, T104, T201, T202, T401, T402
 T302 Membership, nullifier and state AIR                <- T301
 T303 Fiat–Shamir, FRI and zero-knowledge profile        <- T101, T201
 T304 Prover, verifier and aggregation                   <- T301, T302, T303
@@ -166,9 +166,10 @@ T306 Proof-system accumulation capability               <- T303, T304, T005
 
 Layer 4 — Transactions and state
 T401 Note creation and recipient encryption              <- T104, T203, T204
-T305 Cryptographic transaction feasibility gate          <- T004, T005, T202, T204, T304, T401
-T402 Transaction codec, builder and authorization hash   <- T202, T301, T305, T401
-T403 Commitment/nullifier state and atomic application   <- T302, T402
+T402 Transaction codec, builder and authorization hash   <- T002, T201, T202, T401
+T006 Early receiving/transport feasibility screen        <- T004, T005, T401, T402
+T305 Cryptographic transaction feasibility gate          <- T004, T005, T006, T202, T204, T304, T402
+T403 Commitment/nullifier state and atomic application   <- T302, T402, T305
 T404 Wallet scanning and spending                        <- T204, T401, T402, T403
 T405 Selective disclosure and bounded payment policies   <- T204, T304, T404
 
@@ -176,7 +177,7 @@ Layer 5 — Consensus and issuance
 T501 Versioned GHOSTDAG consensus profile                <- T001, T002
 T509 PoW hardware contestability study                   <- T001, T004, T005, T201, T501
 T502 Header, selected PoW and deterministic DAA          <- T201, T501, T509
-T510 Post-quantum upgrade governance and activation      <- T001, T002, T202, T501, T502
+T510 Post-quantum upgrade governance and activation      <- T001, T002, T202, T204, T302, T403, T501, T502
 T503 Canonical DAG-to-state ordering                     <- T403, T501, T502
 T506 Monetary-security decision                          <- T001, T004, T005, T501, T509
 T504 Rewards, selected supply policy and genesis         <- T503, T506
@@ -205,6 +206,23 @@ activation.
 T605 remains outside proof soundness and precedes full-node recovery.
 T701 depends directly on T510 and the integrated T604 result; T604's dependency
 closure already contains every other implementation and evidence task.
+
+Layers group responsibilities, not execution rounds: cross-layer prerequisites
+are intentional. In particular, T401 and T402 finish before T301; T006 screens
+the frozen output/packet envelope before T305; T403 begins state integration
+only after T305. T002 freezes common rules, while each domain task freezes its
+own detailed interface before implementation. T401 accepts the abstract
+encryption context defined in specification Section 6.1; T402 supplies its
+canonical derivation, so T401 does not depend on the later codec. T402 encodes
+the effects and an opaque, bounded proof-envelope interface; T304 later freezes
+and implements its concrete proof representation. There is one codec, reused
+by T305 and the integrated system, not a prototype-only transaction contract.
+
+T003/T004 pass on independently exercised harness/calibration fixtures, not on
+future protocol results. Component conformance and real workloads are accepted
+by their later tasks. T202 reports primitive conformance and a circuit interface;
+T304/T305 own measured in-proof costs. A domain interface change invalidates
+its dependent evidence and requires a new campaign, never a hidden back edge.
 For each monetary campaign, T506 freezes the exact fee, controller, pool, and
 burn rule before T504. T508 may reject but cannot edit that rule in place; a
 rejection starts a new versioned T506 campaign and rebuilds dependent
@@ -240,23 +258,29 @@ R1–R12. **Reject:** “quantum-safe,” “anonymous,” “decentralised,” 
 “ASIC-resistant,” or “sustainable security” appears without a defined game,
 adversary, metric, and boundary.
 
-## T002 — Canonical serialization and domain registry
+## T002 — Common encoding rules and domain registry
 
-**Objective:** Specify every consensus byte and hash domain before code.
+**Objective:** Freeze common encoding rules and the domain-registry contract;
+require each later domain owner to freeze its exact fields before consumer code.
 
 **Deliverables:**
 
-- field-by-field encodings, endian rules, length widths, maxima, rejection
-  behavior, version and chain binding;
+- endian, length-width, canonicality, rejection, version and chain rules;
+- an owner map for detailed fields/maxima: T103 commitments, T202–T204 keys,
+  T401 notes/encryption, T402 transaction effects/digests, T303/T304 proofs,
+  T502 headers and T504 monetary/genesis data;
 - registry for transaction ID, authorization, note, nullifier, Merkle,
   transcript, block, PoW, KDF, address, and upgrade domains;
-- output length and required security property for every hash domain;
+- registry fields for output length and security property, which each named
+  owner must instantiate and review before that hash domain is consumed;
 - parser limits and cost ordering;
 - replay and downgrade rules.
 
-**Pass:** a second team can create the same bytes without reading an
-implementation. **Reject:** implicit serialization, trailing bytes, unbounded
-vectors, unknown-version fallback, or one hash reused across purposes.
+**Pass:** independent teams agree on common-rule vectors and each detailed
+format has a named freeze task before its consumer. This task cannot certify
+not-yet-selected proof, commitment or header bytes. **Reject:** implicit
+serialization, trailing bytes, unbounded vectors, unknown-version fallback,
+unowned future fields, or one hash reused across purposes.
 
 ## T003 — Test-vector and interoperability harness
 
@@ -271,8 +295,10 @@ cross-language vectors.
 - deterministic generator revision and independently checked expected values;
 - runner contract for at least two implementations.
 
-**Pass:** clean-room implementations agree byte-for-byte and reject every
-negative vector. Generated expected values MUST NOT be produced by the same
+**Pass:** independent harness implementations agree on the common-rule and
+calibration vectors and reject their negative cases. Later component tasks
+must supply and pass their actual protocol vectors. Generated expected values
+MUST NOT be produced by the same
 code path being tested without independent confirmation.
 
 ## T004 — Benchmark and artifact harness
@@ -284,8 +310,8 @@ reproducible.
 
 - pinned operating systems, compilers, CPU features, memory, disks, network
   topology, clock source, and revisions;
-- deterministic workload generator with private note creation, proofs,
-  conflicts, malformed traffic, delay, and reorgs;
+- workload schema, generator interface and calibration fixtures for later
+  private notes, proofs, conflicts, malformed traffic, delay and reorgs;
 - separate channels for current transaction/proof/state data, gossip copies,
   current authenticated state, prunable history, durable recovery data,
   wallet maintenance, and provider traffic;
@@ -296,8 +322,10 @@ reproducible.
 - raw metrics, logs, hashes, manifests, and report generator;
 - accepted-state-transition throughput as the primary metric.
 
-**Pass:** an independent lab reproduces the reported result within a declared
-tolerance. **Reject:** “latest stable,” unpublished cloud shape, submitted TPS,
+**Pass:** an independent lab reproduces the harness's calibration result and
+validates counters, timing, resource attribution and artifact integrity.
+Protocol runs must later use real task-owned implementations and pass their
+own frozen tolerances. **Reject:** “latest stable,” unpublished cloud shape, submitted TPS,
 warm-cache-only measurement, or missing raw artifacts.
 
 ## T005 — Operability-profile freeze
@@ -317,17 +345,52 @@ success, inclusion delay under defined censorship, pooled-mining overhead,
 specialised-hardware efficiency, and manufacturer, fabrication, supplier,
 cloud, and pool concentration.
 
+T005 also freezes the T006 envelope: candidate output-format constraints, conservative
+not-yet-measured proof/packet sizes, outputs per second, client/provider counts,
+offline intervals, scan and retrieval bytes/time/energy, missed-note and
+false-positive limits, observer advantage, cover traffic, idle cost, and
+delivery/latency bounds. Each modelled component must be identified. This
+envelope is instantiated with T401/T402 artifacts in T006 and rechecked
+against measured T305 sizes before integration. T005 does not require the
+later output codec or complete proof implementation to exist.
+
 At least three independently obtainable observations in multiple regions are
 required for any hardware, connectivity, or price claim. Calibration evidence
 must be labelled and cannot be reused as the passing campaign after a profile
 is changed.
 
 **Pass:** the accountable owner and independent performance reviewer freeze one
-profile before T305, T306, T507–T509, or T602–T605 results are interpreted.
+profile before T006, T305, T306, T507–T509, or T602–T605 results are interpreted.
 **Reject:** a threshold follows the observed result; cloud burst capacity is
 hidden; required accelerator, prover, state provider, or archive work is
 assigned outside the measured role; or a new profile reclassifies an old
 campaign.
+
+## T006 — Early receiving/transport feasibility screen
+
+**Objective:** Detect an infeasible receiving or anonymous-transport cost
+envelope before the complete T305 proving campaign and state/node integration.
+
+**Deliverables:** T004 method and signed T005 bounds; real T401 output
+generation and recipient scan/decryption fixtures using T402 context bytes;
+full-scan baseline and any proposed private-retrieval comparator; online and
+offline catch-up measurements; client and provider compute, bytes, storage,
+energy and query-leakage accounting; malicious-output and missed-note cases;
+packet-size/traffic simulation for batching, mixing, cover traffic, idle
+clients, failures and correlated retries under the T001 observer; raw artifacts;
+and independent performance and network-privacy review. Proofs or transport
+components not yet implemented are explicitly modelled, with a frozen size
+and cost sweep rather than fictitious throughput or anonymity evidence.
+
+**Pass:** return NOT_RULED_OUT only if at least one candidate satisfies all
+applicable frozen screening thresholds throughout the declared envelope,
+including required evidence and privacy assumptions. This permits T305; it is
+not G6 or implementation-level R1/R2 assurance. **Reject:** return STOP if no
+candidate qualifies, evidence is missing, a private retrieval provider's work
+is omitted, or simulated cryptography is presented as an implemented protocol.
+Out-of-envelope T305 measurements require a new reviewed T006 campaign before
+integration; they cannot widen the passing envelope retroactively. T404,
+T602 and T604 retain full implementation and final acceptance ownership.
 
 ## T101 — Field and extension-field arithmetic
 
@@ -401,7 +464,7 @@ collision-dependent consensus digest meets R3.
 ## T202 — Hash-based authorization comparison
 
 **Objective:** Compare exact FIPS 205
-<code>SLH-DSA-SHAKE-256f</code> with an independently specified TzEL-shaped
+<code>SLH-DSA-SHAKE-256f</code> and <code>SLH-DSA-SHAKE-256s</code> with an independently specified TzEL-shaped
 one-time baseline and, if applicable to the wallet model, one exact NIST
 SP 800-208 stateful profile.
 
@@ -412,10 +475,18 @@ randomization and state-transition choices for every arm; official KATs where
 available; canonical key/signature encodings; authorization digest; key-erasure
 and side-channel rules; state-index allocation, crash, backup/restore,
 concurrency, exhaustion, recovery, and desynchronisation cases; malformed
-signature/state corpus; per-arm proof-circuit cost report; FIPS 205
+signature/state corpus; per-arm in-proof verification interface; FIPS 205
 message-bound-signature analysis and any reviewed transformation; signed
 applicability decision for the NIST stateful arm before benchmark results are
 viewed.
+
+T304/T305 own measured in-proof cost and complete signing-plus-proving latency.
+Both standardised stateless profiles require full KAT and security treatment;
+signature size is not a proxy for proof cost. A separately registered
+SP 800-230 exploratory arm must identify the draft revision and demonstrate
+how its 2^24-signatures-per-key limit covers every device, retry and backup
+restore. An inapplicable draft arm may be excluded only by a signed decision
+before its results are viewed; it cannot replace a required FIPS 205 arm.
 
 **Pass:** both implementations match applicable KATs and shared vectors,
 reject malformed/non-canonical inputs and state misuse, and expose all
@@ -457,7 +528,10 @@ warning; domain-separated post-quantum child derivation;
 spend/nullifier/encryption key separation; incoming-view,
 full-wallet-view, transaction-disclosure, and auditor-scoped capability
 derivation; canonical scope encodings; canonical lower Base32 address vectors;
-memory-hard wallet-storage KDF; recovery tests.
+memory-hard wallet-storage KDF; recovery tests; immutable note-creation versus
+active transaction-profile interpretation; historical signing-key retention
+and recovery; and the interface for T510 to validate any migration without
+changing old nullifiers or silently stranding unspent notes.
 
 **Pass:** BIP-39 official vectors and Quantum derivation/address/disclosure
 vectors match both implementations; the complete generated master-secret
@@ -510,6 +584,15 @@ anchor/public-state binding; digest length derived from T001/T201 for Merkle
 collision and second-preimage requirements; invalid-path and alternate-tree
 vectors.
 
+The nullifier relation MUST implement specification Section 5.6.1: the opened
+note and bound secret, constrained leaf position, chain and immutable creation
+profile identify the instance. It must preserve spendability for duplicated
+commitments at different accepted positions and preserve one spent identity
+across anchors and transaction-version changes. Exact construction/security
+analysis remains a gate. Include duplicate notes across transactions,
+sender-chosen randomness, swapped positions, changed active versions, and
+the T403/T510 rollback/migration interface in the vector contract.
+
 **Pass:** all paths and indices are bound, invalid paths fail, and no public
 field creates a direct note-to-nullifier link. The selected digest length MUST
 meet R3 after multi-target and lifetime losses. **Reject:** path direction is
@@ -538,9 +621,16 @@ proofs.
 
 **Deliverables:** independent prover/verifier interfaces; streaming/resource
 limits; transcript vectors; malformed-proof corpus; deterministic failure
-codes; individual and, if selected, aggregate wire mode; exact binding of an
-aggregate to the ordered transactions, public inputs, and pre/post-state;
+codes; individual and, if selected, aggregate wire mode under the signed T402
+proof policy; separate effects and proof-carriage commitments; binding of an
+aggregate to ordered effects and public inputs; an explicit state-context
+interface whose exact Quantum relation is supplied by T503–T505;
 differential/fuzz tests; measured proof generation and verification.
+
+Before T503–T505, any aggregate state relation is a labelled feasibility
+surrogate, not a claim of canonical DAG-state validity. T305 measures the
+complete private-transaction relation and the selected aggregation mechanism;
+the exact consensus relation is subsequently revalidated by T505/T604.
 
 **Pass:** invalid witnesses and mutated proofs fail; both implementations
 interoperate; aggregate mode omits replaced individual proofs; performance is
@@ -603,13 +693,17 @@ pre-registered material-benefit criteria; clearly labelled reproduced versus
 author-reported prior-work measurements; raw artifacts; and a signed
 GO/ADAPT/REPLICATE/STOP decision.
 
-**Pass:** the run satisfies every T004 method and every T005 threshold frozen
+**Pass:** the run reuses the canonical T402 codec and staged digest vectors,
+its actual output/packet sizes remain within a NOT_RULED_OUT T006 envelope,
+and it satisfies every T004 method and every T005 threshold frozen
 before it began, without mock signatures, omitted relations, disabled zero
 knowledge, retained individual proofs in aggregate mode, unreported
 preprocessing, hidden digest-only payload/provider traffic, or post-result
 benefit criteria. Retaining the stateless profile
 additionally requires a material pre-registered benefit over every qualifying
-stateful arm. **Reject:** no arm meets the frozen client, verifier, wire, and
+stateful arm. The 256f incumbent and 256s comparator are evaluated separately;
+retaining 256s requires a versioned profile decision before integration.
+**Reject:** no arm meets the frozen client, verifier, wire, and
 aggregate budgets. A reject returns the signature, commitment, relation, proof
 profile, or explicit system requirements to research; it MUST NOT be deferred
 to node optimisation.
@@ -620,8 +714,9 @@ to node optimisation.
 without publishing recipient or amount.
 
 **Deliverables:** note plaintext schema; commitment randomness; encryption
-witness; diversified recipient data; authenticated binding to transaction and
-output index; receiver-anonymity/key-privacy analysis linked to T001/T203;
+witness; diversified recipient data; authenticated binding to the pre-encryption
+context and output index from specification Section 6.1; immutable committed
+note-creation profile; receiver-anonymity/key-privacy analysis linked to T001/T203;
 sender/recipient test vectors; failure and deletion behavior.
 
 An output-creation API MUST receive all data needed by the final note
@@ -639,14 +734,26 @@ the recipient.
 **Objective:** Construct and parse the exact public transaction while keeping
 private witnesses off-ledger.
 
-**Deliverables:** canonical codec; maximum counts/sizes; dedicated sighash;
-builder state machine; duplicate handling;
-expiry/anchor/authorisation-profile/proof-mode binding; negative parser corpus.
+**Deliverables:** canonical effects codec; maximum counts/sizes; acyclic
+pre-encryption-context/effects-ID/authorisation-digest schedule from
+specification Section 6.1; builder state machine; duplicate handling;
+expiry/anchor/fee-context/authorisation-profile/proof-policy binding;
+pre-signing resource-weight contract; opaque bounded envelope interface for
+T304; stage-by-stage vectors and negative parser corpus. The envelope's
+concrete proof encoding is owned by T304, not guessed here.
 
 **Pass:** round trips are byte-stable, alternate encodings fail, and every
 mutable semantic field changes the authorization digest. **Reject:** parser
 fallbacks, unbounded allocation, signature malleability, or unknown fields
 silently ignored.
+
+Proof re-randomisation or policy-permitted aggregation must leave effects ID
+and authorisation unchanged; effect mutation must invalidate the signature,
+and an envelope bound to different effects must fail proof/block validation.
+The same codec and
+builder must be used by the feasibility experiment and integrated wallet.
+No transaction may require its own ciphertext, proof, or concrete aggregate
+identifier before those artifacts can be produced.
 
 ## T403 — Commitment/nullifier state and atomic application
 
@@ -658,6 +765,12 @@ nullifier checks; snapshot/recovery format; reorg journal; concurrency model;
 invariants and crash tests; role-specific current-state representations; and,
 if witness-carrying state is proposed, exact membership/non-membership, append,
 update, batch, rollback and anti-replay witnesses plus wire/provider costs.
+
+State indexes and wallet records must retain authenticated note-instance
+identity. Revert removes orphaned positions and dependent spends before replay;
+duplicate commitments at different positions cannot overwrite one wallet
+entry. The T302 nullifier-domain contract persists across active-version
+changes; T510 later validates the exact upgrade/migration policy against it.
 
 Transaction verification MUST take an explicit immutable state/anchor context.
 A stateless <code>Transaction::verify()</code> is insufficient for global
@@ -673,8 +786,10 @@ or provider work omitted from the R9/R10 role report.
 
 **Objective:** Build deterministic private wallet behavior over T401–T403.
 
-**Deliverables:** scan/decrypt pipeline; note and nullifier tracking; spend
-selection; proof/sign/build flow; reorg rollback; scoped disclosure export and
+**Deliverables:** scan/decrypt pipeline; authenticated note-instance and
+nullifier tracking, never commitment-only indexing; spend selection;
+the specification's Section 6.1 encryption/sign/proof construction flow; post-reorg witness
+refresh and rollback; historical-note recovery; scoped disclosure export and
 receipt verification; disclosure limitations; secure deletion; user-facing
 finality and fee semantics; and, if the selected state profile requires wallet
 witnesses, online updates, offline recovery from multiple untrusted providers,
@@ -810,6 +925,15 @@ issuance or fee liabilities, an emergency proposal changes protected monetary
 rules, or different honest nodes can activate different versions from the same
 inputs.
 
+T510 additionally owns historical-note continuity under R7.10: immutable
+creation profiles, stable spent-nullifier identity, historical signature
+verification, retained key recovery, and any explicit consume-old/create-new
+migration. Publish activation, offline restore, repeated migration, profile
+retirement and rollback vectors against T204/T302/T403. A spent note must not
+become spendable after an upgrade and an unspent note must have the declared
+spending or migration path. These are approval prerequisites, not a signature
+downgrade or an implicit historical-format fallback.
+
 ## T503 — Canonical DAG-to-state ordering
 
 **Objective:** Prove and implement one deterministic state transition order for
@@ -821,6 +945,17 @@ selection boundary; pre/post-state commitments; reorg semantics; model checker
 or equivalent state exploration; adversarial DAG vectors; interface for T508
 to compare ordering/incentive candidates without changing canonical state
 semantics silently.
+
+Specify the exact header/checkpoint execution context and whether its own
+body is included or deferred. Distinguish malformed/cryptographically invalid
+blocks from contextually rejected transactions. Honest parallel conflicts
+skip only the losing transaction, with no output, nullifier or monetary effect.
+Instantiate or explicitly replace specification Section 7.3.1's symbolic
+sibling/merge/reorg example, then generate independent byte/root vectors.
+T503 freezes an accounting interface; T504 supplies reward/fee/controller
+semantics and revalidates this model, so T503 does not require future monetary
+results. A different canonical history can select a different spend only after
+complete rollback; header roots are never compared across execution contexts.
 
 **Pass:** all implementations converge on accepted transactions and state root
 under permutations, delays, conflicts, and reorgs. **Reject:** parallel blocks
@@ -1132,7 +1267,7 @@ Every relevant implementation must preserve a permanent regression test for:
 | A002 | Input/output balance equal only modulo the proof field | Proof unsatisfiable |
 | A003 | 65,535 + 1 crosses an unconstrained limb carry | Correct integer result only |
 | A004 | Output commitment and encrypted output describe different notes | Rejected |
-| A005 | Authorization omits fee, output, chain, anchor, authorisation profile, or proof mode | Rejected |
+| A005 | Authorization omits fee, fee context, output, chain, anchor, authorisation profile, or proof policy | Rejected |
 | A006 | Same nullifier in one transaction, block, parallel block, or reorg | At most canonical first spend accepted |
 | A007 | Header declares an easier target than the DAA computes | Block rejected |
 | A008 | Honest nodes use different local clocks on the same DAG | Identical consensus result |
@@ -1166,8 +1301,31 @@ Every relevant implementation must preserve a permanent regression test for:
 | A036 | Maximum transaction weight/rate, interval accumulation, multiplication, addition, or <code>ceil_div</code> reaches an integer boundary | Exact-width checked arithmetic matches mathematical-integer vectors; overflow, underflow, wrap, saturation, negative values, and zero divisors are rejected |
 | A037 | A normal or emergency upgrade rewrites accrued issuance, erases/reclassifies a fee-pool liability, or changes protected monetary rules without a new T506 campaign | T510 rejects the transition; an emergency cannot change the cap semantic, issuance schedule, fee allocation, or value-conservation equations |
 | A038 | Genesis uses a non-zero implicit pool, inconsistent cumulative issuance, or implementation-local controller epoch/rates | Genesis is rejected unless the pool is zero, issuance equals the explicitly authorised genesis subsidy, and epoch/rates match canonical constants |
+| A039 | A sender repeats a note/commitment across transactions at distinct accepted leaf positions | Distinct authenticated instances remain independently spendable; wallet records do not collapse them |
+| A040 | Active transaction version changes or a migration is replayed for an old note | Spent identity remains consumed; an unspent historical note retains its declared spending/migration path |
+| A041 | Nullifier uses a swapped leaf position or a position from an orphaned history | Membership and instance checks reject it; rollback/replay matches clean evaluation |
+| A042 | Encryption requires the final txid, or signing requires the proof or concrete aggregate identifier produced afterwards | T402 construction is rejected as cyclic; stage vectors use only prior outputs |
+| A043 | Proof is re-randomised/aggregated, or effects are swapped under its envelope | Permitted representation changes preserve effects ID and authorisation; changed effects or invalid envelope binding fail |
+| A044 | Parallel valid bodies conflict or a sibling root is checked in the merge context | Only canonical first spend has state/fee effects; roots are checked in their declared context; rollback restores all effects |
+| A045 | Actual T305 payload/proof sizes exceed the T006 screening envelope | Integration stops pending a new reviewed campaign; no retroactive threshold change |
+| A046 | SP 800-230 key-use limit is exceeded through retries, multiple devices or restored backups | Exploratory arm is inapplicable or rejected; no final-standard or full-security claim |
+| A047 | Proof encoding or aggregate membership changes after a fee is signed | Fee and effects remain fixed; out-of-profile carriage fails admission instead of repricing the transaction |
 
 These are minimum cases, not a complete security test suite.
+
+The new scenarios have the following explicit requirement/task/gate mapping.
+These are planned obligations; no row records executed tests or a passed gate.
+
+| Scenarios | Requirements | Responsible tasks | Evidence gates |
+|---|---|---|---|
+| A039 | R1.7 | T302, T403, T404 | G4, G5, G8 |
+| A040 | R7.10 | T204, T302, T403, T510 | G4, G5, G9; T701 activation review |
+| A041 | R1.7, R4, R5 | T302, T403, T503 | G4, G5, G8 |
+| A042–A043 | R4, R7, R8 | T304, T401, T402, T305 | G3, G3A, G4, G8 |
+| A044 | R4, R5 | T403, T503, T504 | G5, G8, G13 |
+| A045 | R1, R2, R6, R9 | T005, T006, T305 | G3B; later G6, G7, G10 remain open |
+| A046 | R3, R4 | T001, T202, T204, T305 | G3A, G4, G9 |
+| A047 | R4, R6, R12 | T402, T304, T305, T506 | G3A, G4, G13 |
 
 # 8. Performance and capacity report
 
@@ -1224,6 +1382,11 @@ specification limit.
 
 ## Transaction soundness
 
+- [ ] T402 stages encryption context, effects ID, authorisation and proof
+      carriage without self-reference and fixes resource weight before signing.
+- [ ] Duplicate notes across transactions have distinct authenticated instances;
+      nullifiers and historical-note access remain correct across upgrades.
+
 - [ ] Each input value is bound to an opened member commitment.
 - [ ] Each output value is bound to its public output commitment.
 - [ ] Authorization key is bound to the spent note.
@@ -1247,11 +1410,17 @@ specification limit.
 
 ## Product boundary and performance
 
+- [ ] T006 screening thresholds and modelled components are explicit; actual
+      T305 sizes remain in the screened envelope before state/node integration.
+- [ ] Both standardised stateless arms (256f and 256s) are measured, and any
+      SP 800-230 arm remains exploratory with its total key-use bound enforced.
+
 - [ ] T305 passes before full-node or GHOSTDAG integration starts.
 - [ ] The 2-input/2-output prototype includes every required relation and
       each retained in-proof authorisation arm.
-- [ ] Stateless SLH-DSA is retained only if its frozen material-benefit rule
-      passes against every qualifying stateful comparator.
+- [ ] Each retained stateless arm (256f or 256s) independently passes its
+      frozen material-benefit rule against every qualifying stateful
+      comparator; a failing 256f does not exclude 256s.
 - [ ] Stateful key reuse, exhaustion, crash, restore, rollback, concurrency,
       recovery, and desynchronisation cases are tested.
 - [ ] Wallet latency, parallel proving, verifier cost, wire size, and aggregate
@@ -1398,7 +1567,8 @@ reviewer signs the exact revision.
 
 | Area | Status | Evidence |
 |---|---|---|
-| Requirements draft | IN_PROGRESS | Specification 0.5.3-research |
+| Requirements draft | IN_PROGRESS | Specification 0.5.4-research |
+| Early receiving/transport screen | NOT_STARTED | T006/G3B defined; no measurements or approved envelope |
 | Commitment | NOT_STARTED | No selected construction |
 | Proof profile | NOT_STARTED | No frozen parameters or AIR |
 | Private transaction | NOT_STARTED | Relation drafted; no implementation |
@@ -1455,6 +1625,18 @@ Only these labels may be used:
 At the current revision the project is a **research design**.
 
 # 13. Revision record
+
+## 0.5.4-research — 2026-09-05
+
+- added T006/G3B screening before T305 and retained final wallet/network gates;
+- corrected interface and implementation ordering: common rules in T002,
+  harness-only acceptance in T003/T004, canonical T401/T402 before T301/T305,
+  and measured authorisation costs in T304/T305;
+- added the 256s comparator and explicit limited-use draft applicability;
+- traced note-instance/upgrade continuity and staged transaction digests to
+  their owners, added contextual DAG acceptance, and specified A039–A047;
+- advanced the graph to 41 acyclic tasks without recording a passed task,
+  benchmark, specialist approval, or selected monetary-policy change.
 
 ## 0.5.3-research — 2026-08-25
 

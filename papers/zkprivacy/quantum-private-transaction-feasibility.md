@@ -2,8 +2,8 @@
 title: "Stateless Versus Stateful Hash-Based Authorisation Inside a Private-Transaction STARK"
 subtitle: "Comparative reproducibility protocol for the Quantum 2-input/2-output gate"
 author: "Phexora AI · [phexora.ai](https://phexora.ai)"
-date: "2026-08-09"
-version: "0.3.2-research-protocol"
+date: "2026-09-05"
+version: "0.4.0-research-protocol"
 status: "Research protocol — no implementation, benchmark result, security proof, or feasibility claim"
 license: "CC0-1.0; see repository LICENSE"
 lang: "en-GB"
@@ -17,11 +17,11 @@ keywords:
   - transaction feasibility
   - reproducible benchmarking
 abstract: |
-  This manuscript defines the pre-registration draft for the first blocking
-  experiment in the Quantum research programme: a complete private note
+  This manuscript defines the pre-registration draft for the complete-transaction
+  experiment in the Quantum research programme: a private note
   transaction with exactly two inputs and two outputs, including commitment
   openings, membership, nullifiers, encrypted-note binding, 64-bit integer
-  conservation, and full SLH-DSA-SHAKE-256f verification inside a transparent
+  conservation, and full SLH-DSA-SHAKE-256f/256s verification inside a transparent
   zero-knowledge STARK.
   It treats TzEL's public note/nullifier/ML-KEM/one-time-signature/STARK
   prototype as the closest engineering baseline identified by the scoped review
@@ -41,7 +41,7 @@ abstract: |
 # 1. Status and claim boundary
 
 This is a **research protocol**, not a result paper. At version
-<code>0.3.2-research-protocol</code>:
+<code>0.4.0-research-protocol</code>:
 
 - no complete Quantum transaction prover or verifier exists in this repository;
 - no TzEL-shaped or NIST stateful authorisation baseline has been independently
@@ -68,15 +68,18 @@ implementation must not choose the more convenient interpretation.
 
 The paper owns one decision:
 
-> Does exact FIPS 205 <code>SLH-DSA-SHAKE-256f</code> authorisation inside the
+> Does either exact FIPS 205 stateless profile, <code>SLH-DSA-SHAKE-256f</code>
+> or <code>SLH-DSA-SHAKE-256s</code>, inside the
 > complete Quantum 2-input/2-output relation meet every pre-registered
 > security, latency, memory, proof-size, wire-size, and aggregation threshold,
 > and does it provide a material benefit over a TzEL-shaped one-time baseline
 > and an applicable NIST stateful baseline?
 
-A positive answer may retain the stateless profile and permits research to
-proceed to wallet, node, and consensus integration. A result favouring a
-reviewed stateful profile changes the normative design before that work begins.
+A positive answer may retain the stateless profile. Selecting 256s or a
+reviewed stateful profile requires a versioned profile decision before
+integration. T006 must first return NOT_RULED_OUT for receiving and transport;
+actual T305 formats and sizes must remain inside its frozen envelope before
+wallet, node and consensus integration may proceed.
 If no arm meets the frozen requirements, the signature, commitment,
 transaction relation, proof profile, or system requirements return to research,
 or the project stops. Failure is not relabelled as a future node optimisation.
@@ -118,8 +121,8 @@ The representative relation includes all of the following at once:
 4. two public output commitments and their private openings;
 5. binding between each output and its public encrypted-note payload;
 6. complete verification of input authorisation under every retained
-   comparison profile, including exact <code>SLH-DSA-SHAKE-256f</code> for the
-   stateless incumbent;
+   comparison profile, including exact <code>SLH-DSA-SHAKE-256f</code> and
+   <code>SLH-DSA-SHAKE-256s</code>;
 7. canonical 64-bit values, limb ranges, carries, a public fee, and exact
    integer conservation;
 8. one frozen transparent STARK transcript and zero-knowledge profile; and
@@ -200,8 +203,8 @@ comparison.
 The candidate contribution is now a comparative decision rather than a new
 private-payment architecture:
 
-1. exact FIPS 205 <code>SLH-DSA-SHAKE-256f</code> as a standardised stateless
-   challenger to TzEL-shaped one-time authorisation;
+1. exact FIPS 205 <code>SLH-DSA-SHAKE-256f</code> and
+   <code>SLH-DSA-SHAKE-256s</code> as standardised stateless challengers to TzEL-shaped one-time authorisation;
 2. an applicable NIST SP 800-208 XMSS/XMSSMT or LMS/HSS profile as a separate
    stateful standards comparator, if its hardware and state requirements can be
    met [SP800208];
@@ -294,7 +297,7 @@ versioned T005 value before the first measured feasibility run.
 
 | ID | Hypothesis | Required owner(s) |
 |---|---|---|
-| H0 | At least one authorisation arm meets all frozen requirements; Arm C is retained only if its pre-registered material benefit justifies its measured overhead over the qualifying stateful arms | T001/T202/T305; T005 for any numeric benefit threshold |
+| H0 | At least one authorisation arm meets all frozen requirements; a stateless arm is retained only if its pre-registered material benefit justifies its measured overhead over the qualifying stateful arms | T001/T202/T305; T005 for any numeric benefit threshold |
 | H1 | Both implementations accept every valid canonical vector and reject every invalid vector identically | T003/T004 |
 | H2 | Complete desktop proving p95 and p99 do not exceed <code>L_desktop_p95</code> and <code>L_desktop_p99</code> | T005 |
 | H3 | Complete constrained-client proving p95 and p99 do not exceed <code>L_client_p95</code> and <code>L_client_p99</code> | T005 |
@@ -322,6 +325,12 @@ place 99,712 signature bytes in the private witness before keys, notes,
 membership paths, or proving-system data are counted. These bytes need not be
 on the public transaction wire if verification is proved in zero knowledge,
 but all required hash work remains part of the proved computation.
+
+For <code>SLH-DSA-SHAKE-256s</code>, FIPS 205 gives 29,792 signature bytes,
+or 59,584 bytes for two independently authorised inputs. Arm D must measure
+complete signing and proving alongside Arm C; fewer witness bytes alone do
+not establish lower latency, smaller public proofs, or the composed security
+target. FIPS 205 Table 2 is the source of both sizes.
 
 FIPS 203 specifies a 1,568-byte ciphertext for <code>ML-KEM-1024</code>. A
 one-ciphertext-per-output profile would place at least 3,136 KEM ciphertext
@@ -363,9 +372,11 @@ PublicTransaction {
     output_commitments[2]
     encrypted_note_payloads_or_digests[2]
     fee_u64
+    fee_context
     expiry_context
+    transaction_flags
     authorisation_profile
-    proof_mode
+    proof_policy
 }
 ~~~
 
@@ -385,10 +396,22 @@ must also produce the complete encrypted note payloads and report separately:
 - payload-provider and retrieval bandwidth; and
 - availability and retention assumptions.
 
-Every digest must bind the exact payload, output index, transaction, protocol
-version, and chain context. An external payload required for receipt, scanning,
+Every payload digest binds the resulting ciphertext. The pre-encryption
+associated data binds output index, commitment and semantic context; the final
+effects ID then binds that payload digest under specification Section 6.1.
+The ciphertext must not depend on the final ID. An external payload required for receipt, scanning,
 recovery, or spending remains part of client and system feasibility even when
 it is not part of the layer-1 transaction encoding.
+
+The experiment reuses T402's canonical effects codec, pre-encryption context,
+effects ID, authorisation digest and proof-policy interface. T304 supplies a
+separate bounded proof envelope; it is not an input to the signature it proves.
+The explicit fee context uses the selected static or dynamic profile, including
+epoch/weight fields when applicable. Eventual proof size or aggregation cannot
+reprice an already signed transaction. T305 may use a frozen static-fee
+instance; a later dynamic T506 profile must revalidate the exact relation and
+costs before integration claims. The codec cannot be replaced with a
+prototype-only format that omits semantic fields.
 
 ## 6.2 Private witness
 
@@ -427,7 +450,8 @@ The AIR or equivalent relation must establish:
 1. canonical version, chain, asset, and domain context;
 2. both input commitment openings;
 3. both complete membership paths against the public anchor;
-4. both nullifiers derived from the corresponding opened notes and bound keys;
+4. both nullifiers bound to the opened notes, keys, authenticated positions
+   and immutable creation profiles under specification Section 5.6.1;
 5. local nullifier uniqueness;
 6. both authorisation keys bound by their opened input notes;
 7. two complete verifications for the declared authorisation profile over the
@@ -440,8 +464,8 @@ The AIR or equivalent relation must establish:
 11. carry-constrained integer equality
     <code>input_0 + input_1 = output_0 + output_1 + fee</code>;
 12. output-commitment uniqueness; and
-13. agreement of counts, ordering, flags, expiry, authorisation profile, and
-    proof mode across the statement, signed digest, encryption binding, and
+13. agreement of counts, ordering, flags, expiry, fee context, authorisation profile, and
+    proof policy across the statement, signed digest, encryption binding, and
     proof.
 
 Global nullifier freshness, current-anchor admissibility, expiry, and
@@ -477,25 +501,36 @@ arm:
 - in-circuit hash and address/domain encodings;
 - malformed-key and malformed-signature behaviour.
 
-The experiment starts with three arms:
+The experiment starts with four arms:
 
 1. **Arm A — TzEL-shaped one-time baseline:** an independently specified
    WOTS/XMSS-style relation that reproduces the public one-time and tree-state
    design questions without copying TzEL code;
 2. **Arm B — NIST stateful comparator:** one exact XMSS/XMSSMT or LMS/HSS
    profile from NIST SP 800-208, retained only if its controlled key-generation
-   and state requirements are applicable to the intended wallet model; and
+   and state requirements are applicable to the intended wallet model;
 3. **Arm C — Quantum incumbent:** exact FIPS 205
    <code>SLH-DSA-SHAKE-256f</code>, including the FIPS API, message-bound
    signature caveat, official KATs, and randomised or deterministic signing
-   choice.
+   choice; and
+4. **Arm D — Standardised stateless comparator:** exact FIPS 205
+   <code>SLH-DSA-SHAKE-256s</code> under the same complete relation, KAT,
+   message-bound-signature, security and measurement requirements as Arm C.
 
 For Arms A and B, the security and operational analysis must cover key-index
 allocation, crash consistency, backup/restore rollback, concurrent signing,
-key exhaustion, device loss, recovery, and state desynchronisation. For Arm C,
+key exhaustion, device loss, recovery, and state desynchronisation. For Arms C and D,
 it must quantify the statelessness benefit and the full additional proving
 cost. NIST SP 800-230 is an initial public draft at the evidence cut-off, not a
 final source of protocol parameter sets [SP800230].
+
+The scoped NIST update checked on 2026-09-05 still lists SP 800-230 as an
+initial public draft, titled Additional SLH-DSA Parameter Sets for
+Limited-Signature Use Cases. A separately preregistered exploratory arm must
+pin the exact draft and enforce its 2^24-signatures-per-key lifetime ceiling
+across devices, retries and backup restores. It cannot silently replace
+either required FIPS 205 arm or be described as a final standard. Signature
+generation, not merely accepted on-ledger spends, counts toward that limit.
 
 A proof-friendly research signature may be measured only as a separately
 labelled exploratory arm. It cannot silently replace any arm or become
@@ -595,10 +630,27 @@ At minimum, each implementation must reject a proof attempt or proof for:
 16. an aggregate proof bound to a different ordered transaction set;
 17. reuse of a one-time key or state index;
 18. state rollback after backup restore or interrupted signing;
-19. a signature from an exhausted or different authorisation tree; and
-20. a transaction that mixes authorisation profiles across its inputs.
+19. a signature from an exhausted or different authorisation tree;
+20. a transaction that mixes authorisation profiles across its inputs;
+21. a nullifier bound to a different leaf position or creation profile;
+22. a changed ciphertext/fee context with the old effects ID or signature; and
+23. an envelope carrying effects not authorised by its admitted proofs.
+
+Integration vectors must additionally cover identical notes accepted in
+separate transactions, old-note spending across active-version changes,
+reorged positions, and exactly-once migration. These use T403/T510 state
+contexts; a T305 AIR-only pass does not prove global freshness. Positive
+vectors must show that policy-permitted proof replacement preserves txid and
+fee. Builder tests reject self-referential digest dependencies and
+out-of-profile proof carriage; no fixed-point search is an accepted builder.
+The full corpus includes A039–A047 from the verification guide where relevant.
 
 # 9. Benchmark protocol
+
+T006 must have a signed NOT_RULED_OUT result before this campaign. The report
+must link its envelope and compare measured output, proof and packet sizes
+against it. A mismatch stops integration and requires a new reviewed screen;
+T305 cannot promote simulation into receiving or anonymity assurance.
 
 ## 9.1 Pre-registration
 
@@ -615,7 +667,7 @@ artifact harness, and environment:
 
 T202 and T305 must publish and sign the rule for excluding an inapplicable NIST
 SP 800-208 arm before results are viewed, including reviewer rationale, and the
-material-benefit rule for retaining stateless Arm C. T005 must then publish and
+material-benefit rule for retaining each stateless arm (C and D). T005 must then publish and
 sign every numerical acceptance threshold, including:
 
 - p95 and p99 latency, memory, verifier, proof, wire, and aggregate budgets;
@@ -724,6 +776,7 @@ The experiment first applies the common evidence gate. An arm qualifies only
 if all of the following are true:
 
 - the frozen relation contains every required constraint;
+- a signed T006 screen covers the actual output, proof and packet sizes;
 - two genuinely independent implementations interoperate;
 - every positive and negative vector has the expected result;
 - every pre-registered desktop and constrained-client threshold passes;
@@ -736,10 +789,11 @@ if all of the following are true:
 
 The signed result then uses exactly one classification:
 
-- **GO — retain stateless:** Arm C qualifies and satisfies the frozen
-  material-benefit rule relative to every qualifying stateful arm.
-- **ADAPT — select stateful:** a reviewed Arm A or B qualifies while Arm C
-  fails or provides no sufficient benefit. The normative specification changes
+- **GO — retain stateless:** Arm C or D qualifies and satisfies the frozen
+  material-benefit rule relative to every qualifying stateful arm. Selection
+  of Arm D changes the normative profile before integration.
+- **ADAPT — select stateful:** a reviewed Arm A or B qualifies while neither
+  stateless arm provides a qualifying material benefit. The normative specification changes
   before integration.
 - **REPLICATE — publish comparison or negative result:** the evidence is
   reproducible and useful but supports no new construction or qualifying
@@ -811,8 +865,8 @@ in any comparison.
   [SP 800-208: Recommendation for Stateful Hash-Based Signature
   Schemes](https://csrc.nist.gov/pubs/sp/800/208/final), 2020.
 - **[SP800230]** NIST,
-  [SP 800-230 initial public draft: Recommendations for Parameter Sets of
-  HSS, XMSS, and SLH-DSA](https://csrc.nist.gov/pubs/sp/800/230/ipd), 2026;
+  [SP 800-230 initial public draft: Additional SLH-DSA Parameter Sets
+  for Limited-Signature Use Cases](https://csrc.nist.gov/pubs/sp/800/230/ipd), 2026;
   non-final at the evidence cut-off.
 - **[TZEL]** TzEL contributors,
   [TzEL whitepaper](https://tzel.tezos.com/whitepaper.pdf), 2026.
@@ -883,6 +937,17 @@ in any comparison.
   [PHANTOM and GHOSTDAG](https://eprint.iacr.org/2018/104.pdf), 2018.
 
 # Appendix A — Revision record
+
+## 0.4.0-research-protocol — 2026-09-05
+
+- added standardised 256s Arm D and bounded any SP 800-230 exploratory arm;
+- reused the canonical T402 effects codec and staged digest schedule, added
+  fee context, and bound input nullifiers to authenticated note instances;
+- required the T006 receiving/transport screen and an actual-size envelope
+  check before integration; this is not wallet or anonymity assurance;
+- added cross-transaction duplicate-note, version-continuity, digest/envelope
+  and fee-carriage negative cases; no experiment or approval is recorded.
+
 
 ## 0.3.2-research-protocol — 2026-08-09
 
